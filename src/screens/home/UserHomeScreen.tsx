@@ -1,5 +1,5 @@
-import Paragraph from '@/src/components/Paragraph';
-import Title from '@/src/components/Title';
+import Paragraph from '@/components/Paragraph';
+import Title from '@/components/Title';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { StyleSheet, View } from 'react-native';
 

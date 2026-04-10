@@ -9,7 +9,7 @@ interface LoadingProps {
 export default function Loading({ size = 'large', fullScreen = false }: LoadingProps) {
     return (
         <View style={[styles.container, fullScreen && styles.fullScreen]}>
-            <ActivityIndicator size={size} color={Colors.secondary} />
+            <ActivityIndicator size={size} color={Colors.primary} />
         </View>
     );
 }

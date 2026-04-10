@@ -1,7 +1,7 @@
+import Colors from "@/src/constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import Colors from "../constants/Colors";
 
 const SIZE_MAP = {
     s: {

@@ -8,4 +8,14 @@ const apiClient = axios.create({
     },
 });
 
+apiClient.interceptors.request.use(config => {
+    // Get tokens
+    return config;
+})
+
+apiClient.interceptors.response.use(response => response, error => {
+    console.log(error);
+    console.log(error.status);
+})
+
 export default apiClient;

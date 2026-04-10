@@ -1,6 +1,6 @@
+import Colors from "@/src/constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Colors from "../constants/Colors";
 
 interface Props {
     id: number,

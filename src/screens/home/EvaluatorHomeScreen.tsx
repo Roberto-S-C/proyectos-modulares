@@ -1,6 +1,5 @@
 import ProjectList from '@/src/components/ProjectList';
 import Title from '@/src/components/Title';
-import { useAuth } from '@/src/contexts/AuthContext';
 import axios, { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from "react-native";
@@ -22,11 +21,10 @@ async function getAccountDetails(id: string): Promise<Account | null> {
 }
 
 export default function EvaluatorHomeScreen() {
-    const { user } = useAuth();
     const [account, setAccount] = useState<Account | null>(null);
 
     useEffect(() => {
-        getAccountDetails(user["cognito:username"]).then(account => setAccount(account))
+        // getAccountDetails(user["cognito:username"]).then(account => setAccount(account))
     }, [])
 
     return (

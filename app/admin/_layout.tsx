@@ -1,9 +1,0 @@
-import { Stack } from "expo-router";
-
-export default function AdminLayout() {
-    return (
-        <Stack>
-            <Stack.Screen name="modules" options={{ headerShown: false }} />
-        </Stack>
-    );
-}
