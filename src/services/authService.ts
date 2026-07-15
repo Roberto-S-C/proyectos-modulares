@@ -4,19 +4,21 @@ import { jwtDecode } from "jwt-decode";
 import { AuthState, AuthStateUser, DecodedIdToken, TokensKeys, TokensResponse } from "../types/auth.types";
 
 const COGNITO_CONFIG = {
-    REGION: 'us-east-2',
-    USER_POOL_ID: 'us-east-2KgY5zcihq',
-    CLIENT_ID: '4u38bkae94s1kqorlc9afib0nr',
+    CLIENT_ID: process.env.EXPO_PUBLIC_COGNITO_CLIENT_ID || '',
     REDIRECT_URI: 'proyectosmodulares://login',
-    SCOPES: ['openid email phone profile']
+    SCOPES: ['openid email phone']
 }
 
-const discovery = {
-    authorizationEndpoint: `https://${COGNITO_CONFIG.USER_POOL_ID}.auth.${COGNITO_CONFIG.REGION}.amazoncognito.com/oauth2/authorize`,
-    tokenEndpoint: `https://${COGNITO_CONFIG.USER_POOL_ID}.auth.${COGNITO_CONFIG.REGION}.amazoncognito.com/oauth2/token`
-}
+const AUTHORIZATION_ENDPOINT = process.env.EXPO_PUBLIC_AUTHORIZATION_ENDPOINT || "";
+const TOKEN_ENDPOINT = process.env.EXPO_PUBLIC_TOKEN_ENDPOINT || "";
+
 
 export const useGetAuthCode = () => {
+    const discovery = {
+        authorizationEndpoint: AUTHORIZATION_ENDPOINT,
+        tokenEndpoint: TOKEN_ENDPOINT
+    }
+
     const [request, response, promptAsync] = useAuthRequest(
         {
             clientId: COGNITO_CONFIG.CLIENT_ID,
@@ -34,9 +36,7 @@ export const useGetAuthCode = () => {
 };
 
 export const exchangeCodeForTokens = async (code: string, code_verifier: string): Promise<TokensResponse | undefined> => {
-    const tokenEndpoint = `https://${COGNITO_CONFIG.USER_POOL_ID}.auth.${COGNITO_CONFIG.REGION}.amazoncognito.com/oauth2/token`
-
-    const body = new URLSearchParams({
+    const params = new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: COGNITO_CONFIG.CLIENT_ID,
         code,
@@ -46,12 +46,12 @@ export const exchangeCodeForTokens = async (code: string, code_verifier: string)
 
     let tokens: TokensResponse;
     try {
-        const response = await fetch(tokenEndpoint, {
+        const response = await fetch(TOKEN_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body,
+            body: params,
         });
         tokens = await response.json();
 
@@ -59,6 +59,24 @@ export const exchangeCodeForTokens = async (code: string, code_verifier: string)
         return undefined;
     }
     return tokens;
+}
+
+export const exchangeRefreshToken = async (refresh_token: string) => {
+    const params = new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: COGNITO_CONFIG.CLIENT_ID,
+        refresh_token: refresh_token
+    }).toString();
+
+    const response = await fetch(TOKEN_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+    })
+
+    return await response.json();
 }
 
 export const storeTokens = async (tokens: TokensResponse) => {
@@ -88,7 +106,7 @@ export const decodeIdToken = (id_token: string): DecodedIdToken => {
 }
 
 export const isAuthStateValid = (authState: AuthState | null) => {
-    if (authState && authState.tokens && authState.tokens.access_token && authState.tokens.id_token && authState.tokens.refresh_token && authState.user && authState.user.id && authState.user.roles && authState.user.roles.length > 0) {
+    if (authState && authState.tokens && authState.tokens.access_token && authState.tokens.id_token && authState.tokens.refresh_token && authState.user && authState.user.id) {
         return true;
     }
     return false;
@@ -97,8 +115,8 @@ export const isAuthStateValid = (authState: AuthState | null) => {
 export const initAuthState = async (): Promise<AuthState> => {
 
     let user: AuthStateUser = {
-        "id": null,
-        "roles": []
+        id: null,
+        role: "USUARIO"
     }
 
     let authState: AuthState = {
@@ -115,7 +133,7 @@ export const initAuthState = async (): Promise<AuthState> => {
         authState.tokens = tokens;
         let decodedToken = decodeIdToken(tokens.id_token);
         user.id = decodedToken.sub;
-        user.roles = decodedToken["cognito:groups"];
+        user.role = decodedToken.role;
     }
 
     return authState;

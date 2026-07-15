@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { setApiClientAuth } from '../api/client';
 import { initAuthState, isAuthStateValid } from '../services/authService';
 import { AuthenticationContext, AuthState } from '../types/auth.types';
 
@@ -12,7 +13,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    initAuthState().then(res => setAuthState(res));
+    initAuthState().then(res => {
+      setAuthState(res);
+      if (res.tokens.access_token) {
+        setApiClientAuth(res.tokens.access_token, setAuthState);
+      }
+      else {
+        setApiClientAuth("", setAuthState);
+      }
+    });
   }, []);
 
 

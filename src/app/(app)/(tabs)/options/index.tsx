@@ -13,12 +13,12 @@ export default function OptionsScreen() {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <Image source={require('../../../../assets/images/logo.png')} style={styles.logo} />
+            <Image source={require('@/src/assets/images/logo.png')} style={styles.logo} />
             <View style={styles.optionsContainer}>
                 <SettingsOptionButton text="Perfil" iconName="person-circle" onPress={() => null} />
                 <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => null} />
-                <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={() => {
-                    removeTokens();
+                <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={async () => {
+                    await removeTokens();
                     authContext.setAuthState(null);
                 }} />
             </View>

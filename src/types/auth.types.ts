@@ -25,11 +25,11 @@ export type Tokens = {
     refresh_token: string | null
 }
 
-export type Roles = "ROLE_ADMIN" | "ROLE_ALUMNO" | "ROLE_EVALUADOR" | "ROLE_USUARIO" 
+export type Roles = "ADMIN" | "ALUMNO" | "EVALUADOR" | "USUARIO"
 
 export type AuthStateUser = {
     id: string | null,
-    roles: Roles[]
+    role: Roles 
 }
 
 export type AuthState = {
@@ -41,7 +41,7 @@ export type DecodedIdToken = {
     at_hash: string,
     aud: string,
     auth_time: number,
-    "cognito:groups": [],
+    role: Roles,
     "cognito:username": string,
     email: string,
     email_verified: boolean,
