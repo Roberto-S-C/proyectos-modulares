@@ -1,10 +1,11 @@
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
-import ProjectList from "@/src/components/ProjectList";
+import ProjectList from "@/src/components/Project/ProjectList";
 import Colors from "@/src/constants/Colors";
+import { getProjects } from "@/src/services/projectService";
+import { Project } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from '@react-native-picker/picker';
-import axios, { AxiosResponse } from 'axios';
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,23 +17,11 @@ enum ProjectStatus {
     Approved = 'Aprovado',
 }
 
-interface projectImage {
-    id: number,
-    url: string
-}
+// async function getProjects(): Promise<Project[] | []> {
 
-interface Project {
-    id: number,
-    name: string,
-    status: string,
-    presentation_date: string,
-    images: projectImage[]
-}
-
-async function getProjects(): Promise<Project[] | []> {
-    const response: AxiosResponse<Project[]> = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/projects`);
-    return response.data;
-}
+//     const response: AxiosResponse<Project[]> = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/projects`);
+//     return response.data;
+// }
 
 export default function ProjectsScreen() {
     const [projects, setProjects] = useState<Project[] | [] | null>(null);
@@ -41,8 +30,9 @@ export default function ProjectsScreen() {
     useEffect(() => {
         setIsLoading(true);
         getProjects().then(projects => {
-            setProjects(projects);
-            setIsLoading(false);
+            console.log(projects);
+            // setProjects(projects);
+            // setIsLoading(false);
         });
     }, []);
 

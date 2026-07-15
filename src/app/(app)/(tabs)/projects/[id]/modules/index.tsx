@@ -1,6 +1,6 @@
 import Loading from "@/src/components/Loading";
+import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem";
 import NotFoundItem from "@/src/components/NotFoundItem";
-import ProjectModuleListItem from "@/src/components/ProjectModuleListItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
 import axios, { AxiosResponse } from 'axios';
@@ -47,7 +47,7 @@ export default function ProjectModulesScreen() {
         <SafeAreaView style={styles.screen}>
             {!isLoading && project &&
                 <View style={styles.container}>
-                    <Image source={{ uri: project?.images[0].url }} style={styles.image} />
+                    <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project?.images[0].url}` }} style={styles.image} />
                     <Title text={project?.name} />
                     <FlatList
                         data={project.modules}

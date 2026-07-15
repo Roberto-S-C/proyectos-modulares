@@ -1,6 +1,6 @@
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
-import ProjectFileListItem from "@/src/components/ProjectFileListItem";
+import ProjectFileListItem from "@/src/components/Project/ProjectFileListItem";
 import Title from "@/src/components/Title";
 import Colors from "@/src/constants/Colors";
 import axios, { AxiosResponse } from 'axios';
@@ -62,7 +62,7 @@ export default function ProjectFilesScreen() {
 
             { project && !isLoading &&
                 <View style={styles.container}>
-                    <Image source={{uri: project?.images[0].url}} style={styles.image} />
+                    <Image source={{uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project?.images[0].url}`}} style={styles.image} />
                     <Title text={project.name} />
                     <FlatList 
                         data={project.files}

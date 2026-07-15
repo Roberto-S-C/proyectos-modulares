@@ -46,7 +46,7 @@ export default function ProjectDescriptionScreen() {
 
             { project && !isLoading &&
                 <View style={styles.container}>
-                    <Image source={{uri: project?.images[0].url}} style={styles.image} />
+                    <Image source={{uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project?.images[0].url}`}} style={styles.image} />
                     <Title text={project.name} />
                     <Paragraph text={project.description} />
                 </View>

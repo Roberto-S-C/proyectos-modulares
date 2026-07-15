@@ -56,6 +56,15 @@
             "usesCleartextTraffic": true
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir a la aplicación acceder a la galería.",
+          "colors": {
+            "cropToolbarColor": "#000000"
+          }
+        }
       ]
     ],
     "experiments": {
