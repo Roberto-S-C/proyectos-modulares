@@ -1,6 +1,6 @@
 import Colors from '@/src/constants/Colors';
 import { AuthContext } from '@/src/contexts/AuthContext';
-import { UserRoleTabsLayout } from '@/src/types/tabLayout.type';
+import { AccountRoleTabsLayout } from '@/src/types/tabLayout.type';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import React, { useContext } from 'react';
@@ -10,11 +10,9 @@ export default function TabLayout() {
 
   let visibleTabs: string[] = []
   if (authContext.authState?.user) {
-    let role = authContext.authState.user.roles[0];
-    console.log('Role', role)
-    visibleTabs = UserRoleTabsLayout[role];
+    let role = authContext.authState.user.role;
+    visibleTabs = AccountRoleTabsLayout[role];
   }
-  console.log(visibleTabs)
 
   return (
     <Tabs screenOptions={{
@@ -24,6 +22,11 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{
         title: 'Inicio',
         tabBarIcon: ({ color }) => <Ionicons name='home' size={28} color={color} />,
+        href: visibleTabs.includes('index') ? undefined : null,
+      }} />
+      <Tabs.Screen name="notifications" options={{
+        title: 'Notificaciones',
+        tabBarIcon: ({ color }) => <Ionicons name='notifications' size={28} color={color} />,
         href: visibleTabs.includes('index') ? undefined : null,
       }} />
       <Tabs.Screen name='files' options={{
@@ -36,8 +39,8 @@ export default function TabLayout() {
         tabBarIcon: ({ color }) => <Ionicons name='hammer' size={28} color={color} />,
         href: visibleTabs.includes('projects') ? undefined : null,
       }} />
-      <Tabs.Screen name='users' options={{
-        title: 'Usuarios',
+      <Tabs.Screen name='accounts' options={{
+        title: 'Cuentas',
         tabBarIcon: ({ color }) => <Ionicons name='person' size={28} color={color} />,
         href: visibleTabs.includes('users') ? undefined : null,
       }} />

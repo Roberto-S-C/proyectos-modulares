@@ -2,27 +2,28 @@ import Loading from "@/src/components/Loading";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import AdminHomeScreen from "@/src/screens/home/AdminHomeScreen";
 import EvaluatorHomeScreen from "@/src/screens/home/EvaluatorHomeScreen";
-import MemberHomeScreen from "@/src/screens/home/MemberHomeScreen";
+import StudentHomeScreen from "@/src/screens/home/StudentHomeScreen";
+import UserHomeScreen from "@/src/screens/home/UserHomeScreen";
 import { useContext } from "react";
 
 export default function HomeScreen() {
 
     const authContext = useContext(AuthContext);
-    const roles = authContext?.authState?.user?.roles;
+    const role = authContext?.authState?.user?.role;
 
-    if (roles && roles.length > 0) {
-        switch (roles[0]) {
-            case 'ROLE_ADMIN':
-                return <AdminHomeScreen />
-            case 'ROLE_ALUMNO':
-                return <MemberHomeScreen />
-            case 'ROLE_EVALUADOR':
-                return <EvaluatorHomeScreen />
-            case 'ROLE_USUARIO':
-                return <MemberHomeScreen />
-            default:
-                return <Loading />
+    if (role) {
+        if (role === 'ADMIN') {
+            return <AdminHomeScreen />
         }
-
+        if (role === 'EVALUADOR') {
+            return <EvaluatorHomeScreen />
+        }
+        if (role === 'ALUMNO') {
+            return <StudentHomeScreen />
+        }
+        if (role === 'USUARIO') {
+            return <UserHomeScreen />
+        }
     }
+    return <Loading />
 }
