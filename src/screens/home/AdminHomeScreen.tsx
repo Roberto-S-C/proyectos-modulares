@@ -1,5 +1,5 @@
 import Loading from "@/src/components/Loading";
-import ModuleListItem from "@/src/components/Module";
+import ModuleListItem from "@/src/components/Module/Module";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import Title from "@/src/components/Title";
 import Ionicons from "@expo/vector-icons/Ionicons";

@@ -1,29 +1,27 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 
 interface Props {
     text: string,
     icon: string,
-    navigationUrl: string,
+    onPress: () => void
 }
 
 export default function RoundedOptionButton({
     text,
     icon,
-    navigationUrl,
+    onPress
 }: Props) {
-    const router = useRouter();
 
     return (
         <TouchableOpacity
             style={styles.button}
-            onPress={() => router.navigate(navigationUrl)}
+            onPress={onPress}
         >
             <Ionicons
                 name={icon}
-                size={32}
+                size={28}
                 color={Colors.secondary}
             />
 
@@ -38,14 +36,15 @@ const styles = StyleSheet.create({
     button: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 4,
         padding: 8,
         borderRadius: 12,
-        backgroundColor: Colors.itemBackgroundColor
+        backgroundColor: Colors.primary
     },
     buttonText: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: Colors.primary
+        color: Colors.secondary
     }
 });

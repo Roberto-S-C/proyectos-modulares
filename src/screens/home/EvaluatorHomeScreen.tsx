@@ -1,4 +1,4 @@
-import ProjectList from '@/src/components/ProjectList';
+import ProjectList from '@/src/components/Project/ProjectList';
 import Title from '@/src/components/Title';
 import axios, { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';

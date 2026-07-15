@@ -1,5 +1,5 @@
-import AccountPersonalInfo from "@/src/components/AccountPersonalInfo"
-import ProjectList from "@/src/components/ProjectList"
+import AccountPersonalInfo from "@/src/components/Account/AccountPersonalInfo"
+import ProjectList from "@/src/components/Project/ProjectList"
 import Title from "@/src/components/Title"
 import { FlatList, StyleSheet, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"

@@ -10,7 +10,9 @@ const Colors = {
     unSelected: '#5C677D',
     border: '#5C677D',
     shadow: '#000', 
-    itemBackgroundColor: '#fff'
+    itemBackgroundColor: '#fff',
+    selecteditemBackgroundColor: '#ededed',
+    modalBackgroundColor: 'rgb(0, 0, 0)' 
 };
 
 export default Colors;

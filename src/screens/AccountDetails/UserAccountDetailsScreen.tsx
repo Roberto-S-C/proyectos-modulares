@@ -1,4 +1,4 @@
-import AccountPersonalInfo from "@/src/components/AccountPersonalInfo";
+import AccountPersonalInfo from "@/src/components/Account/AccountPersonalInfo";
 import ModifyRoleButton from "@/src/components/ModifyRoleButton";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
