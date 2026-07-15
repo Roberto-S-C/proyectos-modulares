@@ -1,38 +1,17 @@
-import AccountListItem from "@/src/components/AccountListItem";
+import AccountListItem from "@/src/components/Account/AccountListItem";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import Colors from "@/src/constants/Colors";
+import { searchAccounts } from "@/src/services/accountService";
+import { Account, Role } from "@/src/types/account.type";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-enum Role {
-    Admin = 'ROLE_ADMIN',
-    Evaluador = 'ROLE_EVALUADOR',
-    Alumno = 'ROLE_ALUMNO',
-    Usuario = 'ROLE_USUARIO',
-}
-
-interface Account {
-    id: string,
-    name: string,
-    lastname: string,
-    email: string,
-    role: Role
-}
-
-async function fetchUsers(email: string, role: string): Promise<Account[]> {
-    let params = { email, role }
-    let queryString = new URLSearchParams(params).toString();
-    let apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/accounts?${queryString}`;
-    let response = await fetch(apiUrl)
-    let users = await response.json();
-    return users;
-}
-
-export default function UsersScreen() {
+export default function AccountsScreen() {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [email, setEmail] = useState('');
     const [role, setRole] = useState('');
@@ -40,13 +19,14 @@ export default function UsersScreen() {
     const [reload, setReload] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    const router = useRouter();
+
     useEffect(() => {
         setIsLoading(true);
-        fetchUsers(email, role)
-            .then(data => {
-                setAccounts(data)
-                setIsLoading(false);
-            });
+        searchAccounts(email, role).then(res => {
+            setAccounts(res.data);
+            setIsLoading(false);
+        })
         setReload(false);
     }, [email, role, reload]);
 
@@ -67,7 +47,7 @@ export default function UsersScreen() {
 
                 <TextInput
                     style={styles.textInput}
-                    placeholder="Correo..."
+                    placeholder="Correo"
                     onChangeText={setEmail}
                 />
 
@@ -94,7 +74,7 @@ export default function UsersScreen() {
                 {!isLoading && accounts.length > 0 &&
                     <FlatList
                         data={accounts}
-                        renderItem={({ item }) => <AccountListItem {...item} />}
+                        renderItem={({ item }) => <AccountListItem {...item} onPress={() => router.push({ pathname: '/(app)/(tabs)/accounts/[id]', params: { id: item.id } })} />}
                         keyExtractor={item => item.id}
                         style={styles.list}
                         contentContainerStyle={styles.listContent}
