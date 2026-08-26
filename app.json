@@ -65,6 +65,16 @@
             "cropToolbarColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-file-system",
+        {
+          "supportsOpeningDocumentsInPlace": true,
+          "enableFileSharing": true
+        }
+      ],
+      [
+        "expo-document-picker"
       ]
     ],
     "experiments": {
