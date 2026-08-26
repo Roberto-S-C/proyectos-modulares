@@ -25,7 +25,7 @@ export default function StudentHomeScreen() {
     const router = useRouter();
 
     useFocusEffect(useCallback(() => {
-        const fetchData = async () => {
+        const fetchAccountDetails = async () => {
             if (isAuthStateValid(authContext.authState)) {
                 try {
                     const res = await getAccountDetails(authContext.authState?.user.id);
@@ -37,7 +37,7 @@ export default function StudentHomeScreen() {
                 }
             }
         };
-        fetchData();
+        fetchAccountDetails();
         return () => { };
 
     }, []));
@@ -72,7 +72,7 @@ export default function StudentHomeScreen() {
                 <View style={styles.noProjectContainer}>
                     <Ionicons name="construct" color={Colors.secondary} size={100} />
                     <Title text="No eres parte de ningún proyecto" />
-                    <View style={{ width: '80%' }}>
+                    <View style={{ height: 50, width: '70%' }}>
                         <RoundedOptionButton text="Crear Proyecto" icon="add" onPress={() => router.navigate('/(app)/(tabs)/projects/create')} />
                     </View>
                 </View>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16
+        gap: 16,
     },
     projectInfoContainer: {
         flexDirection: 'row',

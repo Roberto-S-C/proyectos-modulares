@@ -34,10 +34,7 @@ export default function CreateProjectScreen() {
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
         message: "",
-        onDismiss: () => {
-            setIsAlertVisible(false);
-            router.replace('/(app)/(tabs)');
-        },
+        onDismiss: () => {},
         isVisible: isAlertVisible,
         style: "error"
     });
@@ -49,6 +46,7 @@ export default function CreateProjectScreen() {
         getValues,
         handleSubmit,
         trigger,
+        reset,
         formState: { errors }
     } = useForm<CreateProject>({
         defaultValues: {
@@ -61,34 +59,42 @@ export default function CreateProjectScreen() {
     });
 
     const onSubmit: SubmitHandler<CreateProject> = async (data) => {
-            setIsLoading(true);
+        setIsLoading(true);
         try {
             const res = await createProject(data);
             if (res.status === 200) {
                 setAlertProps({
                     ...alertProps,
                     message: "Proyecto Creado Exitosamente",
-                    onDismiss: () => setIsAlertVisible(false),
-                    style: "success" 
-                }) 
+                    onDismiss: () => {
+                        setIsAlertVisible(false);
+                        router.replace('/(app)/(tabs)')
+                    },
+                    style: "success"
+                })
             }
             else throw new Error("Unable to create Project");
         } catch (e) {
-                setAlertProps({
-                    ...alertProps,
-                    message: "Creación del Proyecto Fallida",
-                    onDismiss: () => setIsAlertVisible(false),
-                    style: "error" 
-                }) 
+            setAlertProps({
+                ...alertProps,
+                message: "No se pudo crear el Proyecto",
+                onDismiss: () => {
+                    setIsAlertVisible(false);
+                    router.replace('/(app)/(tabs)')
+                },
+                style: "error"
+            })
         }
         finally {
             setIsLoading(false);
-            router.replace('/(app)/(tabs)');
+            setIsAlertVisible(true);
         }
     }
 
     useFocusEffect(
         useCallback(() => {
+            reset();
+            setShowSelectAdvisorList(false);
             const fetchModules = async () => {
                 try {
                     const res = await getModules();

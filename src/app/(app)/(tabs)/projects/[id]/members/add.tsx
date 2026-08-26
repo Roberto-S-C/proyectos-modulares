@@ -1,12 +1,15 @@
 import AddMemberListItem from "@/src/components/Account/AddMemberListItem";
+import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Colors from "@/src/constants/Colors";
 import { getAvailableMembers } from "@/src/services/accountService";
+import { addProjectMember } from "@/src/services/projectService";
 import { Account } from "@/src/types/account.type";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,16 +18,38 @@ export default function AddMembers() {
     const [order, setOrder] = useState(false);
     const [reload, setReload] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAlertVisible, setIsAlertVisible] = useState(false);
+    const [aletProps, setAlertProps] = useState<AlertProps>({
+        message: "",
+        onDismiss: () => setIsAlertVisible(false),
+        isVisible: isAlertVisible,
+        style: "error"
+    });
 
-    const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+    const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+    const seachParams = useLocalSearchParams<{ id: string }>();
+    const projectId = Number(seachParams.id);
 
-    useEffect(() => {
-        setIsLoading(true);
-        getAvailableMembers().then(res => {
-            setAccounts(res.data);
-            setIsLoading(false);
-        })
-    }, [reload]);
+    const router = useRouter();
+
+    useFocusEffect(
+        useCallback(() => {
+            setIsLoading(true);
+            const fetchAvailableMembers = async () => {
+                try {
+                    const res = await getAvailableMembers();
+                    setAccounts(res.data);
+                }
+                catch (e) {
+
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+            fetchAvailableMembers();
+        }, [reload])
+    );
 
     useEffect(() => {
         const sortedAccounts = [...accounts].sort((a, b) => {
@@ -36,12 +61,45 @@ export default function AddMembers() {
         setAccounts(sortedAccounts);
     }, [order])
 
+    const onSubmit = async () => {
+        setIsLoading(true);
+        try {
+            const res = await addProjectMember(projectId, { memberId: selectedAccountId });
+            if (res.status === 200) {
+                setAlertProps({
+                    message: "Miembro añadido",
+                    onDismiss: () => router.replace("/(app)/(tabs)"),
+                    isVisible: true,
+                    style: "success"
+                });
+                setIsAlertVisible(true);
+            }
+            else throw new Error("Unable to add member to project");
+        }
+        catch (e) {
+            setAlertProps({
+                ...aletProps,
+                message: 'No es posible añadir al miembro',
+                isVisible: true,
+                style: 'error'
+            });
+        }
+        finally {
+            setIsLoading(false);
+            setIsAlertVisible(true);
+        }
+    }
+
     return (
         <SafeAreaView style={styles.screen}>
 
             <View style={styles.container}>
 
                 {isLoading && <Loading />}
+
+                {!isLoading && isAlertVisible &&
+                    <CustomAlert {...aletProps} />
+                }
 
                 {!isLoading && accounts.length > 0 &&
                     <FlatList
@@ -63,7 +121,7 @@ export default function AddMembers() {
                         }
                         ListFooterComponent={() =>
                             <View style={{ marginTop: 16 }}>
-                                <RoundedOptionButton text="Añadir Miembro" icon="add" onPress={() => null} />
+                                <RoundedOptionButton text="Añadir Miembro" icon="add" onPress={onSubmit} />
                             </View>
                         }
                     />
