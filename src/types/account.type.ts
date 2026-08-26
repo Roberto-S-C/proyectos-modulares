@@ -1,9 +1,9 @@
 export enum Role {
-    Admin = 'ROLE_ADMIN',
-    Evaluador = 'ROLE_EVALUADOR',
-    Asesor = 'ROLE_ASESOR',
-    Alumno = 'ROLE_ALUMNO',
-    Usuario = 'ROLE_USUARIO',
+    Admin = 'ADMIN',
+    Evaluador = 'EVALUADOR',
+    Asesor = 'ASESOR',
+    Alumno = 'ALUMNO',
+    Usuario = 'USUARIO',
 }
 
 export type Account = {

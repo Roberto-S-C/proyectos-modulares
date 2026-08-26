@@ -18,7 +18,7 @@ export default function AccountListItem({ id, name, lastname, email, role, onPre
             </View>
             <View style={styles.info}>
                 <Text style={styles.name}>{name} {lastname}</Text>
-                <Text style={styles.role}>{role.split('_')[1]}</Text>
+                <Text style={styles.role}>{role}</Text>
                 <Text style={styles.email}>{email}</Text>
             </View>
         </TouchableOpacity>
