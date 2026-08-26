@@ -1,4 +1,3 @@
-
 export const AccountRoleTabsLayout = {
     USUARIO: ['index', 'projects', 'options'],
     EVALUADOR: ['index', 'notifications', 'options'],

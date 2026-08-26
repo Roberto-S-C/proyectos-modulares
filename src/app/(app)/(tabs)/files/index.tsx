@@ -1,4 +1,4 @@
-import FileType from "@/src/components/FileType";
+import FileType from "@/src/components/File/FileType";
 import Loading from "@/src/components/Loading";
 import Title from "@/src/components/Title";
 import axios, { AxiosResponse } from 'axios';
