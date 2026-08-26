@@ -19,10 +19,11 @@ export default function AddMemberListItem({ account, selectedAccountId, setSelec
             style={[styles.account, selectedAccountId === account.id && styles.itemSelected]}
         >
             {selectedAccountId === account.id && <Ionicons name="checkbox-sharp" size={38} color={Colors.secondary} />}
+            {selectedAccountId !== account.id && <Ionicons name="checkbox-outline" size={38} color={Colors.secondary} />}
 
             <View style={styles.info}>
                 <Text style={styles.name}>{account.name} {account.lastname}</Text>
-                <Text style={styles.role}>{account.role.split('_')[1]}</Text>
+                <Text style={styles.role}>{account.role}</Text>
                 <Text style={styles.email}>{account.email}</Text>
             </View>
         </TouchableOpacity>
@@ -31,7 +32,7 @@ export default function AddMemberListItem({ account, selectedAccountId, setSelec
 
 const styles = StyleSheet.create({
     itemSelected: {
-        backgroundColor: Colors.selecteditemBackgroundColor
+        backgroundColor: Colors.selectedItemBackgroundColor
     },
     account: {
         flexDirection: 'row',

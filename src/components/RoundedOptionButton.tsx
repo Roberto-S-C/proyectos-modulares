@@ -34,16 +34,17 @@ export default function RoundedOptionButton({
 
 const styles = StyleSheet.create({
     button: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
+        gap: 8,
         padding: 8,
         borderRadius: 12,
         backgroundColor: Colors.primary
     },
     buttonText: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'bold',
         color: Colors.secondary
     }

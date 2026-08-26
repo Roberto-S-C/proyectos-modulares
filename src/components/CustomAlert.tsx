@@ -27,7 +27,9 @@ export default function CustomAlert({ message, onDismiss, isVisible, style }: Al
                     <Ionicons name="close" size={28} style={styles.closeIcon} />
                 </TouchableOpacity>
                 <View style={styles.messageContainer}>
-                    <Ionicons name="close-circle-outline" size={40} color={'white'} />
+                    {style === 'success' && <Ionicons name="checkmark-circle-outline" size={40} color={'white'} />}
+                    {style === 'error' && <Ionicons name="close-circle-outline" size={40} color={'white'} />}
+                    {style === 'info' && <Ionicons name="information-circle-outline" size={40} color={'white'} />}
                     <Text style={styles.message}>{message}</Text>
                 </View>
             </View>
