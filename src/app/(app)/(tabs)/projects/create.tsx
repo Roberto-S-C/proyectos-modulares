@@ -14,6 +14,7 @@ import { createProject } from "@/src/services/projectService";
 import { Account } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
 import { CreateProject } from "@/src/types/project.types";
+import getPresentationSemesters from "@/src/utils/semesterUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -214,7 +215,7 @@ export default function CreateProjectScreen() {
                             render={({ field }) =>
                                 <View style={styles.section}>
                                     <Text style={styles.inputLabel}>Fecha de presentación</Text>
-                                    <SemesterPicker {...field} />
+                                    <SemesterPicker value={field.value} onChange={field.onChange}  semesters={getPresentationSemesters()} />
                                     {errors.presentationDate && <Text style={styles.error}>* Campo requerido</Text>}
                                 </View>
                             }

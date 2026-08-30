@@ -1,3 +1,5 @@
+import { Project } from "./project.types"
+
 export enum Role {
     Admin = 'ADMIN',
     Evaluador = 'EVALUADOR',
@@ -12,4 +14,15 @@ export type Account = {
     lastname: string,
     email: string,
     role: Role
+}
+
+export type AccountDetails = {
+    id: string,
+    name: string,
+    lastname: string,
+    email: string,
+    role: Role,
+    profilePicture: string,
+    advisedProjects?: Project[],
+    evaluatedProjects?: Project[],
 }

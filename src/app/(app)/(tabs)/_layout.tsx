@@ -24,10 +24,15 @@ export default function TabLayout() {
         tabBarIcon: ({ color }) => <Ionicons name='home' size={28} color={color} />,
         href: visibleTabs.includes('index') ? undefined : null,
       }} />
+      <Tabs.Screen name="advisor" options={{
+        title: 'Asesor',
+        tabBarIcon: ({ color }) => <Ionicons name='briefcase' size={28} color={color} />,
+        href: visibleTabs.includes('advisor') ? undefined : null,
+      }} />
       <Tabs.Screen name="notifications" options={{
         title: 'Notificaciones',
         tabBarIcon: ({ color }) => <Ionicons name='notifications' size={28} color={color} />,
-        href: visibleTabs.includes('index') ? undefined : null,
+        href: visibleTabs.includes('notifications') ? undefined : null,
       }} />
       <Tabs.Screen name='files' options={{
         title: 'Archivos',

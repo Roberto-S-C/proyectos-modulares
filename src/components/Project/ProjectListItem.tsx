@@ -4,7 +4,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Project } from "../../types/project.types";
 import RoundedText from "../RoundedText";
 
-export default function ProjectListItem({ id, name, status, presentation_date, images }: Project) {
+export default function ProjectListItem({ id, name, status, presentationDate, coverImageUrl}: Project) {
 
     const router = useRouter();
 
@@ -12,10 +12,10 @@ export default function ProjectListItem({ id, name, status, presentation_date, i
         <TouchableOpacity style={styles.container}
             onPress={() => router.navigate({ pathname: '/(app)/(tabs)/projects/[id]', params: { id } })}>
 
-            <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${images[0].url}` }} style={styles.image} />
+            <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${coverImageUrl}` }} style={styles.image} />
 
             <View style={styles.projectStatusContainer}>
-                <RoundedText text={presentation_date} fontSize={16} bgColor={Colors.primary} textColor={Colors.secondary} />
+                <RoundedText text={presentationDate} fontSize={16} bgColor={Colors.primary} textColor={Colors.secondary} />
                 <RoundedText text={status} fontSize={16} bgColor={Colors.primary} textColor={Colors.secondary} />
             </View>
 
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
         gap: 8
     },
     projectName: {
+        maxWidth: 300,
         textAlign: 'center',
         fontSize: 20,
         fontWeight: 'bold',

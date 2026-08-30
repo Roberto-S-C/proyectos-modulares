@@ -1,9 +1,14 @@
 import ProjectListItem from "@/src/components/Project/ProjectListItem";
 import { Project } from "@/src/types/project.types";
 import { FlatList, StyleSheet } from "react-native";
+import NotFoundItem from "../NotFoundItem";
 
 
-export default function ProjectList(projects: Project[]) {
+type ProjectListProps = {
+    projects: Project[];
+};
+
+export default function ProjectList({ projects }: ProjectListProps) {
     return (
         <FlatList
             data={projects}
@@ -11,6 +16,7 @@ export default function ProjectList(projects: Project[]) {
             keyExtractor={item => item.id.toString()}
             style={styles.list}
             contentContainerStyle={styles.listContent}
+            ListEmptyComponent={() => <NotFoundItem text="No hay proyectos disponibles" />}
         />
     );
 }
@@ -18,11 +24,9 @@ export default function ProjectList(projects: Project[]) {
 const styles = StyleSheet.create({
     list: {
         width: '100%',
-        padding: 8
     },
     listContent: {
         alignItems: 'center',
-        padding: 16,
         gap: 16,
     },
 });
