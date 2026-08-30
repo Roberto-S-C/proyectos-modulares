@@ -219,12 +219,10 @@ export default function AddProjectFilesScreen() {
                         renderItem={({ item }) => <ProjectFileListItem file={item} selectedFileId={selectedProjectFile?.id} setSelectedFile={setSelectedProjectFile} />}
                         keyExtractor={item => item.id.toString()}
                         style={styles.list}
-                        ListFooterComponent={() =>
-                            <View style={styles.listHeader}>
-                                <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={getFileFromStorage} />
-                            </View>
-                        }
                     />
+                    <View style={styles.listFooter}>
+                        <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={getFileFromStorage} />
+                    </View>
                 </View>
             }
         </SafeAreaView>
@@ -242,12 +240,14 @@ const styles = StyleSheet.create({
         width: '90%',
         gap: 8,
     },
-    listHeader: {
+    listFooter: {
         alignSelf: 'center',
         width: '70%',
+        height: 50,
         marginBottom: 12,
     },
     list: {
         width: '100%',
+        flex: 1,
     },
 });
