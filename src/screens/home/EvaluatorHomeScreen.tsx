@@ -1,15 +1,14 @@
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
+import HeaderSemesterDropdown from '@/src/components/Project/HeaderSemesterDropdown';
 import ProjectList from '@/src/components/Project/ProjectList';
-import SemesterPicker from '@/src/components/SemesterPicker';
-import Colors from '@/src/constants/Colors';
 import { AuthContext } from '@/src/contexts/AuthContext';
 import { getAccountDetails } from '@/src/services/accountService';
 import { AccountDetails } from '@/src/types/account.type';
 import { Project } from '@/src/types/project.types';
 import getPresentationSemesters, { sortSemesters } from '@/src/utils/semesterUtils';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EvaluatorHomeScreen() {
@@ -73,15 +72,12 @@ export default function EvaluatorHomeScreen() {
             }
 
             {!isLoading && account?.evaluatedProjects && account.evaluatedProjects.length > 0 &&
-                <View style={styles.headerContainer}>
-                    <Text style={styles.headerText}>Evaluaciones</Text>
-                    <SemesterPicker
-                        value={selectedSemester}
-                        onChange={setSelectedSemester}
-                        semesters={evaluatedSemesters}
-                        style={styles.semesterPicker}
-                    />
-                </View>
+                <HeaderSemesterDropdown
+                    text='Evaluaciones'
+                    selectedSemester={selectedSemester}
+                    setSelectedSemester={setSelectedSemester}
+                    semesters={evaluatedSemesters}
+                />
             }
 
             {!isLoading && account?.evaluatedProjects && account.evaluatedProjects.length > 0 &&
@@ -98,23 +94,6 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '96%',
         marginHorizontal: "auto"
-    },
-    headerContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: 'center',
-        gap: 16,
-        paddingVertical: 16,
-        marginHorizontal: 8
-    },
-    headerText: {
-        fontSize: 28,
-        fontWeight: "bold",
-        color: Colors.secondary,
-    },
-    semesterPicker: {
-        flex: 1,
-        maxWidth: 160
     },
     list: {
         flex: 1,
