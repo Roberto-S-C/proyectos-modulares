@@ -1,4 +1,7 @@
+export type ProjectModuleStatus = "REVISION" | "RECHAZADO" | "ACEPTADO";
+
 export type Module = {
-    id: string,
-    name: string
+    id: number,
+    name: string,
+    status: ProjectModuleStatus 
 }

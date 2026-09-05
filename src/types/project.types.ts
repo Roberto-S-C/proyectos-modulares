@@ -1,5 +1,6 @@
 import { Account } from "./account.type"
 import { FileType } from "./file.type"
+import { Module } from "./module.type"
 
 export type Project = {
     id: number,
@@ -59,4 +60,12 @@ export type ProjectFiles = {
     projectId: number,
     projectName: string,
     files: ProjectFile []
+}
+
+export type ProjectModules = {
+    id: number,
+    name: string,
+    advisor: Account,
+    modules: Module[],
+    coverImageUrl: string 
 }

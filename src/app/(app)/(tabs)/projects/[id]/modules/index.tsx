@@ -3,70 +3,60 @@ import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
-import axios, { AxiosResponse } from 'axios';
+import { getProjectModules } from "@/src/services/projectService";
+import { ProjectModules } from "@/src/types/project.types";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface ProjectImage {
-    id: number,
-    url: string
-}
-
-interface ProjectModule {
-    id: number,
-    name: string,
-    status: string
-}
-
-interface Project {
-    id: number,
-    name: string,
-    modules: ProjectModule[],
-    images: ProjectImage[]
-}
-
-async function getProjectModules(id: number): Promise<Project> {
-    const response: AxiosResponse<Project> = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/projects/${id}/modules`);
-    return response.data;
-}
-
 export default function ProjectModulesScreen() {
     const { id } = useLocalSearchParams();
     const [isLoading, setIsLoading] = useState(true);
-    const [project, setProject] = useState<Project | null>(null);
-
+    const [project, setProject] = useState<ProjectModules | null>(null);
 
     useEffect(() => {
-        getProjectModules(parseInt(id.toString())).then(projectModules => setProject(projectModules));
-        setIsLoading(false);
+        const fetchProjectModules = async () => {
+            try {
+                const res = await getProjectModules(Number(id));
+                if (res.status === 200) {
+                    setProject(res.data);
+                }
+            }
+            catch (e) {
+
+            }
+            finally {
+                setIsLoading(false);
+            }
+        }
+        fetchProjectModules()
     }, [])
 
     return (
         <SafeAreaView style={styles.screen}>
+            {isLoading && <Loading />}
+
             {!isLoading && project &&
                 <View style={styles.container}>
-                    <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project?.images[0].url}` }} style={styles.image} />
+                    <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
                     <Title text={project?.name} />
                     <FlatList
                         data={project.modules}
                         renderItem={({ item }) => <ProjectModuleListItem {...item} />}
                         keyExtractor={item => item.id.toString()}
                         ListHeaderComponent={() => (
-                            <View style={styles.squareOptionsContainer}>
-                                <RoundedOptionButton text="Preevaluación" icon="star-half" />
-                                <RoundedOptionButton text="Evaluación" icon="star" />
+                            <View style={styles.optionsContainer}>
+                                <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => null} />
+                                <RoundedOptionButton text="Evaluación" icon="star" onPress={() => null} />
                             </View>
                         )}
+                        ListEmptyComponent={() => <NotFoundItem text="Módulos no disponibles" />}
                         contentContainerStyle={{ gap: 8 }}
                     />
                 </View>
             }
 
-            {isLoading && <Loading />}
-
-            {!isLoading && !project && <NotFoundItem text="Módulos no encontrados" />}
         </SafeAreaView>
     );
 }
@@ -86,8 +76,9 @@ const styles = StyleSheet.create({
         width: 300,
         height: 300,
     },
-    squareOptionsContainer: {
-        flexDirection: 'row', 
-        justifyContent: 'space-evenly'
+    optionsContainer: {
+        width: '100%',
+        flexDirection: 'column',
+        gap: 8,
     }
 });

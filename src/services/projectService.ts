@@ -23,3 +23,5 @@ export const getUploadUrl = (id: number, file: UploadFile) => apiClient.post(`pr
 export const getFileSignedUrl = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}/signed-url`);
 
 export const getProjectFileStatus = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}/status`);
+
+export const getProjectModules = (projectId: number) => apiClient.get(`projects/${projectId}/modules`);
