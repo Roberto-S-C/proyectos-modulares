@@ -1,3 +1,4 @@
+import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import FileReviewListItem from "@/src/components/File/FileReviewListItem";
 import FileStatusComponent from "@/src/components/File/FileStatusComponent";
 import Loading from "@/src/components/Loading";
@@ -5,9 +6,10 @@ import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { getProjectFileDetails } from "@/src/services/projectService";
+import { getProjectFileDetails, getProjectFileReviews } from "@/src/services/projectService";
 import { Role } from "@/src/types/account.type";
-import { FileDetails } from "@/src/types/file.type";
+import { FileReview } from "@/src/types/file.type";
+import { ProjectFile } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useContext, useState } from "react";
@@ -16,7 +18,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProjectFileScreen() {
     const [isLoading, setIsLoading] = useState(false);
-    const [fileDetails, setFileDetails] = useState<FileDetails>();
+    const [fileDetails, setFileDetails] = useState<ProjectFile>();
+    const [fileReviews, setFileReviews] = useState<FileReview[]>([]);
+    const [isAlertVisible, setIsAlertVisible] = useState(false);
+    const [alertProps, setAlertProps] = useState<AlertProps>({
+        message: '',
+        onDismiss: () => setIsAlertVisible(false),
+        isVisible: isAlertVisible,
+        style: 'error'
+    });
 
     const authContext = useContext(AuthContext);
     const { id, fileId } = useLocalSearchParams();
@@ -26,10 +36,19 @@ export default function ProjectFileScreen() {
         useCallback(() => {
 
             setIsLoading(true);
-            const fetchFileDetails = async () => {
+            const fetchFile = async () => {
                 try {
-                    const res = await getProjectFileDetails(Number(id), Number(fileId));
-                    if (res.data) setFileDetails(res.data);
+                    const fileDetailsReq = await getProjectFileDetails(Number(id), Number(fileId));
+                    if (fileDetailsReq.status === 200 && fileDetailsReq.data) setFileDetails(fileDetailsReq.data);
+                    console.log(fileDetailsReq.data)
+
+                    const fileReviewsReq = await getProjectFileReviews(Number(id), Number(fileId));
+                    if (fileReviewsReq.status === 200 && fileReviewsReq.data) {
+                        const sortedReviews = [...fileReviewsReq.data].sort((a, b) =>
+                            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                        );
+                        setFileReviews(sortedReviews);
+                    }
                 }
                 catch (e) {
 
@@ -38,7 +57,7 @@ export default function ProjectFileScreen() {
                     setIsLoading(false);
                 }
             }
-            fetchFileDetails();
+            fetchFile();
         }, [])
     );
 
@@ -46,39 +65,51 @@ export default function ProjectFileScreen() {
         <SafeAreaView style={styles.screen}>
             {isLoading && <Loading />}
 
+            {isAlertVisible && <CustomAlert {...alertProps} />}
+
             {!isLoading && fileDetails &&
                 <View style={styles.container}>
-                    {fileDetails.file.fileType.format === "image/jpeg" &&
+                    {fileDetails.fileType.format === "image/jpeg" &&
                         <Image
                             style={styles.image}
-                            source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${fileDetails.file.link}` }}
+                            source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${fileDetails.link}` }}
                         />
                     }
 
-                    {fileDetails.file.fileType.format === "application/pdf" &&
+                    {fileDetails.fileType.format === "application/pdf" &&
                         <TouchableOpacity
                             onPress={() => {
-                                if (fileDetails.file.status === "FALTANTE" || fileDetails.file.status === "CARGANDO" || fileDetails.file.status === "RECHAZADO") return;
+                                if (!fileDetails.link) {
+                                    setAlertProps({
+                                        message: 'Archivo no disponible',
+                                        onDismiss: () => setIsAlertVisible(false),
+                                        isVisible: isAlertVisible,
+                                        style: 'error'
+                                    });
+                                    setIsAlertVisible(true);
+                                    return;
+                                }
+                                if (fileDetails.status === "FALTANTE" || fileDetails.status === "CARGANDO" || fileDetails.status === "FALLIDO") return;
                                 router.push({
                                     pathname: "/(app)/(tabs)/projects/[id]/files/[fileId]/pdf",
                                     params: {
                                         id: id.toString(),
                                         fileId: fileId.toString(),
-                                        link: fileDetails.file.link,
-                                        fileName: fileDetails.file.fileType.name
+                                        link: fileDetails.link,
+                                        fileName: fileDetails.fileType.name
                                     }
                                 })
                             }}
                             style={styles.file}>
                             <View style={styles.fileNameContainer}>
                                 <Ionicons name="open-outline" size={28} />
-                                <Text style={styles.fileName}>{fileDetails.file.fileType.name}</Text>
+                                <Text style={styles.fileName}>{fileDetails.fileType.name}</Text>
                             </View>
                             <View style={styles.fileDetailsContainer}>
-                                <FileStatusComponent fileStatus={fileDetails.file.status} />
+                                <FileStatusComponent fileStatus={fileDetails.status} />
                                 <Text style={styles.date}>Subido:{' '}
                                     {
-                                        new Date(fileDetails.file.uploadedAt)
+                                        new Date(fileDetails.uploadedAt)
                                             .toLocaleString("es-ES", {
                                                 month: "numeric",
                                                 day: "numeric",
@@ -94,28 +125,32 @@ export default function ProjectFileScreen() {
 
                     <FlatList
                         style={{ flex: 1 }}
-                        data={fileDetails.reviews}
+                        data={fileReviews}
                         renderItem={({ item }) => <FileReviewListItem review={item} />}
                         keyExtractor={item => item.id.toString()}
+                        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                         ListHeaderComponent={() => <Text style={styles.reviewsHeader}>Retroalimentación</Text>}
-                        ListFooterComponent={() => {
-                            return (
-                                (authContext.authState?.user.role === Role.Evaluador || authContext.authState?.user.role === Role.Admin) &&
-                                <View style={styles.reviewsFooter}>
-                                    <RoundedOptionButton
-                                        text="Agregar"
-                                        icon="add"
-                                        onPress={() => null}
-                                    />
-                                </View>
-                            )
-                        }}
                         ListEmptyComponent={
                             <View style={{ flexGrow: 1 }}>
                                 <NotFoundItem text="Este archivo aún no cuenta con reseñas" />
                             </View>
                         }
                     />
+
+                    {(authContext.authState?.user.role === Role.Evaluador || authContext.authState?.user.role === Role.Admin) &&
+                        <View style={styles.reviewsFooter}>
+                            <RoundedOptionButton
+                                text="Reseña"
+                                icon="add"
+                                onPress={() => router.push(
+                                    {
+                                        pathname: "/(app)/(tabs)/projects/[id]/files/[fileId]/addReview",
+                                        params: { id: Number(id), fileId: Number(fileId) }
+                                    })
+                                }
+                            />
+                        </View>
+                    }
                 </View>
             }
         </SafeAreaView>
@@ -135,8 +170,8 @@ const styles = StyleSheet.create({
     },
     image: {
         margin: "auto",
-        width: 300,
-        height: 300
+        width: 250,
+        height: 250
     },
     file: {
         padding: 10,
@@ -174,6 +209,7 @@ const styles = StyleSheet.create({
     reviewsFooter: {
         margin: "auto",
         marginTop: 16,
-        width: "70%"
+        width: "60%",
+        height: 52
     }
 });

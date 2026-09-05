@@ -1,4 +1,4 @@
-import { ProjectFile } from "./project.types"
+import { ProjectFileStatus } from "./project.types"
 
 export type FileType = {
     id: number,
@@ -29,7 +29,7 @@ export type FileReview = {
     username: String
 }
 
-export type FileDetails = {
-    file: ProjectFile,
-    reviews: FileReview []
+export type addFileReview = {
+    review: string,
+    status: ProjectFileStatus,
 }

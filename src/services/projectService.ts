@@ -1,5 +1,5 @@
 import apiClient from "../api/client";
-import { UploadFile } from "../types/file.type";
+import { addFileReview, UploadFile } from "../types/file.type";
 import { AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
@@ -16,7 +16,11 @@ export const addProjectMember = (projectId: number, newMember: AddProjectMember)
 
 export const getProjectFiles = (id: number) => apiClient.get(`/projects/${id}/files`);
 
-export const getProjectFileDetails = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}`)
+export const getProjectFileDetails = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}`);
+
+export const getProjectFileReviews = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}/reviews`);
+
+export const addProjectFilewReview = (projectId: number, fileId: number, fileReview: addFileReview) => apiClient.post(`projects/${projectId}/files/${fileId}/reviews`, fileReview);
  
 export const getUploadUrl = (id: number, file: UploadFile) => apiClient.post(`projects/${id}/files/upload-url`, file);
 

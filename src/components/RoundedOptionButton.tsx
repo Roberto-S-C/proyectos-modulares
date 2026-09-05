@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { ComponentProps } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 
 interface Props {
     text: string,
-    icon: string,
+    icon: ComponentProps<typeof Ionicons>['name'],
     onPress: () => void
 }
 
