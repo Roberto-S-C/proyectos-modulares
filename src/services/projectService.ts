@@ -29,3 +29,5 @@ export const getFileSignedUrl = (projectId: number, fileId: number) => apiClient
 export const getProjectFileStatus = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}/status`);
 
 export const getProjectModules = (projectId: number) => apiClient.get(`projects/${projectId}/modules`);
+
+export const getProjectModulesPreevaluations = (projectId: number) => apiClient.get(`projects/${projectId}/modules/preevaluations`);

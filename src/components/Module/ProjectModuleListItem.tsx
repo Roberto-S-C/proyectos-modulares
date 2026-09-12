@@ -25,9 +25,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        // padding: 8,
         gap: 8,
-        backgroundColor: Colors.itemBackgroundColor
+        minHeight: 70,
+        backgroundColor: Colors.itemBackgroundColor,
+        borderRadius: 10,
+        overflow: 'hidden',
     },
     icon: {
         position: 'absolute',
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 16,
         fontWeight: 'bold',
-        color: Colors.primary
+        color: Colors.primary,
     },
     moduleStatus: {
         textAlign: 'center',

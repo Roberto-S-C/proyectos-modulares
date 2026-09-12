@@ -5,7 +5,7 @@ import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
 import { getProjectModules } from "@/src/services/projectService";
 import { ProjectModules } from "@/src/types/project.types";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,6 +14,8 @@ export default function ProjectModulesScreen() {
     const { id } = useLocalSearchParams();
     const [isLoading, setIsLoading] = useState(true);
     const [project, setProject] = useState<ProjectModules | null>(null);
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchProjectModules = async () => {
@@ -45,9 +47,10 @@ export default function ProjectModulesScreen() {
                         data={project.modules}
                         renderItem={({ item }) => <ProjectModuleListItem {...item} />}
                         keyExtractor={item => item.id.toString()}
+                        scrollEnabled={true}
                         ListHeaderComponent={() => (
                             <View style={styles.optionsContainer}>
-                                <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => null} />
+                                <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation", params: {id: Number(id)}})} />
                                 <RoundedOptionButton text="Evaluación" icon="star" onPress={() => null} />
                             </View>
                         )}
@@ -66,6 +69,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     container: {
+        flex: 1,
         width: '100%',
         gap: 8,
         paddingHorizontal: 16,
