@@ -7,7 +7,8 @@ import { getAccountDetails } from '@/src/services/accountService';
 import { AccountDetails } from '@/src/types/account.type';
 import { Project } from '@/src/types/project.types';
 import getPresentationSemesters, { sortSemesters } from '@/src/utils/semesterUtils';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,6 +26,27 @@ export default function AdvisorProjectsScreen() {
         return sortSemesters(Array.from(semesters));
     }, [account]);
 
+    useFocusEffect(
+        useCallback(() => {
+            const fetchAccountDetails = async () => {
+                try {
+                    if (!authContext.authState?.user.id) return;
+                    const res = await getAccountDetails(authContext.authState?.user.id);
+                    if (res.status === 200) {
+                        setAccount(res.data);
+                    }
+                }
+                catch (e) {
+
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+            fetchAccountDetails();
+        }, [])
+    )
+
     useEffect(() => {
         if (evaluatedSemesters.length === 0) return;
         const currentSemester = getPresentationSemesters()[0];
@@ -36,33 +58,13 @@ export default function AdvisorProjectsScreen() {
     }, [evaluatedSemesters]);
 
     useEffect(() => {
-        const fetchAccountDetails = async () => {
-            try {
-                if (!authContext.authState?.user.id) return;
-                const res = await getAccountDetails(authContext.authState?.user.id);
-                if (res.status === 200) {
-                    setAccount(res.data);
-                }
-            }
-            catch (e) {
-
-            }
-            finally {
-                setIsLoading(false);
-            }
-        }
-        fetchAccountDetails();
-    }, [])
-
-
-    useEffect(() => {
         if (account?.advisedProjects) {
             let selectedSemesterProjects = account.advisedProjects.filter(project => project.presentationDate === selectedSemester);
             setAdvisedProjects(selectedSemesterProjects);
         }
     }, [selectedSemester, account]);
 
-    return(
+    return (
         <SafeAreaView style={styles.screen}>
 
             {isLoading && <Loading />}

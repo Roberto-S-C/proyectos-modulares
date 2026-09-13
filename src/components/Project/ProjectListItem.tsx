@@ -1,7 +1,8 @@
 import Colors from "@/src/constants/Colors";
 import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Project } from "../../types/project.types";
+import { Project, ProjectStatus } from "../../types/project.types";
+import { PROJECT_STATUS_VARIANT } from "../../utils/projectUtils";
 import RoundedText from "../RoundedText";
 
 export default function ProjectListItem({ id, name, status, presentationDate, coverImageUrl}: Project) {
@@ -15,8 +16,8 @@ export default function ProjectListItem({ id, name, status, presentationDate, co
             <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${coverImageUrl}` }} style={styles.image} />
 
             <View style={styles.projectStatusContainer}>
-                <RoundedText text={presentationDate} fontSize={16} bgColor={Colors.primary} textColor={Colors.secondary} />
-                <RoundedText text={status} fontSize={16} bgColor={Colors.primary} textColor={Colors.secondary} />
+                <RoundedText text={presentationDate} fontSize={16} />
+                <RoundedText text={status} fontSize={16} variant={PROJECT_STATUS_VARIANT[status as ProjectStatus]} />
             </View>
 
             <Text style={styles.projectName}>{name}</Text>

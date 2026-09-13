@@ -8,7 +8,7 @@ export type Project = {
     status: string,
     description: string,
     presentationDate: string,
-    coverImageUrl: string 
+    coverImageUrl: string
 }
 
 export type ProjectMembers = {
@@ -16,7 +16,7 @@ export type ProjectMembers = {
     name: string,
     advisor: Account,
     members: Account[],
-    coverImageUrl: string 
+    coverImageUrl: string
 }
 
 export type CreateProject = {
@@ -25,7 +25,7 @@ export type CreateProject = {
     status: string,
     presentationDate: string,
     advisorId: string,
-    modules: string []
+    modules: string[]
 }
 
 export type UpdateProject = {
@@ -40,32 +40,37 @@ export type AddProjectMember = {
     memberId: string
 }
 
-export type ProjectFileStatus = 
-    "FALTANTE" | 
-    "CARGANDO" | 
-    "FALLIDO" | 
-    "REVISION" | 
-    "APROVADO" | 
+export type ProjectFileStatus =
+    "FALTANTE" |
+    "CARGANDO" |
+    "FALLIDO" |
+    "REVISION" |
+    "APROVADO" |
     "RECHAZADO";
 
 export type ProjectFile = {
     id: number,
     link: string,
     status: ProjectFileStatus,
-    uploadedAt: Date, 
-    fileType: FileType 
+    uploadedAt: Date,
+    fileType: FileType
 }
 
 export type ProjectFiles = {
     projectId: number,
     projectName: string,
-    files: ProjectFile []
+    files: ProjectFile[]
 }
+
+export type ProjectStatus =
+    "APROVADO" |
+    "RECHAZADO" |
+    "REVISION";
 
 export type ProjectModules = {
     id: number,
     name: string,
-    advisor: Account,
     modules: Module[],
-    coverImageUrl: string 
+    projectStatus: ProjectStatus,
+    coverImageUrl: string
 }

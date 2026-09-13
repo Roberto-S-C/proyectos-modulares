@@ -8,7 +8,8 @@ import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getAccountDetails } from "@/src/services/accountService";
 import { isAuthStateValid } from "@/src/services/authService";
-import { Project } from "@/src/types/project.types";
+import { Project, ProjectStatus } from "@/src/types/project.types";
+import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useContext, useState } from "react";
@@ -55,8 +56,8 @@ export default function StudentHomeScreen() {
                         <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project?.coverImageUrl}` }} style={styles.projectImage} />
                         <Title text={project.name} />
                         <View style={styles.projectInfoContainer}>
-                            <RoundedText text={project.presentationDate} fontSize={20} bgColor={Colors.primary} textColor={Colors.secondary} />
-                            <RoundedText text={project.status} fontSize={20} bgColor={Colors.primary} textColor={Colors.secondary} />
+                            <RoundedText text={project.presentationDate} fontSize={20} />
+                            <RoundedText text={project.status} fontSize={20} variant={PROJECT_STATUS_VARIANT[project.status as ProjectStatus]} />
                         </View>
 
                         <View style={styles.projectOptionsContainer}>

@@ -1,11 +1,12 @@
 import Colors from "@/src/constants/Colors";
+import { ProjectModuleStatus } from "@/src/types/module.type";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Text, View } from "react-native";
 
 interface ProjectModule {
     id: number,
     name: string,
-    status: string
+    status: ProjectModuleStatus 
 }
 
 export default function ProjectModuleListItem({ id, name, status }: ProjectModule) {
@@ -14,7 +15,11 @@ export default function ProjectModuleListItem({ id, name, status }: ProjectModul
             <Ionicons name="cube" size={52} color={Colors.secondary} style={styles.icon} />
             <View style={styles.moduleDetailsContainer}>
                 <Text style={styles.moduleName}>{name}</Text>
-                <Text style={styles.moduleStatus}>{status}</Text>
+                <Text style={[
+                    styles.moduleStatus,
+                    status === "ACEPTADO" && {color: Colors.success},
+                    status === "RECHAZADO" && {color: Colors.error}
+                ]}>{status}</Text>
             </View>
         </View>
     );

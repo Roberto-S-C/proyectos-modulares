@@ -15,7 +15,7 @@ export default function AccountPersonalInfo({ name, lastname, email, profile_pic
         <View style={styles.container}>
             <Image source={{ uri: profile_picture }} style={styles.profile_picture} />
             <Text style={styles.email}>{name} {lastname}</Text>
-            <RoundedText text={role.split('_')[1]} fontSize={20} bgColor={Colors.primary} textColor={Colors.secondary} />
+            <RoundedText text={role.split('_')[1]} fontSize={20} />
             <Text style={styles.email}>{email}</Text>
         </View>
     );

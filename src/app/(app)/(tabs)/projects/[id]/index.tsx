@@ -3,11 +3,11 @@ import NotFoundItem from "@/src/components/NotFoundItem";
 import ProjectOption from "@/src/components/Project/ProjectOption";
 import RoundedText from "@/src/components/RoundedText";
 import Title from "@/src/components/Title";
-import Colors from "@/src/constants/Colors";
 import { getProject } from "@/src/services/projectService";
-import { Project } from "@/src/types/project.types";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { Project, ProjectStatus } from "@/src/types/project.types";
+import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,21 +16,26 @@ export default function ProjectOptionsScreen() {
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        setIsLoading(true);
-        const fetchProject = async () => {
-            try {
-                const res = await getProject(Number(id));
-                if (res.status === 200 && res.data) setProject(res.data);
-            }
-            catch (e) {
+    useFocusEffect(
 
+        useCallback(() => {
+            setIsLoading(true);
+            const fetchProject = async () => {
+                try {
+                    const res = await getProject(Number(id));
+                    if (res.status === 200 && res.data) setProject(res.data);
+                }
+                catch (e) {
+
+                }
+                finally {
+                    setIsLoading(false);
+                }
             }
-            finally {
-                setIsLoading(false);
-            }
-        }
-        fetchProject();
+            fetchProject();
+        }, [])
+    )
+    useEffect(() => {
     }, []);
 
     return (
@@ -46,8 +51,8 @@ export default function ProjectOptionsScreen() {
                         <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.projectImage} />
                         <Title text={project.name} />
                         <View style={styles.projectInfoContainer}>
-                            <RoundedText text={project.presentationDate} fontSize={20} bgColor={Colors.primary} textColor={Colors.secondary} />
-                            <RoundedText text={project.status} fontSize={20} bgColor={Colors.primary} textColor={Colors.secondary} />
+                            <RoundedText text={project.presentationDate} fontSize={20} />
+                            <RoundedText text={project.status} fontSize={20} variant={PROJECT_STATUS_VARIANT[project.status as ProjectStatus]} />
                         </View>
 
                         <View style={styles.projectOptionsContainer}>

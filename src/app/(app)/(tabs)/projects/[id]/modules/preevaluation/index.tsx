@@ -5,7 +5,7 @@ import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import { getProjectModulesPreevaluations } from "@/src/services/projectService";
 import { ProjectModulePreevaluations } from "@/src/types/module.type";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,12 +16,13 @@ export default function ProjectPreevaluationScreen() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const { id } = useLocalSearchParams();
 
+    const router = useRouter();
+
     useEffect(() => {
         const fetchProjectModulesPreevaluations = async () => {
             try {
                 const res = await getProjectModulesPreevaluations(Number(id));
                 if (res.status === 200 && res.data) setProjectModulePreevaluations(res.data);
-                console.log(res.data[1])
             }
             catch (e) {
 
@@ -42,10 +43,10 @@ export default function ProjectPreevaluationScreen() {
                 <NotFoundItem text="Módulos no disponibles" />
             }
 
-            {projectModulePreevaluations &&
+            {!isLoading && projectModulePreevaluations &&
                 <View style={styles.container}>
                     <View style={styles.addButtonContainer}>
-                        <RoundedOptionButton icon="add" text="Agregar" onPress={() => null} />
+                        <RoundedOptionButton icon="add" text="Agregar" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation/add", params: { id: Number(id) } })} />
                     </View>
                     <FlatList
                         style={styles.list}

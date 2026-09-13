@@ -10,7 +10,7 @@ interface Props {
     onToggle?: (isExpanded: boolean) => void
 }
 
-export default function Accordion({ title, content, initiallyExpanded = false, onToggle }: Props) {
+export default function Accordion({ title, content, initiallyExpanded = true, onToggle }: Props) {
     const [isExpanded, setIsExpanded] = useState<boolean>(initiallyExpanded);
     const rotation = useRef(new Animated.Value(initiallyExpanded ? 1 : 0)).current;
 
@@ -47,7 +47,7 @@ export default function Accordion({ title, content, initiallyExpanded = false, o
             >
                 <Text style={styles.title} numberOfLines={2}>{title}</Text>
                 <Animated.View style={{ transform: [{ rotate: caretRotation }] }}>
-                    <Ionicons name="caret-down" size={24} color={Colors.secondary} />
+                    <Ionicons name="caret-down" size={24} color={"black"} />
                 </Animated.View>
             </TouchableOpacity>
 
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.itemBackgroundColor,
         borderWidth: 1,
         borderColor: Colors.border,
+        borderRadius: 10,
     },
     titleContainer: {
         flexDirection: "row",
