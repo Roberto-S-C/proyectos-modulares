@@ -22,7 +22,7 @@ export default function AdvisorProjectsScreen() {
 
     const evaluatedSemesters = useMemo(() => {
         const semesters = new Set<string>();
-        account?.evaluatedProjects?.forEach(project => semesters.add(project.presentationDate));
+        account?.evaluatedProjects?.forEach(project => semesters.add(project.presentationSemester));
         return sortSemesters(Array.from(semesters));
     }, [account]);
 
@@ -59,7 +59,7 @@ export default function AdvisorProjectsScreen() {
 
     useEffect(() => {
         if (account?.advisedProjects) {
-            let selectedSemesterProjects = account.advisedProjects.filter(project => project.presentationDate === selectedSemester);
+            let selectedSemesterProjects = account.advisedProjects.filter(project => project.presentationSemester === selectedSemester);
             setAdvisedProjects(selectedSemesterProjects);
         }
     }, [selectedSemester, account]);

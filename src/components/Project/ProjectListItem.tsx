@@ -5,7 +5,7 @@ import { Project, ProjectStatus } from "../../types/project.types";
 import { PROJECT_STATUS_VARIANT } from "../../utils/projectUtils";
 import RoundedText from "../RoundedText";
 
-export default function ProjectListItem({ id, name, status, presentationDate, coverImageUrl}: Project) {
+export default function ProjectListItem({ id, name, status, presentationSemester, coverImageUrl}: Project) {
 
     const router = useRouter();
 
@@ -16,7 +16,7 @@ export default function ProjectListItem({ id, name, status, presentationDate, co
             <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${coverImageUrl}` }} style={styles.image} />
 
             <View style={styles.projectStatusContainer}>
-                <RoundedText text={presentationDate} fontSize={16} />
+                <RoundedText text={presentationSemester} fontSize={16} />
                 <RoundedText text={status} fontSize={16} variant={PROJECT_STATUS_VARIANT[status as ProjectStatus]} />
             </View>
 

@@ -21,7 +21,7 @@ export default function EvaluatorHomeScreen() {
 
     const evaluatedSemesters = useMemo(() => {
         const semesters = new Set<string>();
-        account?.evaluatedProjects?.forEach(project => semesters.add(project.presentationDate));
+        account?.evaluatedProjects?.forEach(project => semesters.add(project.presentationSemester));
         return sortSemesters(Array.from(semesters));
     }, [account]);
 
@@ -57,7 +57,7 @@ export default function EvaluatorHomeScreen() {
 
     useEffect(() => {
         if (account?.evaluatedProjects) {
-            let selectedSemesterProjects = account.evaluatedProjects.filter(project => project.presentationDate === selectedSemester);
+            let selectedSemesterProjects = account.evaluatedProjects.filter(project => project.presentationSemester === selectedSemester);
             setEvaluatedProjects(selectedSemesterProjects);
         }
     }, [selectedSemester, account]);

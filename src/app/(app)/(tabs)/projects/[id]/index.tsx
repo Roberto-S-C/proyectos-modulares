@@ -51,7 +51,7 @@ export default function ProjectOptionsScreen() {
                         <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.projectImage} />
                         <Title text={project.name} />
                         <View style={styles.projectInfoContainer}>
-                            <RoundedText text={project.presentationDate} fontSize={20} />
+                            <RoundedText text={project.presentationSemester} fontSize={20} />
                             <RoundedText text={project.status} fontSize={20} variant={PROJECT_STATUS_VARIANT[project.status as ProjectStatus]} />
                         </View>
 

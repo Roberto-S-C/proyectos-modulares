@@ -53,7 +53,7 @@ export default function CreateProjectScreen() {
         defaultValues: {
             name: "",
             description: "",
-            presentationDate: undefined,
+            presentationSemester: undefined,
             modules: [],
             advisorId: ""
         }
@@ -119,9 +119,9 @@ export default function CreateProjectScreen() {
         if (!showSelectAdvisorList) return;
         const fetchAdvisors = async () => {
             setIsLoading(true);
-            const presentationDate = getValues("presentationDate");
+            const presentationSemester = getValues("presentationSemester");
             try {
-                const res = await getAvailableAdvisors(presentationDate);
+                const res = await getAvailableAdvisors(presentationSemester);
                 setAdvisors(res.data);
                 if (res.data.length === 0) throw new Error("Error fetching Advisors");
             }
@@ -129,7 +129,7 @@ export default function CreateProjectScreen() {
                 setIsAlertVisible(true);
                 setAlertProps(prev => ({
                     ...prev,
-                    message: `Asesores no disponibles en ${presentationDate}`,
+                    message: `Asesores no disponibles en ${presentationSemester}`,
                     onDismiss: () => {
                         setShowSelectAdvisorList(false);
                         setIsAlertVisible(false);
@@ -210,13 +210,13 @@ export default function CreateProjectScreen() {
 
                         <Controller
                             control={control}
-                            name="presentationDate"
+                            name="presentationSemester"
                             rules={{ required: true }}
                             render={({ field }) =>
                                 <View style={styles.section}>
-                                    <Text style={styles.inputLabel}>Fecha de presentación</Text>
+                                    <Text style={styles.inputLabel}>Semestre de presentación</Text>
                                     <SemesterPicker value={field.value} onChange={field.onChange}  semesters={getPresentationSemesters()} />
-                                    {errors.presentationDate && <Text style={styles.error}>* Campo requerido</Text>}
+                                    {errors.presentationSemester && <Text style={styles.error}>* Campo requerido</Text>}
                                 </View>
                             }
                         />
@@ -253,7 +253,7 @@ export default function CreateProjectScreen() {
 
                         <View>
                             <RoundedOptionButton text="Continuar" icon="" onPress={async () => {
-                                const valid = await trigger(["name", "description", "presentationDate", "modules"]);
+                                const valid = await trigger(["name", "description", "presentationSemester", "modules"]);
                                 if (valid) setShowSelectAdvisorList(true);
                             }} />
                         </View>

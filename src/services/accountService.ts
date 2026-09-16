@@ -7,4 +7,4 @@ export const getAccountDetails = (id: string) => apiClient.get(`/accounts/${id}`
 
 export const getAvailableMembers = () => apiClient.get(`/accounts/available-members`);
 
-export const getAvailableAdvisors = (presentationDate: string) => apiClient.get(`/accounts/available-advisors?presentationDate=${presentationDate}`);
+export const getAvailableAdvisors = (presentationSemester: string) => apiClient.get(`/accounts/available-advisors?presentationSemester=${presentationSemester}`);

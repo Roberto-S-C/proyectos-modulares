@@ -1,16 +1,19 @@
 import Colors from "@/src/constants/Colors";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
 
 interface Props {
     text: string,
-    onPress: () => void  
+    onPress: () => void,
+    disabled?: boolean,
+    style?: StyleProp<ViewStyle>,
 }
 
-export default function PrimaryButton({ text, onPress }: Props) {
+export default function PrimaryButton({ text, onPress, disabled = false, style }: Props) {
     return (
         <TouchableOpacity
             onPress={onPress}
-            style={styles.button}>
+            disabled={disabled}
+            style={[styles.button, disabled && styles.buttonDisabled, style]}>
             <Text style={styles.buttonText}>{text}</Text>
         </TouchableOpacity>
     );
@@ -24,6 +27,9 @@ const styles = StyleSheet.create({
         padding: 8,
         backgroundColor: Colors.primary,
         borderRadius: 10
+    },
+    buttonDisabled: {
+        opacity: 0.5
     },
     buttonText: {
         fontSize: 24,
