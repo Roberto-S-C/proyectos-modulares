@@ -7,7 +7,8 @@ export type Project = {
     name: string,
     status: string,
     description: string,
-    presentationDate: string,
+    presentationDate: string | null,
+    presentationSemester: string,
     coverImageUrl: string
 }
 
@@ -23,7 +24,7 @@ export type CreateProject = {
     name: string,
     description: string,
     status: string,
-    presentationDate: string,
+    presentationSemester: string,
     advisorId: string,
     modules: string[]
 }
@@ -32,7 +33,7 @@ export type UpdateProject = {
     name?: string,
     description?: string,
     status?: string,
-    presentationDate?: string,
+    presentationSemester?: string,
     advisorId?: string
 }
 

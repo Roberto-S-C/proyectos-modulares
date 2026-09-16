@@ -35,3 +35,48 @@ export type CreateModulePreevaluation = {
     status: PreevaluationStatus,
     progress: PreevaluationScores,
 }
+
+export type ProjectModuleScore = {
+    projectId: number,
+    projectModuleId: number,
+    moduleName: string,
+    score: number | null,
+}
+
+export type Evaluation = {
+    userId: string,
+    userName: string,
+    score: number,
+}
+
+export type ProjectModuleEvaluations = {
+    projectId: number,
+    projectModuleId: number,
+    moduleName: string,
+    evaluations: Evaluation[],
+}
+
+export type ProjectEvaluations = {
+    projectName: string,
+    coverImageUrl: string,
+    score: number | null,
+    moduleScores: ProjectModuleScore[],
+    evaluatorIds: string[],
+}
+
+export type ModuleQuestionItem = {
+    id: number,
+    name: string,
+}
+
+export type ProjectModuleQuestions = {
+    projectModuleId: number,
+    moduleName: string,
+    questions: ModuleQuestionItem[],
+}
+
+export type CreateModuleEvaluation = {
+    projectModuleId: number,
+    moduleQuestionId: number,
+    score: number,
+}

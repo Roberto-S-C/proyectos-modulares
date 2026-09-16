@@ -32,11 +32,11 @@ apiClient.interceptors.response.use(response => {
     if (error.response?.status === 401) {
         let { access_token, id_token, refresh_token } = await retrieveTokens();
         if (access_token && id_token && refresh_token) {
-            // Get new access_token & id_token 
+            // Get new access_token & id_token
             let new_tokens = await exchangeRefreshToken(refresh_token);
             if (new_tokens.error) {
                 setAuthContextAuthState(null);
-                return;
+                return Promise.reject(error);
             }
 
             new_tokens['refresh_token'] = refresh_token;
@@ -51,6 +51,8 @@ apiClient.interceptors.response.use(response => {
             return apiClient(originalRequest);
         }
     }
+
+    return Promise.reject(error);
 });
 
 

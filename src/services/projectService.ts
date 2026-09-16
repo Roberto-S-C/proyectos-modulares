@@ -1,6 +1,6 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
-import { CreateModulePreevaluation } from "../types/module.type";
+import { CreateModuleEvaluation, CreateModulePreevaluation } from "../types/module.type";
 import { AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
@@ -34,3 +34,11 @@ export const getProjectModules = (projectId: number) => apiClient.get(`projects/
 export const getProjectModulesPreevaluations = (projectId: number) => apiClient.get(`projects/${projectId}/modules/preevaluations`);
 
 export const addProjectModulePreevaluation = (projectId: number, preevaluation: CreateModulePreevaluation) => apiClient.post(`projects/${projectId}/modules/preevaluations`, preevaluation);
+
+export const getProjectEvaluations = (projectId: number) => apiClient.get(`projects/${projectId}/evaluations`);
+
+export const getProjectModuleEvaluations = (projectId: number, projectModuleId: number) => apiClient.get(`projects/${projectId}/modules/${projectModuleId}/evaluations`);
+
+export const getProjectModuleQuestions = (projectId: number) => apiClient.get(`projects/${projectId}/modules/questions`);
+
+export const addProjectEvaluation = (projectId: number, evaluations: CreateModuleEvaluation[]) => apiClient.post(`projects/${projectId}/evaluations`, evaluations);
