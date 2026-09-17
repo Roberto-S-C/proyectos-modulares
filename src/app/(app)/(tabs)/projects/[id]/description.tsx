@@ -2,11 +2,13 @@ import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
 import PrimaryButton from '@/src/components/PrimaryButton';
+import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
-import { getProject, updateProject } from '@/src/services/projectService';
-import { Project, UpdateProject } from '@/src/types/project.types';
+import { AuthContext } from '@/src/contexts/AuthContext';
+import { getProject, getProjectMembers, updateProject } from '@/src/services/projectService';
+import { Project, ProjectMembers, UpdateProject } from '@/src/types/project.types';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -19,6 +21,7 @@ interface FormInputs {
 export default function ProjectDescriptionScreen() {
     const { id } = useLocalSearchParams();
     const [project, setProject] = useState<Project | null>(null);
+    const [projectMembers, setProjectMembers] = useState<ProjectMembers | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -30,18 +33,29 @@ export default function ProjectDescriptionScreen() {
 
     const router = useRouter();
 
+    const authContext = useContext(AuthContext);
+    const userId = authContext.authState?.user.id;
+    const isMember = !!userId && !!projectMembers && projectMembers.members.some(member => member.id === userId);
+
     useFocusEffect(useCallback(() => {
         setIsLoading(true);
         const fetchProject = async () => {
             try {
-                const res = await getProject(parseInt(id.toString()));
-                if (res.status === 200) {
-                    setProject(res.data);
-                    setValue("name", res.data.name);
-                    setValue("description", res.data.description);
-                    return;
+                const [projectRes, membersRes] = await Promise.all([
+                    getProject(parseInt(id.toString())),
+                    getProjectMembers(parseInt(id.toString())),
+                ]);
+                if (projectRes.status === 200) {
+                    setProject(projectRes.data);
+                    setValue("name", projectRes.data.name);
+                    setValue("description", projectRes.data.description);
                 }
-                throw new Error(`Error while fetching project ${id}`)
+                else {
+                    throw new Error(`Error while fetching project ${id}`)
+                }
+                if (membersRes.status === 200) {
+                    setProjectMembers(membersRes.data);
+                }
             }
             catch (e) {
                 setIsAlertVisible(true);
@@ -131,48 +145,58 @@ export default function ProjectDescriptionScreen() {
             {project && !isLoading &&
                 <View style={styles.container}>
                     <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
-                    <Controller
-                        name='name'
-                        control={control}
-                        rules={{ required: true, maxLength: 100 }}
-                        render={({ field: { value, onBlur, onChange } }) =>
-                            <TextInput
-                                numberOfLines={1}
-                                placeholder='Nombre...'
-                                onChangeText={onChange}
-                                value={value}
-                                onBlur={onBlur}
-                                style={styles.projectName}
+                    {isMember
+                        ?
+                        <>
+                            <Controller
+                                name='name'
+                                control={control}
+                                rules={{ required: true, maxLength: 100 }}
+                                render={({ field: { value, onBlur, onChange } }) =>
+                                    <TextInput
+                                        numberOfLines={1}
+                                        placeholder='Nombre...'
+                                        onChangeText={onChange}
+                                        value={value}
+                                        onBlur={onBlur}
+                                        style={styles.projectName}
+                                    />
+                                }
                             />
-                        }
-                    />
-                    {errors.name && errors.name.type === "required"
-                        && <Text style={styles.formError}>Introduzca una nombre válido</Text>}
-                    {errors.description && errors.description.type === "maxLength"
-                        && <Text style={styles.formError}>El nombre del proyecto debe tener menos de 100 caracteres</Text>}
+                            {errors.name && errors.name.type === "required"
+                                && <Text style={styles.formError}>Introduzca una nombre válido</Text>}
+                            {errors.description && errors.description.type === "maxLength"
+                                && <Text style={styles.formError}>El nombre del proyecto debe tener menos de 100 caracteres</Text>}
 
-                    <Controller
-                        name='description'
-                        control={control}
-                        rules={{ required: true, maxLength: 500 }}
-                        render={({ field: { value, onBlur, onChange } }) =>
-                            <TextInput
-                                multiline
-                                numberOfLines={4}
-                                placeholder='Descripción...'
-                                onChangeText={onChange}
-                                value={value}
-                                onBlur={onBlur}
-                                style={styles.description}
+                            <Controller
+                                name='description'
+                                control={control}
+                                rules={{ required: true, maxLength: 500 }}
+                                render={({ field: { value, onBlur, onChange } }) =>
+                                    <TextInput
+                                        multiline
+                                        numberOfLines={4}
+                                        placeholder='Descripción...'
+                                        onChangeText={onChange}
+                                        value={value}
+                                        onBlur={onBlur}
+                                        style={styles.description}
+                                    />
+                                }
                             />
-                        }
-                    />
-                    {errors.description && errors.description.type === "required"
-                        && <Text style={styles.formError}>Introduzca una descripción válida</Text>}
-                    {errors.description && errors.description.type === "maxLength"
-                        && <Text style={styles.formError}>La descripción debe tener menos de 500 caracteres</Text>}
+                            {errors.description && errors.description.type === "required"
+                                && <Text style={styles.formError}>Introduzca una descripción válida</Text>}
+                            {errors.description && errors.description.type === "maxLength"
+                                && <Text style={styles.formError}>La descripción debe tener menos de 500 caracteres</Text>}
 
-                    <PrimaryButton text='Actualizar' onPress={handleSubmit(onSubmit)} />
+                            <PrimaryButton text='Actualizar' onPress={handleSubmit(onSubmit)} />
+                        </>
+                        :
+                        <>
+                            <Title text={project.name} />
+                            <Text style={styles.readOnlyDescription}>{project.description}</Text>
+                        </>
+                    }
                 </View>
             }
         </ScrollView>
@@ -223,5 +247,11 @@ const styles = StyleSheet.create({
     formError: {
         fontWeight: 'bold',
         color: Colors.error
+    },
+    readOnlyDescription: {
+        textAlign: 'justify',
+        fontSize: 16,
+        color: Colors.textSecondary,
+        width: '90%'
     }
 });
