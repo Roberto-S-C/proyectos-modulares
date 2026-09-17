@@ -83,19 +83,33 @@ const styles = StyleSheet.create({
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    justifyContent: 'center',
+    gap: 12,
+    width: '85%',
+    maxWidth: 340,
     backgroundColor: Colors.itemBackgroundColor,
-    padding: 8,
-    borderRadius: 16
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+
+    // iOS
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+
+    // Android
+    elevation: 3,
   },
   googleLogo: {
-    width: 40,
-    height: 40
+    width: 44,
+    height: 44
   },
   googleButtonText: {
     textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 16
+    fontWeight: '600',
+    fontSize: 18,
+    color: Colors.textPrimary
   },
   errorContainer: {
     padding: 12,
