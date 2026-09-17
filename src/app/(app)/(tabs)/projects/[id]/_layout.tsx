@@ -1,3 +1,4 @@
+import Colors from "@/src/constants/Colors";
 import { Stack } from "expo-router";
 
 export const unstable_settings = {
@@ -6,7 +7,11 @@ export const unstable_settings = {
 
 export default function ProjectLayout() {
     return (
-        <Stack>
+        <Stack screenOptions={{
+            headerTintColor: Colors.secondary,
+            headerTitleStyle: { fontWeight: 'bold' },
+            headerTitleAlign: 'center',
+        }}>
             <Stack.Screen name="index" options={{ title: "Proyecto"}} />
             <Stack.Screen name="description" options={{ title: "Descripción"}} />
             <Stack.Screen name="files" options={{ headerShown: false }} />
