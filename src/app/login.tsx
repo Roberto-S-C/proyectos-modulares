@@ -76,8 +76,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: '50%',
-    height: '50%'
+    width: '85%',
+    height: '70%',
+    resizeMode: 'contain'
   },
   googleButton: {
     flexDirection: 'row',

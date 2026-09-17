@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
         gap: 8
     },
     logo: {
-        width: '50%',
-        height: '50%'
+        width: '85%',
+        height: '70%',
+        resizeMode: 'contain'
     }
 });
