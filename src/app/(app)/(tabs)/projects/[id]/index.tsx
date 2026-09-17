@@ -3,27 +3,43 @@ import NotFoundItem from "@/src/components/NotFoundItem";
 import ProjectOption from "@/src/components/Project/ProjectOption";
 import RoundedText from "@/src/components/RoundedText";
 import Title from "@/src/components/Title";
-import { getProject } from "@/src/services/projectService";
-import { Project, ProjectStatus } from "@/src/types/project.types";
+import { AuthContext } from "@/src/contexts/AuthContext";
+import { getProject, getProjectEvaluations, getProjectMembers } from "@/src/services/projectService";
+import { Project, ProjectMembers, ProjectStatus } from "@/src/types/project.types";
 import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProjectOptionsScreen() {
     const { id } = useLocalSearchParams();
     const [project, setProject] = useState<Project | null>(null);
+    const [projectMembers, setProjectMembers] = useState<ProjectMembers | null>(null);
+    const [evaluatorIds, setEvaluatorIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useFocusEffect(
+    const authContext = useContext(AuthContext);
+    const userId = authContext.authState?.user.id;
+    const role = authContext.authState?.user.role;
 
+    const isAdvisorOrMember = !!userId && !!projectMembers &&
+        (projectMembers.advisor.id === userId || projectMembers.members.some(member => member.id === userId));
+    const isEvaluator = !!userId && evaluatorIds.includes(userId);
+    const canAccessProjectResources = role === 'ADMIN' || isAdvisorOrMember;
+    const canAccessEvaluation = canAccessProjectResources || isEvaluator;
+
+    useFocusEffect(
         useCallback(() => {
             setIsLoading(true);
             const fetchProject = async () => {
                 try {
-                    const res = await getProject(Number(id));
-                    if (res.status === 200 && res.data) setProject(res.data);
+                    const [projectRes, membersRes] = await Promise.all([
+                        getProject(Number(id)),
+                        getProjectMembers(Number(id)),
+                    ]);
+                    if (projectRes.status === 200 && projectRes.data) setProject(projectRes.data);
+                    if (membersRes.status === 200 && membersRes.data) setProjectMembers(membersRes.data);
                 }
                 catch (e) {
 
@@ -31,12 +47,21 @@ export default function ProjectOptionsScreen() {
                 finally {
                     setIsLoading(false);
                 }
+
+                // Fetched separately: unlike the project/members endpoints, this one 403s for
+                // users with no relationship to the project, which shouldn't block the rest
+                // of the page from loading - it just means "not an evaluator here".
+                try {
+                    const evaluationsRes = await getProjectEvaluations(Number(id));
+                    if (evaluationsRes.status === 200 && evaluationsRes.data) setEvaluatorIds(evaluationsRes.data.evaluatorIds);
+                }
+                catch (e) {
+
+                }
             }
             fetchProject();
-        }, [])
+        }, [id])
     )
-    useEffect(() => {
-    }, []);
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -57,9 +82,15 @@ export default function ProjectOptionsScreen() {
 
                         <View style={styles.projectOptionsContainer}>
                             <ProjectOption text="Descripción" iconName="information-circle" navigationUrl={`/(tabs)/projects/[id]/description`} navigationUrlProjectIdParam={parseInt(id.toString())} />
-                            <ProjectOption text="Evaluación" iconName="star" navigationUrl="/(app)/(tabs)/projects/[id]/modules" navigationUrlProjectIdParam={parseInt(id.toString())} />
-                            <ProjectOption text="Archivos" iconName="folder" navigationUrl="/(app)/(tabs)/projects/[id]/files" navigationUrlProjectIdParam={parseInt(id.toString())} />
-                            <ProjectOption text="Miembros" iconName="people-circle" navigationUrl="/(app)/(tabs)/projects/[id]/members" navigationUrlProjectIdParam={parseInt(id.toString())} />
+                            {canAccessEvaluation &&
+                                <ProjectOption text="Evaluación" iconName="star" navigationUrl="/(app)/(tabs)/projects/[id]/modules" navigationUrlProjectIdParam={parseInt(id.toString())} />
+                            }
+                            {canAccessProjectResources &&
+                                <ProjectOption text="Archivos" iconName="folder" navigationUrl="/(app)/(tabs)/projects/[id]/files" navigationUrlProjectIdParam={parseInt(id.toString())} />
+                            }
+                            {canAccessProjectResources &&
+                                <ProjectOption text="Miembros" iconName="people-circle" navigationUrl="/(app)/(tabs)/projects/[id]/members" navigationUrlProjectIdParam={parseInt(id.toString())} />
+                            }
                         </View>
                     </View>
 

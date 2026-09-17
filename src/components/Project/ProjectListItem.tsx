@@ -11,7 +11,19 @@ export default function ProjectListItem({ id, name, status, presentationSemester
 
     return (
         <TouchableOpacity style={styles.container}
-            onPress={() => router.navigate({ pathname: '/(app)/(tabs)/projects/[id]', params: { id } })}>
+            onPress={() => {
+                // Ensures the projects list is actually in history before the detail screen,
+                // even when this is tapped from a different tab (Home/Advisor), so the
+                // detail screen's back button has somewhere real to go. Cheap no-op when
+                // the list is already in the stack, since "index" is dangerouslySingular.
+                // The two pushes are deferred to separate ticks because two router.push()
+                // calls in the same handler don't reliably apply in order (the second one
+                // appears to compute against the pre-first-push state, not the result of it).
+                router.push('/(app)/(tabs)/projects');
+                requestAnimationFrame(() => {
+                    router.push({ pathname: '/(app)/(tabs)/projects/[id]', params: { id } });
+                });
+            }}>
 
             <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${coverImageUrl}` }} style={styles.image} />
 

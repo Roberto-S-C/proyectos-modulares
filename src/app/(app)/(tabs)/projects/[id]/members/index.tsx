@@ -54,7 +54,7 @@ export default function ProjectMembersScreen() {
                 }
             }
             fetchProjectMembers();
-        }, [])
+        }, [projectId])
     );
 
     return (

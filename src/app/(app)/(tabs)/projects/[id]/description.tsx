@@ -60,7 +60,7 @@ export default function ProjectDescriptionScreen() {
             }
         }
         fetchProject();
-    }, []))
+    }, [id]))
 
     const {
         handleSubmit,

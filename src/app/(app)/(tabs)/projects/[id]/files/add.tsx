@@ -197,7 +197,7 @@ export default function AddProjectFilesScreen() {
                 }
             }
             fetchProjectFiles();
-        }, [])
+        }, [projectId])
     );
 
     return (

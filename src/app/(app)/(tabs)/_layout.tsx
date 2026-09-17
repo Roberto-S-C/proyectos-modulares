@@ -43,6 +43,7 @@ export default function TabLayout() {
         title: 'Proyectos',
         tabBarIcon: ({ color }) => <Ionicons name='hammer' size={28} color={color} />,
         href: visibleTabs.includes('projects') ? undefined : null,
+        popToTopOnBlur: true,
       }} />
       <Tabs.Screen name='accounts' options={{
         title: 'Cuentas',

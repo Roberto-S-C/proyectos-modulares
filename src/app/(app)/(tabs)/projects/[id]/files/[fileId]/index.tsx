@@ -58,7 +58,7 @@ export default function ProjectFileScreen() {
                 }
             }
             fetchFile();
-        }, [])
+        }, [id, fileId])
     );
 
     return (

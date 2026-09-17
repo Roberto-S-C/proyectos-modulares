@@ -29,11 +29,16 @@ export default function ProjectsScreen() {
 
     useEffect(() => {
         setIsLoading(true);
-        getProjects().then(projects => {
-            console.log(projects);
-            // setProjects(projects);
-            // setIsLoading(false);
-        });
+        getProjects()
+            .then(res => {
+                setProjects(res.data);
+            })
+            .catch(e => {
+                console.log(e);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }, []);
 
     return (
