@@ -7,33 +7,61 @@ interface PersonalInfo {
     lastname: string,
     email: string,
     role: string
-    profile_picture: string
+    profilePicture: string
 }
 
-export default function AccountPersonalInfo({ name, lastname, email, profile_picture, role  }: PersonalInfo) {
+export default function AccountPersonalInfo({ name, lastname, email, profilePicture, role }: PersonalInfo) {
     return (
-        <View style={styles.container}>
-            <Image source={{ uri: profile_picture }} style={styles.profile_picture} />
-            <Text style={styles.email}>{name} {lastname}</Text>
-            <RoundedText text={role.split('_')[1]} fontSize={20} />
-            <Text style={styles.email}>{email}</Text>
+        <View style={styles.card}>
+            <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+            <View style={styles.info}>
+                <Text style={styles.name}>{name} {lastname}</Text>
+                <Text style={styles.email}>{email}</Text>
+                <View style={styles.role}>
+                    <RoundedText text={role} fontSize={14} />
+                </View>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    card: {
+        flexDirection: 'row',
         alignItems: 'center',
-        gap: 8
+        gap: 16,
+        width: '92%',
+        padding: 16,
+
+        // iOS
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+
+        // Android
+        elevation: 3,
     },
-    profile_picture: {
-        width: 200,
-        height: 200,
-        borderRadius: 100
+    profilePicture: {
+        width: 100,
+        height: 125,
+        borderRadius: 8,
+    },
+    info: {
+        flex: 1,
+        gap: 6,
+    },
+    name: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: Colors.primary,
     },
     email: {
-        textAlign: 'center',
-        fontSize: 16,
-        color: Colors.primary
+        fontSize: 14,
+        color: Colors.textSecondary,
+    },
+    role: {
+        alignSelf: 'flex-start',
+        marginTop: 4,
     },
 });
