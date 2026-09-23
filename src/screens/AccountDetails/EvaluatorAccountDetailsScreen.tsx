@@ -1,10 +1,20 @@
+import Accordion from "@/src/components/Accordion"
 import AccountPersonalInfo from "@/src/components/Account/AccountPersonalInfo"
 import ProjectListItem from "@/src/components/Project/ProjectListItem"
-import Title from "@/src/components/Title"
 import Colors from "@/src/constants/Colors"
 import { AccountDetails } from "@/src/types/account.type"
+import Ionicons from "@expo/vector-icons/Ionicons"
 import { ScrollView, StyleSheet, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+
+function EmptyList({ text }: { text: string }) {
+    return (
+        <View style={styles.emptyContainer}>
+            <Ionicons name="layers-sharp" size={40} color={Colors.textSecondary} />
+            <Text style={styles.emptyText}>{text}</Text>
+        </View>
+    );
+}
 
 export default function EvaluatorAccountDetailsScreen({ name, lastname, email, profilePicture, role, advisedProjects = [], evaluatedProjects = [] }: AccountDetails) {
 
@@ -14,15 +24,27 @@ export default function EvaluatorAccountDetailsScreen({ name, lastname, email, p
                 <AccountPersonalInfo name={name} lastname={lastname} email={email} profilePicture={profilePicture} role={role} />
 
                 <View style={styles.section}>
-                    <Title text="Proyectos Asesorados" />
-                    {advisedProjects.length === 0 && <Text style={styles.emptyText}>No hay proyectos asesorados</Text>}
-                    {advisedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                    <Accordion
+                        title="Proyectos Asesorados"
+                        content={
+                            <View style={styles.accordionContent}>
+                                {advisedProjects.length === 0 && <EmptyList text="No hay proyectos asesorados" />}
+                                {advisedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                            </View>
+                        }
+                    />
                 </View>
 
                 <View style={styles.section}>
-                    <Title text="Proyectos Evaluados" />
-                    {evaluatedProjects.length === 0 && <Text style={styles.emptyText}>No hay proyectos evaluados</Text>}
-                    {evaluatedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                    <Accordion
+                        title="Proyectos Evaluados"
+                        content={
+                            <View style={styles.accordionContent}>
+                                {evaluatedProjects.length === 0 && <EmptyList text="No hay proyectos evaluados" />}
+                                {evaluatedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                            </View>
+                        }
+                    />
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -40,9 +62,15 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
     },
     section: {
+        width: '92%',
+    },
+    accordionContent: {
         alignItems: 'center',
         gap: 16,
-        width: '100%',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        gap: 4,
     },
     emptyText: {
         fontSize: 16,
