@@ -29,11 +29,6 @@ export default function TabLayout() {
         tabBarIcon: ({ color }) => <Ionicons name='briefcase' size={28} color={color} />,
         href: visibleTabs.includes('advisor') ? undefined : null,
       }} />
-      <Tabs.Screen name="notifications" options={{
-        title: 'Notificaciones',
-        tabBarIcon: ({ color }) => <Ionicons name='notifications' size={28} color={color} />,
-        href: visibleTabs.includes('notifications') ? undefined : null,
-      }} />
       <Tabs.Screen name='files' options={{
         title: 'Archivos',
         tabBarIcon: ({ color }) => <Ionicons name='folder' size={28} color={color} />,
@@ -44,6 +39,11 @@ export default function TabLayout() {
         tabBarIcon: ({ color }) => <Ionicons name='hammer' size={28} color={color} />,
         href: visibleTabs.includes('projects') ? undefined : null,
         popToTopOnBlur: true,
+      }} />
+      <Tabs.Screen name="notifications" options={{
+        title: 'Notificaciones',
+        tabBarIcon: ({ color }) => <Ionicons name='notifications' size={28} color={color} />,
+        href: visibleTabs.includes('notifications') ? undefined : null,
       }} />
       <Tabs.Screen name='accounts' options={{
         title: 'Cuentas',
