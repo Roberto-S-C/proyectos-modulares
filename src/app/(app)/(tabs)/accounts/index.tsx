@@ -61,10 +61,10 @@ export default function AccountsScreen() {
                         selectionColor={Colors.secondary}
                     >
                         <Picker.Item label='ROL' value='' style={styles.pickerItem} />
-                        <Picker.Item label={Role.Admin.split('_')[1]} value={Role.Admin} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Evaluador.split('_')[1]} value={Role.Evaluador} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Alumno.split('_')[1]} value={Role.Alumno} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Usuario.split('_')[1]} value={Role.Usuario} style={styles.pickerItem} />
+                        <Picker.Item label={Role.Admin} value={Role.Admin} style={styles.pickerItem} />
+                        <Picker.Item label={Role.Evaluador} value={Role.Evaluador} style={styles.pickerItem} />
+                        <Picker.Item label={Role.Alumno} value={Role.Alumno} style={styles.pickerItem} />
+                        <Picker.Item label={Role.Usuario} value={Role.Usuario} style={styles.pickerItem} />
                     </Picker>
 
                 </View>
