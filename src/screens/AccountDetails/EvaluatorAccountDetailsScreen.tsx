@@ -1,49 +1,30 @@
 import AccountPersonalInfo from "@/src/components/Account/AccountPersonalInfo"
-import ProjectList from "@/src/components/Project/ProjectList"
+import ProjectListItem from "@/src/components/Project/ProjectListItem"
 import Title from "@/src/components/Title"
-import { FlatList, StyleSheet, View } from "react-native"
+import Colors from "@/src/constants/Colors"
+import { AccountDetails } from "@/src/types/account.type"
+import { ScrollView, StyleSheet, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
-interface projectImage {
-    id: number,
-    url: string
-}
-
-interface Project {
-    id: number,
-    name: string,
-    status: string,
-    presentation_date: string,
-    images: projectImage[]
-}
-
-interface EvaluatorDetails {
-    id: string,
-    name: string,
-    lastname: string,
-    email: string,
-    profile_picture: string
-    role: string,
-    projects: Project[]
-}
-
-export default function EvaluatorAccountDetailsScreen({ id, name, lastname, email, profile_picture, role, projects }: EvaluatorDetails) {
+export default function EvaluatorAccountDetailsScreen({ name, lastname, email, profilePicture, role, advisedProjects = [], evaluatedProjects = [] }: AccountDetails) {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <FlatList
-                data={projects}
-                renderItem={({ item }) => <ProjectList projects={[item]} />}
-                keyExtractor={(item) => item.id.toString()}
-                ListHeaderComponent={
-                    <View style={styles.headerContainer}>
-                        <AccountPersonalInfo name={name} lastname={lastname} email={email} profile_picture={profile_picture} role={role} />
-                        <Title text="Proyectos Evaluados" />
-                    </View>
-                }
-                contentContainerStyle={styles.listContent}
-                scrollEnabled={true}
-            />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <AccountPersonalInfo name={name} lastname={lastname} email={email} profilePicture={profilePicture} role={role} />
+
+                <View style={styles.section}>
+                    <Title text="Proyectos Asesorados" />
+                    {advisedProjects.length === 0 && <Text style={styles.emptyText}>No hay proyectos asesorados</Text>}
+                    {advisedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                </View>
+
+                <View style={styles.section}>
+                    <Title text="Proyectos Evaluados" />
+                    {evaluatedProjects.length === 0 && <Text style={styles.emptyText}>No hay proyectos evaluados</Text>}
+                    {evaluatedProjects.map(project => <ProjectListItem key={project.id} {...project} />)}
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -51,17 +32,20 @@ export default function EvaluatorAccountDetailsScreen({ id, name, lastname, emai
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        justifyContent: 'center',
         width: '100%',
     },
-    headerContainer: {
+    scrollContent: {
         alignItems: 'center',
         gap: 16,
         paddingVertical: 16,
     },
-    listContent: {
-        flexGrow: 1,
-        justifyContent: 'center',
+    section: {
         alignItems: 'center',
+        gap: 16,
+        width: '100%',
+    },
+    emptyText: {
+        fontSize: 16,
+        color: Colors.textSecondary,
     },
 });

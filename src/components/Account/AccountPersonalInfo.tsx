@@ -32,6 +32,10 @@ const styles = StyleSheet.create({
         gap: 16,
         width: '92%',
         padding: 16,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: Colors.primary,
+        backgroundColor: Colors.itemBackgroundColor,
 
         // iOS
         shadowColor: Colors.shadow,
@@ -45,7 +49,9 @@ const styles = StyleSheet.create({
     profilePicture: {
         width: 100,
         height: 125,
+        borderColor: Colors.border,
         borderRadius: 8,
+        backgroundColor: Colors.selectedItemBackgroundColor,
     },
     info: {
         flex: 1,
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
         color: Colors.primary,
     },
     email: {
-        fontSize: 14,
+        fontSize: 12,
         color: Colors.textSecondary,
     },
     role: {
