@@ -23,6 +23,7 @@ export type AccountDetails = {
     email: string,
     role: Role,
     profilePicture: string,
+    project?: Project | null,
     advisedProjects?: Project[],
     evaluatedProjects?: Project[],
 }

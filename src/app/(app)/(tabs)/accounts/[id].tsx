@@ -1,50 +1,53 @@
 import Loading from '@/src/components/Loading';
+import NotFoundItem from '@/src/components/NotFoundItem';
 import AdminAccountDetailsScreen from '@/src/screens/AccountDetails/AdminAccountDetailsScreen';
 import EvaluatorAccountDetailsScreen from '@/src/screens/AccountDetails/EvaluatorAccountDetailsScreen';
 import MemberAccountDetailsScreen from '@/src/screens/AccountDetails/MemberAccountDetailsScreen';
 import UserAccountDetailsScreen from '@/src/screens/AccountDetails/UserAccountDetailsScreen';
-import axios, { AxiosResponse } from 'axios';
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { getAccountDetails } from '@/src/services/accountService';
+import { AccountDetails, Role } from '@/src/types/account.type';
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
 
-interface Account {
-    id: string,
-    name: string,
-    lastname: string,
-    email: string,
-    profile_picture: string,
-    role: string,
-    project: any, // Student Project
-    projects: any // Evaluators Projects
-}
-
-async function getAccountDetails(id: string): Promise<Account | null> {
-    const response: AxiosResponse<Account> = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/accounts/${id}`);
-    return response.data;
-}
-
-export default function AccountDetails() {
+export default function AccountDetailsScreen() {
     const { id } = useLocalSearchParams();
-    const [account, setAccount] = useState<Account | null>(null);
+    const [account, setAccount] = useState<AccountDetails | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        getAccountDetails(id.toString()).then(account => setAccount(account));
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            setIsLoading(true);
+            setAccount(null);
+            const fetchAccountDetails = async () => {
+                try {
+                    const res = await getAccountDetails(id.toString());
+                    if (res.status === 200 && res.data) {
+                        setAccount(res.data);
+                    }
+                }
+                catch (e) { }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+            fetchAccountDetails();
+        }, [id])
+    );
 
-    switch (account?.role) {
-        case 'ROLE_USUARIO':
-            return <UserAccountDetailsScreen {...account} />
-        case 'ROLE_ALUMNO':
-            return <MemberAccountDetailsScreen {...account} />
-        case 'ROLE_EVALUADOR':
-            return <EvaluatorAccountDetailsScreen {...account} />
-        case 'ROLE_ADMIN':
-            return <AdminAccountDetailsScreen {...account} />
-        default:
-            return (
-                <Loading />
-            );
-
+    if (isLoading) {
+        return <Loading />;
     }
 
+    switch (account?.role) {
+        case Role.Usuario:
+            return <UserAccountDetailsScreen {...account} />
+        case Role.Alumno:
+            return <MemberAccountDetailsScreen {...account} />
+        case Role.Evaluador:
+            return <EvaluatorAccountDetailsScreen {...account} />
+        case Role.Admin:
+            return <AdminAccountDetailsScreen {...account} />
+        default:
+            return <NotFoundItem text="Cuenta no encontrada" />;
+    }
 }
