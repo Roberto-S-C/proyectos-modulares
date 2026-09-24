@@ -52,6 +52,17 @@ apiClient.interceptors.response.use(response => {
         }
     }
 
+    // 403 Forbidden - retry once only if the in-memory token is out of sync with the stored one
+    // (e.g. signed out and back in as a different account). A genuine denial is left untouched.
+    if (error.response?.status === 403 && originalRequest && !originalRequest._retriedAfter403) {
+        const { access_token } = await retrieveTokens();
+        if (access_token && access_token !== accessToken) {
+            originalRequest._retriedAfter403 = true;
+            accessToken = access_token;
+            return apiClient(originalRequest);
+        }
+    }
+
     return Promise.reject(error);
 });
 

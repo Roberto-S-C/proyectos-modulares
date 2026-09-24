@@ -58,6 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, [authState]);
 
+  // Keep the API client's in-memory access token in sync on every sign in / sign out / refresh.
+  useEffect(() => {
+    setApiClientAuth(authState?.tokens?.access_token ?? "", setAuthState);
+  }, [authState]);
+
   return (
     <AuthContext
       value={{ authState, setAuthState, isAuthenticated, isLoading }}>
