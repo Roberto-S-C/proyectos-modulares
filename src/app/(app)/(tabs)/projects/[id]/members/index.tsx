@@ -1,27 +1,31 @@
+import Accordion from "@/src/components/Accordion";
 import AccountListItem from "@/src/components/Account/AccountListItem";
 import CustomAlert from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
+import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { getProjectMembers } from "@/src/services/projectService";
-import { Role } from "@/src/types/account.type";
+import { getProjectEvaluators, getProjectMembers } from "@/src/services/projectService";
+import { Account, Role } from "@/src/types/account.type";
 import { ProjectMembers } from "@/src/types/project.types";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useContext, useState } from "react";
-import { FlatList, Image, StyleSheet, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProjectMembersScreen() {
     const [project, setProject] = useState<ProjectMembers>();
     const [membersId, setMembersId] = useState<string[]>([]);
+    const [evaluators, setEvaluators] = useState<Account[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
 
     const authContext = useContext(AuthContext);
     const userId = authContext.authState?.user?.id;
+    const isAdmin = authContext.authState?.user?.role === Role.Admin;
 
     const searchParams = useLocalSearchParams();
     const projectId = Number(searchParams.id);
@@ -52,10 +56,50 @@ export default function ProjectMembersScreen() {
                 finally {
                     setIsLoading(false);
                 }
+
+                if (isAdmin) {
+                    try {
+                        const evaluatorsRes = await getProjectEvaluators(projectId);
+                        setEvaluators(evaluatorsRes.data);
+                    }
+                    catch (e) {
+                        setEvaluators([]);
+                    }
+                }
             }
             fetchProjectMembers();
-        }, [projectId])
+        }, [projectId, isAdmin])
     );
+
+    const renderAccount = (item: Account) =>
+        <AccountListItem {...item} onPress={() => router.push({ pathname: '/(app)/(tabs)/accounts/[id]', params: { id: item.id } })} />;
+
+    const renderAccounts = (accounts: Account[], emptyText: string) =>
+        <FlatList
+            data={accounts}
+            renderItem={({ item }) => renderAccount(item)}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+            contentContainerStyle={styles.accounts}
+            ListEmptyComponent={<Text style={styles.emptyText}>{emptyText}</Text>}
+        />;
+
+    const renderButtons = () =>
+        <View style={styles.listHeader}>
+            {userId && membersId.includes(userId) &&
+                <RoundedOptionButton text="Añadir Miembro" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addMembers`) }} />
+            }
+            {isAdmin &&
+                <RoundedOptionButton text="Añadir Evaluador" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addEvaluators`) }} />
+            }
+        </View>;
+
+    const renderHeader = (project: ProjectMembers, withButtons: boolean) =>
+        <View style={styles.header}>
+            <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
+            <Title text={project.name} />
+            {withButtons && renderButtons()}
+        </View>;
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -74,22 +118,36 @@ export default function ProjectMembersScreen() {
 
             {!isLoading && project &&
                 <View style={styles.container}>
-                    <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
-                    <Title text={project.name} />
-
-                    <FlatList
-                        data={project.members}
-                        renderItem={({ item }) => <AccountListItem {...item} onPress={() => router.push({ pathname: '/(app)/(tabs)/accounts/[id]', params: { id: item.id } })} />}
-                        keyExtractor={item => item.id}
-                        style={styles.list}
-                        ListHeaderComponent={() =>
-                            userId &&
-                            membersId.includes(userId) &&
-                            <View style={styles.listHeader}>
-                                <RoundedOptionButton text="Añadir Miembro" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/add`) }} />
-                            </View>
-                        }
-                    />
+                    {isAdmin
+                        ? <FlatList
+                            data={['evaluators', 'members']}
+                            keyExtractor={section => section}
+                            style={styles.list}
+                            contentContainerStyle={styles.sections}
+                            ListHeaderComponent={() => renderHeader(project, true)}
+                            renderItem={({ item: section }) =>
+                                section === 'evaluators'
+                                    ? <Accordion
+                                        title="Evaluadores"
+                                        content={renderAccounts(evaluators, "No hay evaluadores asignados")}
+                                    />
+                                    : <Accordion
+                                        title="Miembros y Asesor"
+                                        content={renderAccounts(project.members, "No hay miembros")}
+                                    />
+                            }
+                        />
+                        : <>
+                            {renderHeader(project, false)}
+                            <FlatList
+                                data={project.members}
+                                renderItem={({ item }) => renderAccount(item)}
+                                keyExtractor={item => item.id}
+                                style={styles.list}
+                                ListHeaderComponent={() => renderButtons()}
+                            />
+                        </>
+                    }
                 </View>
             }
         </SafeAreaView>
@@ -98,12 +156,12 @@ export default function ProjectMembersScreen() {
 
 const styles = StyleSheet.create({
     screen: {
-        flex: 1
+        flex: 1,
     },
     container: {
         flex: 1,
         alignSelf: 'center',
-        width: '90%',
+        width: '96%',
         gap: 8
     },
     image: {
@@ -114,9 +172,26 @@ const styles = StyleSheet.create({
     listHeader: {
         alignSelf: 'center',
         width: '70%',
+        marginTop: 12,
         marginBottom: 12,
+        gap: 8,
     },
     list: {
         width: '100%'
+    },
+    header: {
+        gap: 8
+    },
+    sections: {
+        gap: 12,
+        paddingBottom: 16
+    },
+    accounts: {
+        gap: 8
+    },
+    emptyText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: Colors.textSecondary
     }
 });

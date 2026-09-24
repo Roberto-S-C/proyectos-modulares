@@ -1,13 +1,17 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
 import { CreateModuleEvaluation, CreateModulePreevaluation } from "../types/module.type";
-import { AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
+import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
 
 export const getProject = (id: number) => apiClient.get(`/projects/${id}`);
 
 export const getProjectMembers = (id: number) => apiClient.get(`/projects/${id}/members`);
+
+export const getProjectEvaluators = (id: number) => apiClient.get(`/projects/${id}/evaluators`);
+
+export const addProjectEvaluators = (projectId: number, newEvaluators: AddProjectEvaluators) => apiClient.post(`/projects/${projectId}/evaluators`, newEvaluators);
 
 export const createProject =  (project: CreateProject) => apiClient.post(`/projects`, project);
 

@@ -5,21 +5,19 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
     account: Account,
-    selectedAccountId: string,
-    setSelectedAccountId: (id: string) => void
+    isSelected: boolean,
+    onPress: () => void
 }
 
-export default function AddMemberListItem({ account, selectedAccountId, setSelectedAccountId }: Props) {
+export default function AddMemberListItem({ account, isSelected, onPress }: Props) {
 
     return (
         <TouchableOpacity
-            onPress={() => {
-                setSelectedAccountId(account.id);
-            }}
-            style={[styles.account, selectedAccountId === account.id && styles.itemSelected]}
+            onPress={onPress}
+            style={[styles.account, isSelected && styles.itemSelected]}
         >
-            {selectedAccountId === account.id && <Ionicons name="checkbox-sharp" size={38} color={Colors.secondary} />}
-            {selectedAccountId !== account.id && <Ionicons name="checkbox-outline" size={38} color={Colors.secondary} />}
+            {isSelected && <Ionicons name="checkbox-sharp" size={38} color={Colors.secondary} />}
+            {!isSelected && <Ionicons name="checkbox-outline" size={38} color={Colors.secondary} />}
 
             <View style={styles.info}>
                 <Text style={styles.name}>{account.name} {account.lastname}</Text>

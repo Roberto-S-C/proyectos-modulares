@@ -41,6 +41,10 @@ export type AddProjectMember = {
     memberId: string
 }
 
+export type AddProjectEvaluators = {
+    evaluatorIds: string[]
+}
+
 export type ProjectFileStatus =
     "FALTANTE" |
     "CARGANDO" |

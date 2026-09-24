@@ -4,16 +4,16 @@ import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Colors from "@/src/constants/Colors";
-import { getAvailableMembers } from "@/src/services/accountService";
-import { addProjectMember } from "@/src/services/projectService";
-import { Account } from "@/src/types/account.type";
+import { searchAccounts } from "@/src/services/accountService";
+import { addProjectEvaluators, getProjectEvaluators } from "@/src/services/projectService";
+import { Account, Role } from "@/src/types/account.type";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function AddMembers() {
+export default function AddEvaluators() {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [order, setOrder] = useState(false);
     const [reload, setReload] = useState(false);
@@ -26,7 +26,10 @@ export default function AddMembers() {
         style: "error"
     });
 
-    const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+    const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+
+    const toggleAccount = (id: string) =>
+        setSelectedAccountIds(prev => prev.includes(id) ? prev.filter(selectedId => selectedId !== id) : [...prev, id]);
     const seachParams = useLocalSearchParams<{ id: string }>();
     const projectId = Number(seachParams.id);
 
@@ -35,10 +38,14 @@ export default function AddMembers() {
     useFocusEffect(
         useCallback(() => {
             setIsLoading(true);
-            const fetchAvailableMembers = async () => {
+            const fetchAvailableEvaluators = async () => {
                 try {
-                    const res = await getAvailableMembers();
-                    setAccounts(res.data);
+                    const [evaluatorsRes, assignedRes] = await Promise.all([
+                        searchAccounts("", Role.Evaluador),
+                        getProjectEvaluators(projectId),
+                    ]);
+                    const assignedIds = new Set<string>(assignedRes.data.map((evaluator: Account) => evaluator.id));
+                    setAccounts(evaluatorsRes.data.filter((evaluator: Account) => !assignedIds.has(evaluator.id)));
                 }
                 catch (e) {
 
@@ -47,8 +54,8 @@ export default function AddMembers() {
                     setIsLoading(false);
                 }
             }
-            fetchAvailableMembers();
-        }, [reload])
+            fetchAvailableEvaluators();
+        }, [reload, projectId])
     );
 
     useEffect(() => {
@@ -62,24 +69,35 @@ export default function AddMembers() {
     }, [order])
 
     const onSubmit = async () => {
+        if (selectedAccountIds.length === 0) {
+            setAlertProps({
+                ...aletProps,
+                message: 'Selecciona al menos un evaluador',
+                isVisible: true,
+                style: 'error'
+            });
+            setIsAlertVisible(true);
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const res = await addProjectMember(projectId, { memberId: selectedAccountId });
+            const res = await addProjectEvaluators(projectId, { evaluatorIds: selectedAccountIds });
             if (res.status === 200) {
                 setAlertProps({
-                    message: "Miembro añadido",
+                    message: selectedAccountIds.length === 1 ? "Evaluador añadido" : "Evaluadores añadidos",
                     onDismiss: () => router.replace("/(app)/(tabs)"),
                     isVisible: true,
                     style: "success"
                 });
                 setIsAlertVisible(true);
             }
-            else throw new Error("Unable to add member to project");
+            else throw new Error("Unable to add evaluator to project");
         }
         catch (e) {
             setAlertProps({
                 ...aletProps,
-                message: 'No es posible añadir al miembro',
+                message: 'No es posible añadir a los evaluadores',
                 isVisible: true,
                 style: 'error'
             });
@@ -104,9 +122,9 @@ export default function AddMembers() {
                 {!isLoading && accounts.length > 0 &&
                     <FlatList
                         data={accounts}
-                        renderItem={({ item }) => <AddMemberListItem account={item} selectedAccountId={selectedAccountId} setSelectedAccountId={setSelectedAccountId} />}
+                        renderItem={({ item }) => <AddMemberListItem account={item} isSelected={selectedAccountIds.includes(item.id)} onPress={() => toggleAccount(item.id)} />}
                         keyExtractor={item => item.id}
-                        extraData={selectedAccountId}
+                        extraData={selectedAccountIds}
                         contentContainerStyle={styles.listContent}
                         ListHeaderComponent={() =>
                             <View style={styles.listHeader}>
@@ -121,7 +139,7 @@ export default function AddMembers() {
                         }
                         ListFooterComponent={() =>
                             <View style={{ marginTop: 16 }}>
-                                <RoundedOptionButton text="Añadir Miembro" icon="add" onPress={onSubmit} />
+                                <RoundedOptionButton text="Añadir Evaluadores" icon="add" onPress={onSubmit} />
                             </View>
                         }
                     />
@@ -146,7 +164,7 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
         gap: 4,
         margin: 8,
-        width: '96%',
+        width: '98%',
     },
     textInputContainer: {
         flexDirection: 'row'

@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
         marginVertical: 2,
         gap: 12,
         padding: 4,
+        borderRadius: 8,
         backgroundColor: Colors.itemBackgroundColor,
 
         // iOS
