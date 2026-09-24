@@ -6,6 +6,11 @@ export type FileType = {
     format: string
 }
 
+export type UpdateFileType = {
+    name: string,
+    format: string
+}
+
 export type UploadFile = {
     id: number,
     size: number,

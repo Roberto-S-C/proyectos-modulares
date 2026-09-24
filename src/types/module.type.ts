@@ -2,6 +2,17 @@ import { Account } from "./account.type";
 
 export type ProjectModuleStatus = "REVISION" | "RECHAZADO" | "ACEPTADO";
 
+export type AdminModule = {
+    id: number,
+    name: string
+}
+
+export type AdminModuleQuestions = {
+    id: number,
+    name: string,
+    questions: { id: number, name: string }[]
+}
+
 export type Module = {
     id: number,
     name: string,

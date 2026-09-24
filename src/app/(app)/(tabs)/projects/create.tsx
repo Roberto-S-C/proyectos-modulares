@@ -276,7 +276,7 @@ export default function CreateProjectScreen() {
                         render={({ field }) =>
                             <FlatList
                                 data={advisors}
-                                renderItem={({ item }) => <AddMemberListItem account={item} selectedAccountId={field.value} setSelectedAccountId={field.onChange} />}
+                                renderItem={({ item }) => <AddMemberListItem account={item} isSelected={field.value === item.id} onPress={() => field.onChange(item.id)} />}
                                 keyExtractor={item => item.id}
                                 contentContainerStyle={styles.listContent}
                                 ListHeaderComponent={() =>
