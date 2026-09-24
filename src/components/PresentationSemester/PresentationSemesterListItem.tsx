@@ -1,18 +1,22 @@
 import Colors from "@/src/constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
     id: number,
-    name: string,
+    semester: string,
+    date: string | null,
     onPress?: () => void
 }
 
-export default function ModuleListItem({ name, onPress }: Props) {
+export default function PresentationSemesterListItem({ semester, date, onPress }: Props) {
     return (
         <TouchableOpacity onPress={onPress} style={styles.container}>
-            <Ionicons name="cube" size={40} color={Colors.secondary} />
-            <Text style={styles.moduleName}>{name}</Text>
+            <Ionicons name="calendar" size={40} color={Colors.secondary} />
+            <View style={styles.details}>
+                <Text style={styles.semester}>{semester}</Text>
+                <Text style={styles.date}>{date ?? "Sin fecha asignada"}</Text>
+            </View>
         </TouchableOpacity>
     );
 }
@@ -29,10 +33,17 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         borderRadius: 10,
     },
-    moduleName: {
+    details: {
         flex: 1,
+        gap: 2,
+    },
+    semester: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: Colors.primary
+        color: Colors.primary,
+    },
+    date: {
+        fontSize: 14,
+        color: Colors.textSecondary,
     },
 });

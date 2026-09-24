@@ -60,16 +60,16 @@ export default function AdminHomeScreen() {
                     {!isDashboardLoading && dashboard &&
                         <View style={styles.options}>
                             <View style={styles.option}>
-                                <RoundedOptionButton text="Archivos" icon="folder" onPress={() => router.navigate('/(app)/(tabs)/files')} />
+                                <RoundedOptionButton text="Archivos" icon="folder" onPress={() => router.push('/(app)/admin/files')} />
                             </View>
                             <View style={styles.option}>
-                                <RoundedOptionButton text="Módulos" icon="layers" onPress={() => null} />
+                                <RoundedOptionButton text="Módulos" icon="cube" onPress={() => router.push('/(app)/admin/modules')} />
                             </View>
+                            {/* <View style={styles.option}>
+                                <RoundedOptionButton text="Evaluaciones" icon="star" onPress={() => router.push('/(app)/admin/evaluations')} />
+                            </View> */}
                             <View style={styles.option}>
-                                <RoundedOptionButton text="Evaluaciones" icon="star" onPress={() => null} />
-                            </View>
-                            <View style={styles.option}>
-                                <RoundedOptionButton text="Calendario" icon="calendar" onPress={() => null} />
+                                <RoundedOptionButton text="Calendario" icon="calendar" onPress={() => router.push('/(app)/admin/calendar')} />
                             </View>
                         </View>
                     }

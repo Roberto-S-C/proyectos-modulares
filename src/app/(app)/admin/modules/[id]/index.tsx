@@ -1,61 +1,56 @@
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import QuestionListItem from "@/src/components/QuestionListItem";
+import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import axios, { AxiosResponse } from "axios";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { getModuleQuestions } from "@/src/services/moduleService";
+import { AdminModuleQuestions } from "@/src/types/module.type";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface ModuleQuestion {
-    id: number,
-    name: string,
-}
-
-interface Module {
-    id: number,
-    name: string,
-    questions: ModuleQuestion[]
-}
-
-async function getModuleQuestions(id: number): Promise<Module> {
-    console.log(id)
-    const response: AxiosResponse<Module> = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/modules/${id}/questions`);
-    return response.data;
-}
 
 export default function AdminModuleScreen() {
     const { id } = useLocalSearchParams();
-    const [module, setModule] = useState<Module | null>(null);
+    const [module, setModule] = useState<AdminModuleQuestions | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        // getModuleQuestions(parseInt(id.toString())).then(module => setModule(module));
-        // setIsLoading(false);
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            setIsLoading(true);
+            const fetchModule = async () => {
+                try {
+                    const res = await getModuleQuestions(Number(id));
+                    setModule(res.data);
+                }
+                catch (e) {
+                    setModule(null);
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+            fetchModule();
+        }, [id])
+    );
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={styles.screen}>
 
             {isLoading && <Loading />}
 
             {!isLoading && module &&
                 <View style={styles.container}>
                     <Title text={module.name} />
+                    <View style={styles.addButton}>
+                        <RoundedOptionButton text="Añadir Pregunta" icon="add" onPress={() => null} />
+                    </View>
                     <FlatList
                         data={module.questions}
                         renderItem={({ item }) => <QuestionListItem question={item.name} />}
                         keyExtractor={item => item.id.toString()}
-                        contentContainerStyle={{ gap: 8 }}
-                        ListHeaderComponent={() =>
-                            <TouchableOpacity style={styles.addButton}>
-                                <Ionicons name="add" size={32} />
-                                <Text style={styles.addButtonText}>Añadir</Text>
-                            </TouchableOpacity>
-
-                        }
+                        contentContainerStyle={styles.list}
+                        ListEmptyComponent={<NotFoundItem text="Este módulo no tiene preguntas" />}
                     />
                 </View>
             }
@@ -69,17 +64,18 @@ export default function AdminModuleScreen() {
 }
 
 const styles = StyleSheet.create({
+    screen: {
+        flex: 1
+    },
     container: {
+        flex: 1,
         paddingHorizontal: 16,
-        gap: 20
+        gap: 16
     },
     addButton: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
+        height: 48
     },
-    addButtonText: {
-        fontSize: 20,
-        fontWeight: 'bold'
+    list: {
+        gap: 8
     }
 });
