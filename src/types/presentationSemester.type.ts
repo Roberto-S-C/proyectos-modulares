@@ -4,6 +4,11 @@ export type PresentationSemester = {
     date: string | null
 }
 
+export type CreatePresentationSemester = {
+    semester: string,
+    date: string
+}
+
 export type UpdatePresentationSemester = {
     date: string
 }

@@ -1,23 +1,18 @@
 import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
+import DatePickerField from '@/src/components/DatePickerField';
 import PrimaryButton from '@/src/components/PrimaryButton';
 import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
 import { getPresentationSemester, updatePresentationSemester } from '@/src/services/presentationSemesterService';
 import { PresentationSemester, UpdatePresentationSemester } from '@/src/types/presentationSemester.type';
+import { getSemesterRange, getTodayString, hasSemesterPassed, validateSemesterDate } from '@/src/utils/semesterUtils';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-const isValidDate = (value: string) => {
-    if (!DATE_PATTERN.test(value)) return false;
-    const parsed = new Date(`${value}T00:00:00Z`);
-    return !isNaN(parsed.getTime()) && parsed.toISOString().startsWith(value);
-}
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminPresentationSemesterScreen() {
     const { id } = useLocalSearchParams();
@@ -86,9 +81,14 @@ export default function AdminPresentationSemesterScreen() {
             }
             else throw new Error('Unable to update presentation semester');
         }
-        catch (e) {
+        catch (e: any) {
+            const status = e?.response?.status;
             setAlertProps({
-                message: 'No se puede actualizar la fecha',
+                message: status === 409
+                    ? 'Este semestre ya pasó y no se puede modificar'
+                    : status === 400
+                        ? 'La fecha no es válida para este semestre'
+                        : 'No se puede actualizar la fecha',
                 onDismiss: () => setIsAlertVisible(false),
                 isVisible: true,
                 style: 'error'
@@ -110,27 +110,46 @@ export default function AdminPresentationSemesterScreen() {
 
             {presentationSemester && !isLoading &&
                 <View style={styles.container}>
+                    <Ionicons name='calendar' size={120} color={Colors.secondary} />
                     <Title text={presentationSemester.semester} />
 
                     <Text style={styles.label}>Fecha de presentación</Text>
-                    <Controller
-                        name='date'
-                        control={control}
-                        rules={{ required: true, validate: isValidDate }}
-                        render={({ field: { value, onBlur, onChange } }) =>
-                            <TextInput
-                                numberOfLines={1}
-                                placeholder='AAAA-MM-DD'
-                                onChangeText={onChange}
-                                value={value}
-                                onBlur={onBlur}
-                                style={styles.dateInput}
-                            />
-                        }
-                    />
-                    {errors.date && <Text style={styles.formError}>Introduzca una fecha válida (AAAA-MM-DD)</Text>}
 
-                    <PrimaryButton text='Actualizar' onPress={handleSubmit(onSubmit)} />
+                    {hasSemesterPassed(presentationSemester.semester, presentationSemester.date)
+                        ?
+                        <>
+                            <Text style={styles.readOnlyDate}>{presentationSemester.date ?? 'Sin fecha asignada'}</Text>
+                            <Text style={styles.formError}>Este semestre ya pasó, no se puede modificar la fecha</Text>
+                        </>
+                        :
+                        <>
+                            <Text style={styles.hint}>
+                                Entre {getSemesterRange(presentationSemester.semester).start} y {getSemesterRange(presentationSemester.semester).end}
+                            </Text>
+                            <Controller
+                                name='date'
+                                control={control}
+                                rules={{
+                                    required: 'Introduzca una fecha válida (AAAA-MM-DD)',
+                                    validate: value => validateSemesterDate(presentationSemester.semester, value)
+                                }}
+                                render={({ field: { value, onBlur, onChange } }) =>
+                                    <DatePickerField
+                                        value={value}
+                                        onChange={onChange}
+                                        onBlur={onBlur}
+                                        placeholder='Seleccionar fecha'
+                                        minimumDate={getSemesterRange(presentationSemester.semester).start > getTodayString() ? getSemesterRange(presentationSemester.semester).start : getTodayString()}
+                                        maximumDate={getSemesterRange(presentationSemester.semester).end}
+                                        title='Fecha de presentación'
+                                    />
+                                }
+                            />
+                            {errors.date && <Text style={styles.formError}>{errors.date.message}</Text>}
+
+                            <PrimaryButton text='Actualizar' onPress={handleSubmit(onSubmit)} />
+                        </>
+                    }
                 </View>
             }
         </ScrollView>
@@ -156,17 +175,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: Colors.textSecondary,
     },
-    dateInput: {
-        fontSize: 16,
-        color: Colors.textPrimary,
-        borderWidth: 1,
-        width: '90%',
-        borderColor: Colors.border,
-        borderRadius: 10,
-        padding: 10
+    hint: {
+        alignSelf: 'flex-start',
+        marginLeft: '5%',
+        fontSize: 14,
+        color: Colors.textSecondary,
+    },
+    readOnlyDate: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: Colors.primary,
     },
     formError: {
         fontWeight: 'bold',
-        color: Colors.error
+        color: Colors.error,
+        textAlign: 'center'
     }
 });

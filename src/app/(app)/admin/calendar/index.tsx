@@ -42,7 +42,7 @@ export default function AdminCalendarScreen() {
 
             {!isLoading &&
                 <View style={styles.addButton}>
-                    <RoundedOptionButton text="Añadir Semestre" icon="add" onPress={() => null} />
+                    <RoundedOptionButton text="Añadir Semestre" icon="add" onPress={() => router.push("/(app)/admin/calendar/add")} />
                 </View>
             }
 

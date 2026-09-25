@@ -11,6 +11,7 @@ export default function AdminCalendarLayout() {
             headerTitleAlign: 'center',
         }}>
             <Stack.Screen name="index" options={{ title: "Calendario", headerLeft: ({ tintColor }) => <HeaderBackButton tintColor={tintColor} /> }} />
+            <Stack.Screen name="add" options={{ title: "Añadir Semestre" }} />
             <Stack.Screen name="[id]" options={{ title: "Semestre" }} />
         </Stack>
     );
