@@ -2,9 +2,11 @@ import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
 import PrimaryButton from '@/src/components/PrimaryButton';
+import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
 import { getFileTypes, updateFileType } from '@/src/services/fileService';
 import { FileType, FormatTypes, UpdateFileType } from '@/src/types/file.type';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -78,7 +80,7 @@ export default function AdminFileTypeScreen() {
             const res = await updateFileType(fileType.id, { name: data.name, format: data.format });
             if (res.status === 200) {
                 setAlertProps({
-                    message: 'Tipo de archivo actualizado',
+                    message: 'Archivo actualizado',
                     onDismiss: () => {
                         setIsAlertVisible(false);
                         router.back();
@@ -113,6 +115,8 @@ export default function AdminFileTypeScreen() {
 
             {fileType && !isLoading &&
                 <View style={styles.container}>
+                    <Ionicons name='document-sharp' size={120} color={Colors.secondary} />
+                    <Title text={fileType.name} />
                     <Controller
                         name='name'
                         control={control}
