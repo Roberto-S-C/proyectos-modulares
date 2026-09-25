@@ -7,6 +7,11 @@ export type AdminModule = {
     name: string
 }
 
+export type CreateModule = {
+    name: string,
+    questions: string[]
+}
+
 export type AdminModuleQuestions = {
     id: number,
     name: string,

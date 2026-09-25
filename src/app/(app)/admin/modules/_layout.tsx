@@ -11,6 +11,7 @@ export default function ModulesLayout() {
             headerTitleAlign: 'center',
         }}>
             <Stack.Screen name="index" options={{ title: "Módulos", headerLeft: ({ tintColor }) => <HeaderBackButton tintColor={tintColor} /> }} />
+            <Stack.Screen name="add" options={{ title: 'Añadir Módulo' }} />
             <Stack.Screen name="[id]" options={{ title: 'Módulo' }} />
         </Stack>
     );

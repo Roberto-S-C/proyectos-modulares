@@ -39,7 +39,7 @@ export default function AdminModulesScreen() {
 
             {!isLoading &&
                 <View style={styles.addButton}>
-                    <RoundedOptionButton text="Añadir Módulo" icon="add" onPress={() => null} />
+                    <RoundedOptionButton text="Añadir Módulo" icon="add" onPress={() => router.push("/(app)/admin/modules/add")} />
                 </View>
             }
 
