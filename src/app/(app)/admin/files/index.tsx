@@ -39,7 +39,7 @@ export default function AdminFilesScreen() {
 
             {!isLoading &&
                 <View style={styles.addButton}>
-                    <RoundedOptionButton text="Añadir Archivo" icon="add" onPress={() => null} />
+                    <RoundedOptionButton text="Añadir Archivo" icon="add" onPress={() => router.push("/(app)/admin/files/add")} />
                 </View>
             }
 

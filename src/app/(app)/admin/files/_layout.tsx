@@ -11,6 +11,7 @@ export default function AdminFilesLayout() {
             headerTitleAlign: 'center',
         }}>
             <Stack.Screen name="index" options={{ title: "Archivos", headerLeft: ({ tintColor }) => <HeaderBackButton tintColor={tintColor} /> }} />
+            <Stack.Screen name="add" options={{ title: "Añadir Archivo" }} />
             <Stack.Screen name="[id]" options={{ title: "Archivo" }} />
         </Stack>
     );
