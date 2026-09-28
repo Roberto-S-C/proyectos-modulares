@@ -45,3 +45,5 @@ app-example
 .env
 
 tasks.md
+
+google-services.json
