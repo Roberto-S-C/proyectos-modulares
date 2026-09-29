@@ -1,6 +1,6 @@
 import { Account } from "./account.type";
 
-export type ProjectModuleStatus = "REVISION" | "RECHAZADO" | "ACEPTADO";
+export type ProjectModuleStatus = "REVISION" | "RECHAZADO" | "ACEPTADO" | "NA";
 
 export type AdminModule = {
     id: number,

@@ -24,7 +24,6 @@ export type CreateProject = {
     name: string,
     description: string,
     status: string,
-    presentationSemester: string,
     advisorId: string,
     modules: string[]
 }

@@ -5,7 +5,6 @@ import Loading from "@/src/components/Loading";
 import ModuleCheckbox from "@/src/components/Module/ModuleCheckbox";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
-import SemesterPicker from "@/src/components/SemesterPicker";
 import Title from "@/src/components/Title";
 import Colors from "@/src/constants/Colors";
 import { getAvailableAdvisors } from "@/src/services/accountService";
@@ -14,7 +13,7 @@ import { createProject } from "@/src/services/projectService";
 import { Account } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
 import { CreateProject } from "@/src/types/project.types";
-import getPresentationSemesters from "@/src/utils/semesterUtils";
+import { getProjectRegistrationSemester } from "@/src/utils/semesterUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -35,7 +34,7 @@ export default function CreateProjectScreen() {
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
         message: "",
-        onDismiss: () => {},
+        onDismiss: () => { },
         isVisible: isAlertVisible,
         style: "error"
     });
@@ -52,7 +51,6 @@ export default function CreateProjectScreen() {
         defaultValues: {
             name: "",
             description: "",
-            presentationSemester: undefined,
             modules: [],
             advisorId: ""
         }
@@ -98,8 +96,11 @@ export default function CreateProjectScreen() {
             const fetchModules = async () => {
                 try {
                     const res = await getModules();
-                    if (res.data.length === 0) throw new Error("Error fetching Project Modules");
-                    setModules(res.data);
+                    // Aspectos Generales is required on every project and added by the backend
+                    // automatically, so it's never offered as a choice here.
+                    const selectableModules = res.data.filter((module: Module) => module.name.trim().toLowerCase() !== "aspectos generales");
+                    if (selectableModules.length === 0) throw new Error("Error fetching Project Modules");
+                    setModules(selectableModules);
                 }
                 catch (e) {
                     setIsAlertVisible(true);
@@ -206,18 +207,10 @@ export default function CreateProjectScreen() {
                             )}
                         />
 
-                        <Controller
-                            control={control}
-                            name="presentationSemester"
-                            rules={{ required: true }}
-                            render={({ field }) =>
-                                <View style={styles.section}>
-                                    <Text style={styles.inputLabel}>Semestre de presentación</Text>
-                                    <SemesterPicker value={field.value} onChange={field.onChange}  semesters={getPresentationSemesters()} />
-                                    {errors.presentationSemester && <Text style={styles.error}>* Campo requerido</Text>}
-                                </View>
-                            }
-                        />
+                        <View style={styles.section}>
+                            <Text style={{ textAlign: "center", color: Colors.secondary, fontSize: 20, fontWeight: "bold" }}>Semestre de presentación</Text>
+                            <Text style={{ textAlign: "center", color: Colors.primary, fontSize: 20, fontWeight: "bold" }}>{getProjectRegistrationSemester()}</Text>
+                        </View>
 
                         <Controller
                             control={control}
@@ -251,7 +244,7 @@ export default function CreateProjectScreen() {
 
                         <View>
                             <RoundedOptionButton text="Continuar" icon="" onPress={async () => {
-                                const valid = await trigger(["name", "description", "presentationSemester", "modules"]);
+                                const valid = await trigger(["name", "description", "modules"]);
                                 if (valid) setShowSelectAdvisorList(true);
                             }} />
                         </View>

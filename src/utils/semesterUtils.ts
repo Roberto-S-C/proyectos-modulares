@@ -18,6 +18,23 @@ export default function getPresentationSemesters(date = new Date()) {
     return options;
 }
 
+// The semester a project created today gets registered into. Registration for a semester opens
+// the month it starts and stays "on time" through its 3rd month; after that latecomers are
+// pushed to the next semester instead:
+//   Jan-Mar -> this year's A (on time)
+//   Apr-Sep -> this year's B (Apr-Jun is late for A, Jul-Sep is on time for B)
+//   Oct-Dec -> next year's A (late for B)
+// Kept in sync with PresentationSemesterService.getProjectRegistrationSemester on the backend,
+// which decides the semester a new project is created in - the user no longer picks it.
+export function getProjectRegistrationSemester(date = new Date()) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+
+    if (month <= 3) return `${year}A`;
+    if (month <= 9) return `${year}B`;
+    return `${year + 1}A`;
+}
+
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export function isValidDateString(value: string) {
