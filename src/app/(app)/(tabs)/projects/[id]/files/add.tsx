@@ -17,7 +17,8 @@ export default function AddProjectFilesScreen() {
     const [projectFiles, setProjectFiles] = useState<ProjectFiles>();
     const [isLoading, setIsLoading] = useState(true);
     const [selectedProjectFile, setSelectedProjectFile] = useState<ProjectFile | null>(null);
-    
+    const [isSubmittingUpload, setIsSubmittingUpload] = useState(false);
+
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -43,13 +44,18 @@ export default function AddProjectFilesScreen() {
             setIsAlertVisible(true);
             return;
         }
+        // Guards the whole picker-to-upload flow so a second tap can't request a second
+        // upload URL (and delete the first one's not-yet-uploaded object) before this one
+        // finishes. The button is disabled while this is true, and once the real upload
+        // starts uploadFileToS3 flips isLoading, which unmounts the button anyway.
+        if (isSubmittingUpload) return;
+        setIsSubmittingUpload(true);
         try {
             const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
             if (!result.canceled) {
                 const { mimeType, size, uri } = result.assets[0];
 
-                if (mimeType && size) uploadFileToS3(mimeType, size, uri);
-                return;
+                if (mimeType && size) await uploadFileToS3(mimeType, size, uri);
             }
         }
         catch (e) {
@@ -59,7 +65,10 @@ export default function AddProjectFilesScreen() {
                 isVisible: true,
                 style: "error"
             });
-            return setIsAlertVisible(true);
+            setIsAlertVisible(true);
+        }
+        finally {
+            setIsSubmittingUpload(false);
         }
     }
 
@@ -221,7 +230,7 @@ export default function AddProjectFilesScreen() {
                         style={styles.list}
                     />
                     <View style={styles.listFooter}>
-                        <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={getFileFromStorage} />
+                        <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={getFileFromStorage} disabled={isSubmittingUpload} />
                     </View>
                 </View>
             }

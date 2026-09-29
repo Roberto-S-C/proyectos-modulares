@@ -6,19 +6,22 @@ import Colors from "../constants/Colors";
 interface Props {
     text: string,
     icon: ComponentProps<typeof Ionicons>['name'],
-    onPress: () => void
+    onPress: () => void,
+    disabled?: boolean
 }
 
 export default function RoundedOptionButton({
     text,
     icon,
-    onPress
+    onPress,
+    disabled = false
 }: Props) {
 
     return (
         <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, disabled && styles.buttonDisabled]}
             onPress={onPress}
+            disabled={disabled}
         >
             <Ionicons
                 name={icon}
@@ -43,6 +46,9 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 12,
         backgroundColor: Colors.primary
+    },
+    buttonDisabled: {
+        opacity: 0.5
     },
     buttonText: {
         fontSize: 24,
