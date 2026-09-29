@@ -44,7 +44,6 @@ export default function CreateProjectScreen() {
 
     const {
         control,
-        getValues,
         handleSubmit,
         trigger,
         reset,
@@ -119,9 +118,8 @@ export default function CreateProjectScreen() {
         if (!showSelectAdvisorList) return;
         const fetchAdvisors = async () => {
             setIsLoading(true);
-            const presentationSemester = getValues("presentationSemester");
             try {
-                const res = await getAvailableAdvisors(presentationSemester);
+                const res = await getAvailableAdvisors();
                 setAdvisors(res.data);
                 if (res.data.length === 0) throw new Error("Error fetching Advisors");
             }
@@ -129,7 +127,7 @@ export default function CreateProjectScreen() {
                 setIsAlertVisible(true);
                 setAlertProps(prev => ({
                     ...prev,
-                    message: `Asesores no disponibles en ${presentationSemester}`,
+                    message: "No hay asesores disponibles",
                     onDismiss: () => {
                         setShowSelectAdvisorList(false);
                         setIsAlertVisible(false);
