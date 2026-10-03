@@ -43,6 +43,7 @@
         }
       ],
       "expo-secure-store",
+      "react-native-zip-archive",
       [
         "expo-video",
         {

@@ -3,7 +3,8 @@ import { ProjectFileStatus } from "./project.types"
 export type FileType = {
     id: number,
     name: string,
-    format: string
+    format: string,
+    url: string | null
 }
 
 export type CreateFileType = {
@@ -14,6 +15,12 @@ export type CreateFileType = {
 export type UpdateFileType = {
     name: string,
     format: string
+}
+
+export type CreateTemplateUpload = {
+    fileName: string,
+    size: number,
+    mimeType: string
 }
 
 export type UploadFile = {

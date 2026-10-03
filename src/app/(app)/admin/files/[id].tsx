@@ -2,12 +2,14 @@ import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
 import PrimaryButton from '@/src/components/PrimaryButton';
+import RoundedOptionButton from '@/src/components/RoundedOptionButton';
 import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
-import { getFileTypes, updateFileType } from '@/src/services/fileService';
+import { createTemplateUploadUrl, getFileTypes, getTemplateFileName, updateFileType } from '@/src/services/fileService';
 import { FileType, FormatTypes, UpdateFileType } from '@/src/types/file.type';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -17,6 +19,7 @@ export default function AdminFileTypeScreen() {
     const { id } = useLocalSearchParams();
     const [fileType, setFileType] = useState<FileType | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isUploadingTemplate, setIsUploadingTemplate] = useState(false);
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
         message: '',
@@ -36,30 +39,88 @@ export default function AdminFileTypeScreen() {
         defaultValues: { name: '', format: '' }
     });
 
-    useFocusEffect(useCallback(() => {
-        setIsLoading(true);
-        const fetchFileType = async () => {
-            try {
-                const res = await getFileTypes();
-                const found: FileType | undefined = res.data.find((item: FileType) => item.id === Number(id));
-                if (found) {
-                    setFileType(found);
-                    setValue('name', found.name);
-                    setValue('format', found.format);
-                }
-                else {
-                    setFileType(null);
-                }
+    const fetchFileType = useCallback(async () => {
+        try {
+            const res = await getFileTypes();
+            const found: FileType | undefined = res.data.find((item: FileType) => item.id === Number(id));
+            if (found) {
+                setFileType(found);
+                setValue('name', found.name);
+                setValue('format', found.format);
             }
-            catch (e) {
+            else {
                 setFileType(null);
             }
-            finally {
-                setIsLoading(false);
-            }
         }
-        fetchFileType();
-    }, [id]));
+        catch (e) {
+            setFileType(null);
+        }
+    }, [id]);
+
+    useFocusEffect(useCallback(() => {
+        setIsLoading(true);
+        fetchFileType().finally(() => setIsLoading(false));
+    }, [fetchFileType]));
+
+    const uploadTemplate = async () => {
+        if (!fileType || isUploadingTemplate) return;
+
+        let result;
+        try {
+            result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+        }
+        catch (e) {
+            return;
+        }
+        if (result.canceled) return;
+
+        const { name, size, mimeType, uri } = result.assets[0];
+        if (!name || !size || !mimeType) {
+            setAlertProps({
+                message: 'No se puede leer el archivo seleccionado',
+                onDismiss: () => setIsAlertVisible(false),
+                isVisible: true,
+                style: 'error'
+            });
+            setIsAlertVisible(true);
+            return;
+        }
+
+        setIsUploadingTemplate(true);
+        try {
+            const uploadUrlRes = await createTemplateUploadUrl(fileType.id, { fileName: name, size, mimeType });
+            const uploadUrl = uploadUrlRes?.data;
+            if (!uploadUrl) throw new Error('Unable to get an upload url');
+
+            const blob = await fetch(uri).then(res => res.blob());
+            const uploadRes = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': mimeType },
+                body: blob
+            });
+            if (uploadRes.status !== 200) throw new Error('Unable to upload the template');
+
+            await fetchFileType();
+            setAlertProps({
+                message: 'Plantilla actualizada',
+                onDismiss: () => setIsAlertVisible(false),
+                isVisible: true,
+                style: 'success'
+            });
+        }
+        catch (e) {
+            setAlertProps({
+                message: 'No se puede actualizar la plantilla',
+                onDismiss: () => setIsAlertVisible(false),
+                isVisible: true,
+                style: 'error'
+            });
+        }
+        finally {
+            setIsUploadingTemplate(false);
+            setIsAlertVisible(true);
+        }
+    }
 
     const onSubmit: SubmitHandler<UpdateFileType> = async (data) => {
         if (!fileType) return;
@@ -109,7 +170,7 @@ export default function AdminFileTypeScreen() {
         <ScrollView style={styles.screen} contentContainerStyle={{ alignItems: 'center' }}>
             {isLoading && <Loading />}
 
-            {!isLoading && !fileType && <NotFoundItem text='Tipo de archivo no encontrado' />}
+            {!isLoading && !fileType && <NotFoundItem text='Archivo no encontrado' />}
 
             {isAlertVisible && <CustomAlert {...alertProps} />}
 
@@ -117,6 +178,26 @@ export default function AdminFileTypeScreen() {
                 <View style={styles.container}>
                     <Ionicons name='document-sharp' size={120} color={Colors.secondary} />
                     <Title text={fileType.name} />
+
+                    <View style={styles.templateContainer}>
+
+                        <View style={styles.templateButton}>
+                            <RoundedOptionButton
+                                text='Plantilla'
+                                icon='cloud-upload'
+                                onPress={uploadTemplate}
+                                disabled={isUploadingTemplate}
+                            />
+                        </View>
+                        {fileType.url &&
+                            <View style={{marginTop: 20}}>
+                                <Text style={{fontWeight: "bold", fontSize: 20, color: Colors.primary}}>Plantilla</Text>
+                                <Text style={styles.templateFileName}>{getTemplateFileName(fileType.url)}</Text>
+                            </View>
+                        }
+                    </View>
+
+
                     <Controller
                         name='name'
                         control={control}
@@ -185,6 +266,19 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         borderRadius: 10,
         padding: 10
+    },
+    templateContainer: {
+        alignItems: 'center',
+        gap: 8,
+        width: '90%',
+    },
+    templateButton: {
+        width: '100%',
+        height: 48,
+    },
+    templateFileName: {
+        fontSize: 14,
+        color: Colors.textSecondary,
     },
     pickerContainer: {
         width: '90%',
