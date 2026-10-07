@@ -6,6 +6,7 @@ const Colors = {
     link: '#003566',
     error: '#C1121F',
     success: '#2D6A4F',
+    warning: '#E07A00',
     missing: '#7a7a7a',
     selected: '#FFC300',
     unSelected: '#5C677D',

@@ -32,7 +32,7 @@ export default function ProjectModulePreevaluation({ module, preevaluation }: Pr
             <View style={styles.row}>
                 <Ionicons name="stats-chart-outline" size={18} color={Colors.textSecondary} />
                 <Text style={styles.progressLabel}>Avance</Text>
-                <Text style={styles.progressValue}>{preevaluation.progress}</Text>
+                <Text style={styles.progressValue}>{preevaluation.progress ?? "-"}</Text>
             </View>
         </View>
     );

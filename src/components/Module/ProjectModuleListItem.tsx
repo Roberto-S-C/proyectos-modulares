@@ -17,8 +17,8 @@ export default function ProjectModuleListItem({ id, name, status }: ProjectModul
                 <Text style={styles.moduleName}>{name}</Text>
                 <Text style={[
                     styles.moduleStatus,
-                    status === "ACEPTADO" && {color: Colors.success},
-                    status === "RECHAZADO" && {color: Colors.error}
+                    status === "APROVADO" && {color: Colors.success},
+                    status === "NP" && {color: Colors.error}
                 ]}>{status}</Text>
             </View>
         </View>

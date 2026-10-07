@@ -13,6 +13,7 @@ export default function ProjectModulesLayout() {
             <Stack.Screen name="index" options={{title: "Módulos"}} />
             <Stack.Screen name="preevaluation" options={{headerShown: false}} />
             <Stack.Screen name="evaluation" options={{headerShown: false}} />
+            <Stack.Screen name="comments" options={{headerShown: false}} />
         </Stack>
     );
 }

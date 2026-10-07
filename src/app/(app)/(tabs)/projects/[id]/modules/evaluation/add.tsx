@@ -85,6 +85,7 @@ export default function AddEvaluation() {
 
         setIsLoading(true);
         try {
+            console.log(evaluations);
             await addProjectEvaluation(Number(id), evaluations);
             router.replace({ pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation", params: { id: Number(id) } });
         }

@@ -15,6 +15,8 @@ export default function EvaluationDonutChart({ dashboard }: Props) {
         { label: "Revisión", value: dashboard.revisionProjects, color: Colors.selected },
         { label: "Aprobados", value: dashboard.approvedProjects, color: Colors.success },
         { label: "Rechazados", value: dashboard.rejectedProjects, color: Colors.error },
+        { label: "Condicionados", value: dashboard.conditionedProjects, color: Colors.warning },
+        { label: "No asistió", value: dashboard.notPresentProjects, color: Colors.missing },
     ];
 
     if (dashboard.totalProjects === 0) {

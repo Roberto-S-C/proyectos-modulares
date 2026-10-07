@@ -1,7 +1,7 @@
 import Colors from "@/src/constants/Colors";
 import { StyleSheet, Text, View } from "react-native";
 
-type Variant = "error" | "success";
+type Variant = "error" | "success" | "warning";
 
 interface Props {
     text: string | null,
@@ -12,6 +12,7 @@ interface Props {
 const VARIANT_STYLES: Record<Variant, { bgColor: string, textColor: string }> = {
     error: { bgColor: Colors.error, textColor: "white" },
     success: { bgColor: Colors.success, textColor: "white" },
+    warning: { bgColor: Colors.warning, textColor: "white" },
 };
 
 export default function RoundedText({ text, fontSize, variant }: Props) {

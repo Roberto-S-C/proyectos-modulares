@@ -1,6 +1,6 @@
 import { Account } from "./account.type";
 
-export type ProjectModuleStatus = "REVISION" | "RECHAZADO" | "ACEPTADO" | "NA";
+export type ProjectModuleStatus = "REVISION" | "APROVADO" | "NA" | "NP";
 
 export type AdminModule = {
     id: number,
@@ -24,11 +24,11 @@ export type Module = {
     status: ProjectModuleStatus
 }
 
-export type PreevaluationStatus = "PRESENTE" | "AUSENTE";
+export type PreevaluationStatus = "PRESENTE" | "NP";
 
 export type Preevaluation = {
     id: number,
-    progress: string,
+    progress: string | null,
     status: PreevaluationStatus,
     evaluator: Account,
 }
@@ -49,7 +49,19 @@ export type PreevaluationScores =
 export type CreateModulePreevaluation = {
     projectModuleId: number,
     status: PreevaluationStatus,
-    progress: PreevaluationScores,
+    progress?: PreevaluationScores,
+}
+
+export type PreevaluationComment = {
+    id: number,
+    comment: string,
+    createdAt: string,
+    username: string,
+    presentationSemester: string,
+}
+
+export type CreatePreevaluationComment = {
+    comment: string,
 }
 
 export type ProjectModuleScore = {

@@ -52,6 +52,7 @@ export default function ProjectModulesScreen() {
                             <View style={styles.optionsContainer}>
                                 <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation", params: {id: Number(id)}})} />
                                 <RoundedOptionButton text="Evaluación" icon="star" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation", params: {id: Number(id)}})} />
+                                <RoundedOptionButton text="Comentarios" icon="chatbubble-ellipses" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/comments", params: {id: Number(id)}})} />
                             </View>
                         )}
                         ListEmptyComponent={() => <NotFoundItem text="Módulos no disponibles" />}

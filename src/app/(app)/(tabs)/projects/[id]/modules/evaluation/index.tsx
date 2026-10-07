@@ -6,6 +6,7 @@ import RoundedText from "@/src/components/RoundedText";
 import Title from "@/src/components/Title";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getProjectEvaluations } from "@/src/services/projectService";
+import { Role } from "@/src/types/account.type";
 import { ProjectEvaluations } from "@/src/types/module.type";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useContext, useState } from "react";
@@ -21,7 +22,8 @@ export default function ProjectEvaluationScreen() {
     const authContext = useContext(AuthContext);
 
     const userId = authContext.authState?.user.id;
-    const canAddEvaluation = userId != null && !!projectEvaluations?.evaluatorIds.includes(userId);
+    const userRole = authContext.authState?.user.role;
+    const canAddEvaluation = userId != null && (userRole === Role.Admin || !!projectEvaluations?.evaluatorIds.includes(userId));
 
     useFocusEffect(
         useCallback(() => {

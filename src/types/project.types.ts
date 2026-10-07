@@ -69,7 +69,9 @@ export type ProjectFiles = {
 export type ProjectStatus =
     "APROVADO" |
     "RECHAZADO" |
-    "REVISION";
+    "REVISION" |
+    "CONDICIONADO" |
+    "NP";
 
 export type ProjectModules = {
     id: number,

@@ -1,6 +1,6 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
-import { CreateModuleEvaluation, CreateModulePreevaluation } from "../types/module.type";
+import { CreateModuleEvaluation, CreateModulePreevaluation, CreatePreevaluationComment } from "../types/module.type";
 import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
@@ -37,7 +37,13 @@ export const getProjectModules = (projectId: number) => apiClient.get(`projects/
 
 export const getProjectModulesPreevaluations = (projectId: number) => apiClient.get(`projects/${projectId}/modules/preevaluations`);
 
-export const addProjectModulePreevaluation = (projectId: number, preevaluation: CreateModulePreevaluation) => apiClient.post(`projects/${projectId}/modules/preevaluations`, preevaluation);
+export const addProjectModulePreevaluations = (projectId: number, preevaluations: CreateModulePreevaluation[]) => apiClient.post(`projects/${projectId}/modules/preevaluations`, preevaluations);
+
+export const markProjectAbsentFromPreevaluation = (projectId: number) => apiClient.post(`projects/${projectId}/modules/preevaluations/absence`);
+
+export const getPreevaluationComments = (projectId: number) => apiClient.get(`projects/${projectId}/preevaluation-comments`);
+
+export const addPreevaluationComment = (projectId: number, comment: CreatePreevaluationComment) => apiClient.post(`projects/${projectId}/preevaluation-comments`, comment);
 
 export const getProjectEvaluations = (projectId: number) => apiClient.get(`projects/${projectId}/evaluations`);
 
