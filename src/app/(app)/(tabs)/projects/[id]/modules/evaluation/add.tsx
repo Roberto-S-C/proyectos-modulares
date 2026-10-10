@@ -52,14 +52,19 @@ export default function AddEvaluation() {
     const isCurrentModuleComplete = !!currentModule && currentModule.questions.every(question => answers[question.id] !== undefined);
     const allModulesComplete = !!projectModules && projectModules.every(module => module.questions.every(question => answers[question.id] !== undefined));
     const canGoPrevious = currentIndex > 0;
-    const canGoNext = isCurrentModuleComplete && !!projectModules && currentIndex < projectModules.length - 1;
 
     const goToPrevious = () => {
         if (canGoPrevious) setCurrentIndex(prev => prev - 1);
     }
 
     const goToNext = () => {
-        if (canGoNext) setCurrentIndex(prev => prev + 1);
+        if (!isCurrentModuleComplete) {
+            showAlert("Completa todas las preguntas de este módulo");
+            return;
+        }
+        if (projectModules && currentIndex < projectModules.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+        }
     }
 
     const showAlert = (message: string) => {
@@ -85,7 +90,6 @@ export default function AddEvaluation() {
 
         setIsLoading(true);
         try {
-            console.log(evaluations);
             await addProjectEvaluation(Number(id), evaluations);
             router.replace({ pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation", params: { id: Number(id) } });
         }
@@ -143,7 +147,7 @@ export default function AddEvaluation() {
                         <PrimaryButton text="Anterior" onPress={goToPrevious} disabled={!canGoPrevious} style={styles.navigationButton} />
                         {allModulesComplete
                             ? <PrimaryButton text="Enviar" onPress={onSubmit} style={styles.navigationButton} />
-                            : <PrimaryButton text="Siguiente" onPress={goToNext} disabled={!canGoNext} style={styles.navigationButton} />
+                            : <PrimaryButton text="Siguiente" onPress={goToNext} style={styles.navigationButton} />
                         }
                     </View>
                 </View>
