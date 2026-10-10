@@ -69,35 +69,37 @@ export default function AddPreevaluationComment() {
 
             {isAlertVisible && <CustomAlert {...alertProps} />}
 
-            <View style={styles.container}>
-                <View style={styles.textAreaContainer}>
-                    <View style={styles.textAreaLabelRow}>
-                        <Text style={styles.textAreaLabel}>Comentario</Text>
-                        <Text style={styles.charCount}>{commentLength}/500</Text>
+            {!isLoading &&
+                <View style={styles.container}>
+                    <View style={styles.textAreaContainer}>
+                        <View style={styles.textAreaLabelRow}>
+                            <Text style={styles.textAreaLabel}>Comentario</Text>
+                            <Text style={styles.charCount}>{commentLength}/500</Text>
+                        </View>
+                        <Controller
+                            name="comment"
+                            control={control}
+                            rules={{ required: true, maxLength: 500 }}
+                            render={({ field: { value, onBlur, onChange } }) =>
+                                <TextInput
+                                    style={styles.textArea}
+                                    multiline={true}
+                                    maxLength={500}
+                                    onChangeText={onChange}
+                                    value={value}
+                                    onBlur={onBlur}
+                                />
+                            }
+                        />
+                        {errors.comment && errors.comment.type === "required"
+                            && <Text style={styles.formError}>Introduzca un comentario válido</Text>}
+                        {errors.comment && errors.comment.type === "maxLength"
+                            && <Text style={styles.formError}>El comentario debe tener 500 caracteres o menos</Text>}
                     </View>
-                    <Controller
-                        name="comment"
-                        control={control}
-                        rules={{ required: true, maxLength: 500 }}
-                        render={({ field: { value, onBlur, onChange } }) =>
-                            <TextInput
-                                style={styles.textArea}
-                                multiline={true}
-                                maxLength={500}
-                                onChangeText={onChange}
-                                value={value}
-                                onBlur={onBlur}
-                            />
-                        }
-                    />
-                    {errors.comment && errors.comment.type === "required"
-                        && <Text style={styles.formError}>Introduzca un comentario válido</Text>}
-                    {errors.comment && errors.comment.type === "maxLength"
-                        && <Text style={styles.formError}>El comentario debe tener 500 caracteres o menos</Text>}
-                </View>
 
-                <PrimaryButton text="Enviar" onPress={handleSubmit(onSubmit)} />
-            </View>
+                    <PrimaryButton text="Enviar" onPress={handleSubmit(onSubmit)} />
+                </View>
+            }
         </SafeAreaView>
     );
 }

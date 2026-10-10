@@ -4,6 +4,7 @@ import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getPreevaluationComments, getProjectEvaluations, getProjectMembers } from "@/src/services/projectService";
+import { Role } from "@/src/types/account.type";
 import { PreevaluationComment } from "@/src/types/module.type";
 import { ProjectMembers } from "@/src/types/project.types";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -25,7 +26,7 @@ export default function ProjectCommentsScreen() {
     const userRole = authContext.authState?.user.role;
     const isAdvisor = !!userId && !!projectMembers && projectMembers.advisor.id === userId;
     const isEvaluator = !!userId && evaluatorIds.includes(userId);
-    const canAddComment = userRole === 'ADMIN' || isAdvisor || isEvaluator;
+    const canAddComment = userRole === 'ADMIN' || userRole === Role.Evaluador || isAdvisor || isEvaluator;
 
     useFocusEffect(
         useCallback(() => {
@@ -72,7 +73,7 @@ export default function ProjectCommentsScreen() {
                 </View>
             }
 
-            {canAddComment &&
+            {!isLoading && canAddComment &&
                 <View style={styles.addButtonContainer}>
                     <RoundedOptionButton icon="add" text="Agregar" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/comments/add", params: { id: Number(id) } })} />
                 </View>
