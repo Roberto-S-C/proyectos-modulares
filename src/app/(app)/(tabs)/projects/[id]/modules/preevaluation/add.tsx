@@ -1,3 +1,4 @@
+import ConfirmDialog from "@/src/components/ConfirmDialog";
 import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import PreevaluationModuleItem from "@/src/components/Module/PreevaluationModuleItem";
@@ -22,6 +23,8 @@ export default function AddPreevaluation() {
     const [isLoading, setIsLoading] = useState(true);
     const [projectModules, setProjectModules] = useState<ProjectModules>();
     const [selections, setSelections] = useState<Record<number, Selection>>({});
+
+    const [isAbsentDialogVisible, setIsAbsentDialogVisible] = useState(false);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -109,8 +112,10 @@ export default function AddPreevaluation() {
             await addProjectModulePreevaluations(Number(id), preevaluations);
             goToComments();
         }
-        catch (e) {
-            showAlert("No se pudo registrar la preevaluación", "error");
+        catch (e: any) {
+            showAlert(e?.response?.status === 409
+                ? "El periodo de preevaluación no está abierto"
+                : "No se pudo registrar la preevaluación", "error");
         }
         finally {
             setIsLoading(false);
@@ -118,13 +123,16 @@ export default function AddPreevaluation() {
     }
 
     const onMarkTeamAbsent = async () => {
+        setIsAbsentDialogVisible(false);
         setIsLoading(true);
         try {
             await markProjectAbsentFromPreevaluation(Number(id));
             goToComments();
         }
-        catch (e) {
-            showAlert("No se pudo registrar la preevaluación", "error");
+        catch (e: any) {
+            showAlert(e?.response?.status === 409
+                ? "El periodo de preevaluación no está abierto"
+                : "No se pudo registrar la preevaluación", "error");
         }
         finally {
             setIsLoading(false);
@@ -145,7 +153,8 @@ export default function AddPreevaluation() {
                 <View style={styles.container}>
                     <PrimaryButton
                         text="Equipo no asistió"
-                        onPress={onMarkTeamAbsent}
+                        icon="person-remove"
+                        onPress={() => setIsAbsentDialogVisible(true)}
                         style={styles.absentButton}
                     />
 
@@ -172,6 +181,15 @@ export default function AddPreevaluation() {
                     </View>
                 </View>
             }
+
+            <ConfirmDialog
+                isVisible={isAbsentDialogVisible}
+                message="¿El equipo no asistió? Todos los módulos del proyecto serán rechazados."
+                variant="danger"
+                confirmText="Confirmar"
+                onConfirm={onMarkTeamAbsent}
+                onCancel={() => setIsAbsentDialogVisible(false)}
+            />
         </SafeAreaView>
     );
 }
