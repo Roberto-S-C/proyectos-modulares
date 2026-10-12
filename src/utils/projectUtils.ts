@@ -6,4 +6,6 @@ export const PROJECT_STATUS_VARIANT: Record<ProjectStatus, "error" | "success" |
     REVISION: undefined,
     CONDICIONADO: "warning",
     NP: "error",
+    COMPLETADO: undefined,
+    ATRASADO: "error",
 }

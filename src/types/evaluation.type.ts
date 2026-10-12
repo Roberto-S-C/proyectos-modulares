@@ -5,5 +5,7 @@ export type EvaluationDashboard = {
     approvedProjects: number,
     rejectedProjects: number,
     conditionedProjects: number,
-    notPresentProjects: number
+    notPresentProjects: number,
+    completedProjects: number,
+    lateProjects: number
 }

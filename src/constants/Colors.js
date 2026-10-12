@@ -8,6 +8,7 @@ const Colors = {
     success: '#2D6A4F',
     warning: '#E07A00',
     missing: '#7a7a7a',
+    late: '#6A4C93',
     selected: '#FFC300',
     unSelected: '#5C677D',
     border: '#5C677D',

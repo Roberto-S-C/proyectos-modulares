@@ -71,7 +71,9 @@ export type ProjectStatus =
     "RECHAZADO" |
     "REVISION" |
     "CONDICIONADO" |
-    "NP";
+    "NP" |
+    "COMPLETADO" |
+    "ATRASADO";
 
 export type ProjectModules = {
     id: number,

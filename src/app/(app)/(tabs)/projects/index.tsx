@@ -13,7 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const STATUS_OPTIONS: ProjectStatus[] = ["REVISION", "APROVADO", "RECHAZADO", "CONDICIONADO", "NP", "COMPLETADO"];
+const STATUS_OPTIONS: ProjectStatus[] = ["REVISION", "APROVADO", "RECHAZADO", "CONDICIONADO", "NP", "COMPLETADO", "ATRASADO"];
 
 // Semester codes are "YYYY" + "A"/"B" (e.g. "2026A"), so order chronologically by year first,
 // then by the half-year letter.
