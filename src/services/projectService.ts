@@ -1,6 +1,6 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
-import { CreateModuleEvaluation, CreateModulePreevaluation, CreatePreevaluationComment } from "../types/module.type";
+import { AddProjectModule, CreateModuleEvaluation, CreateModulePreevaluation, CreatePreevaluationComment } from "../types/module.type";
 import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
@@ -34,6 +34,10 @@ export const getFileSignedUrl = (projectId: number, fileId: number) => apiClient
 export const getProjectFileStatus = (projectId: number, fileId: number) => apiClient.get(`projects/${projectId}/files/${fileId}/status`);
 
 export const getProjectModules = (projectId: number) => apiClient.get(`projects/${projectId}/modules`);
+
+export const addAdminProjectModule = (projectId: number, module: AddProjectModule) => apiClient.post(`projects/${projectId}/modules/admin`, module);
+
+export const removeProjectModule = (projectId: number, projectModuleId: number) => apiClient.delete(`projects/${projectId}/modules/${projectModuleId}`);
 
 export const getProjectModulesPreevaluations = (projectId: number) => apiClient.get(`projects/${projectId}/modules/preevaluations`);
 

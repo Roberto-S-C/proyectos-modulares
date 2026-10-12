@@ -1,18 +1,19 @@
 import Colors from "@/src/constants/Colors";
 import { ProjectModuleStatus } from "@/src/types/module.type";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface ProjectModule {
     id: number,
     name: string,
-    status: ProjectModuleStatus 
+    status: ProjectModuleStatus,
+    onAdd?: () => void,
+    onDelete?: () => void
 }
 
-export default function ProjectModuleListItem({ id, name, status }: ProjectModule) {
+export default function ProjectModuleListItem({ id, name, status, onAdd, onDelete }: ProjectModule) {
     return (
         <View style={styles.container}>
-            <Ionicons name="cube" size={52} color={Colors.secondary} style={styles.icon} />
             <View style={styles.moduleDetailsContainer}>
                 <Text style={styles.moduleName}>{name}</Text>
                 <Text style={[
@@ -21,6 +22,20 @@ export default function ProjectModuleListItem({ id, name, status }: ProjectModul
                     status === "NP" && {color: Colors.error}
                 ]}>{status}</Text>
             </View>
+            {onAdd &&
+                <Pressable onPress={onAdd} style={styles.actionButton}>
+                    {({ pressed }) =>
+                        <Ionicons name="add-circle" size={32} color={pressed ? Colors.textSecondary : Colors.success} />
+                    }
+                </Pressable>
+            }
+            {onDelete &&
+                <Pressable onPress={onDelete} style={styles.actionButton}>
+                    {({ pressed }) =>
+                        <Ionicons name="trash" size={32} color={pressed ? Colors.textSecondary : Colors.error} />
+                    }
+                </Pressable>
+            }
         </View>
     );
 }
@@ -29,22 +44,17 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
         gap: 8,
         minHeight: 70,
+        paddingHorizontal: 8,
         backgroundColor: Colors.itemBackgroundColor,
         borderRadius: 10,
         overflow: 'hidden',
     },
-    icon: {
-        position: 'absolute',
-        left: 8,
-    },
     moduleDetailsContainer: {
+        flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
-        alignSelf: 'center',
-        width: '70%',
         padding: 8,
     },
     moduleName: {
@@ -59,5 +69,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: Colors.textSecondary
+    },
+    actionButton: {
+        padding: 8,
     }
 });

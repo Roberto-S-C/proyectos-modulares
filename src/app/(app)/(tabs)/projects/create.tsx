@@ -13,6 +13,7 @@ import { createProject } from "@/src/services/projectService";
 import { Account } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
 import { CreateProject } from "@/src/types/project.types";
+import { isAspectosGenerales } from "@/src/utils/moduleUtils";
 import { getProjectRegistrationSemester } from "@/src/utils/semesterUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -98,7 +99,7 @@ export default function CreateProjectScreen() {
                     const res = await getModules();
                     // Aspectos Generales is required on every project and added by the backend
                     // automatically, so it's never offered as a choice here.
-                    const selectableModules = res.data.filter((module: Module) => module.name.trim().toLowerCase() !== "aspectos generales");
+                    const selectableModules = res.data.filter((module: Module) => !isAspectosGenerales(module.name));
                     if (selectableModules.length === 0) throw new Error("Error fetching Project Modules");
                     setModules(selectableModules);
                 }

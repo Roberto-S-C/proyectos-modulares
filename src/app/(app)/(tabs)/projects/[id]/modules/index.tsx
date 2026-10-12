@@ -1,13 +1,11 @@
 import Loading from "@/src/components/Loading";
-import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem";
-import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
 import { getProjectModules } from "@/src/services/projectService";
 import { ProjectModules } from "@/src/types/project.types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, View } from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProjectModulesScreen() {
@@ -40,25 +38,25 @@ export default function ProjectModulesScreen() {
             {isLoading && <Loading />}
 
             {!isLoading && project &&
-                <View style={styles.container}>
+                <ScrollView contentContainerStyle={styles.container}>
                     <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
                     <Title text={project?.name} />
-                    <FlatList
-                        data={project.modules}
-                        renderItem={({ item }) => <ProjectModuleListItem {...item} />}
-                        keyExtractor={item => item.id.toString()}
-                        scrollEnabled={true}
-                        ListHeaderComponent={() => (
-                            <View style={styles.optionsContainer}>
-                                <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation", params: {id: Number(id)}})} />
-                                <RoundedOptionButton text="Evaluación" icon="star" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation", params: {id: Number(id)}})} />
-                                <RoundedOptionButton text="Comentarios" icon="chatbubble-ellipses" onPress={() => router.push({pathname: "/(app)/(tabs)/projects/[id]/modules/comments", params: {id: Number(id)}})} />
-                            </View>
-                        )}
-                        ListEmptyComponent={() => <NotFoundItem text="Módulos no disponibles" />}
-                        contentContainerStyle={{ gap: 8 }}
-                    />
-                </View>
+
+                    <View style={styles.optionsContainer}>
+                        <View style={styles.optionButton}>
+                            <RoundedOptionButton text="Evaluación" icon="star" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation", params: { id: Number(id) } })} />
+                        </View>
+                        <View style={styles.optionButton}>
+                            <RoundedOptionButton text="Comentarios" icon="chatbubble-ellipses" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/comments", params: { id: Number(id) } })} />
+                        </View>
+                        <View style={styles.optionButton}>
+                            <RoundedOptionButton text="Estatus" icon="information-circle" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/status", params: { id: Number(id) } })} />
+                        </View>
+                        <View style={styles.optionButton}>
+                            <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation", params: { id: Number(id) } })} />
+                        </View>
+                    </View>
+                </ScrollView>
             }
 
         </SafeAreaView>
@@ -70,20 +68,23 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     container: {
-        flex: 1,
+        flexGrow: 1,
         width: '100%',
         gap: 8,
         paddingHorizontal: 16,
-        // backgroundColor: 'green'
+        paddingBottom: 16,
     },
     image: {
         alignSelf: 'center',
-        width: 300,
-        height: 300,
+        width: 350,
+        height: 350,
     },
     optionsContainer: {
         width: '100%',
         flexDirection: 'column',
         gap: 8,
+    },
+    optionButton: {
+        height: 60,
     }
 });

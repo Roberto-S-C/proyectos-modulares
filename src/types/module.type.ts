@@ -24,6 +24,10 @@ export type Module = {
     status: ProjectModuleStatus
 }
 
+export type AddProjectModule = {
+    projectModuleId: number
+}
+
 export type PreevaluationStatus = "PRESENTE" | "NP";
 
 export type Preevaluation = {
