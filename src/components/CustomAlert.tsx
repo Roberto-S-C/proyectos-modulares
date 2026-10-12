@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
     messageContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
         paddingVertical: 12,
+        paddingHorizontal: 8 
     },
     message: {
-        paddingHorizontal: 10,
+        marginRight: 8,
         fontSize: 16,
         fontWeight: 'bold',
         color: '#fff',
