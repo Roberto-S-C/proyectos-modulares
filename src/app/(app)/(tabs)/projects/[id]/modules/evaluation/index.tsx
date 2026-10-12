@@ -23,7 +23,7 @@ export default function ProjectEvaluationScreen() {
 
     const userId = authContext.authState?.user.id;
     const userRole = authContext.authState?.user.role;
-    const canAddEvaluation = userId != null && (userRole === Role.Admin || !!projectEvaluations?.evaluatorIds.includes(userId));
+    const canAddEvaluation = userId != null && (userRole === Role.Admin || userRole === Role.Evaluador || !!projectEvaluations?.evaluatorIds.includes(userId));
 
     useFocusEffect(
         useCallback(() => {

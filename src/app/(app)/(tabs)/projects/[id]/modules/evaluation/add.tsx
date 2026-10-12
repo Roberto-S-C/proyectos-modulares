@@ -95,13 +95,9 @@ export default function AddEvaluation() {
         }
         catch (e: any) {
             const status = e?.response?.status;
-            const message: string = e?.response?.data?.message ?? "";
 
             if (status === 403) {
                 showAlert("No tienes permiso para evaluar este proyecto");
-            }
-            else if (status === 409 && message.toLowerCase().includes("already evaluated")) {
-                showAlert("Ya evaluaste este proyecto, solo puedes evaluarlo una vez");
             }
             else if (status === 409) {
                 showAlert("Este proyecto no puede ser evaluado");
