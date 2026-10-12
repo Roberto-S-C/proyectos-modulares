@@ -5,17 +5,19 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface Props {
     id: number,
     semester: string,
-    date: string | null,
+    preevaluationDate: string | null,
+    evaluationDate: string | null,
     onPress?: () => void
 }
 
-export default function PresentationSemesterListItem({ semester, date, onPress }: Props) {
+export default function PresentationSemesterListItem({ semester, preevaluationDate, evaluationDate, onPress }: Props) {
     return (
         <TouchableOpacity onPress={onPress} style={styles.container}>
             <Ionicons name="calendar" size={40} color={Colors.secondary} />
             <View style={styles.details}>
                 <Text style={styles.semester}>{semester}</Text>
-                <Text style={styles.date}>{date ?? "Sin fecha asignada"}</Text>
+                <Text style={styles.date}>Preevaluación: {preevaluationDate ?? "Sin fecha asignada"}</Text>
+                <Text style={styles.date}>Evaluación: {evaluationDate ?? "Sin fecha asignada"}</Text>
             </View>
         </TouchableOpacity>
     );

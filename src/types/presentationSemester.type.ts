@@ -1,14 +1,18 @@
 export type PresentationSemester = {
     id: number,
     semester: string,
-    date: string | null
+    preevaluationDate: string | null,
+    evaluationDate: string | null
 }
 
 export type CreatePresentationSemester = {
     semester: string,
-    date: string
+    preevaluationDate: string,
+    evaluationDate: string
 }
 
+// Either date can be sent on its own, the one left out keeps its current value
 export type UpdatePresentationSemester = {
-    date: string
+    preevaluationDate?: string,
+    evaluationDate?: string
 }

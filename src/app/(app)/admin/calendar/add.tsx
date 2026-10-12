@@ -1,6 +1,6 @@
 import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
-import Loading from '@/src/components/Loading';
 import DatePickerField from '@/src/components/DatePickerField';
+import Loading from '@/src/components/Loading';
 import PrimaryButton from '@/src/components/PrimaryButton';
 import Colors from '@/src/constants/Colors';
 import { createPresentationSemester, getPresentationSemesters } from '@/src/services/presentationSemesterService';
@@ -35,7 +35,7 @@ export default function AdminAddPresentationSemesterScreen() {
         setValue,
         trigger
     } = useForm<CreatePresentationSemester>({
-        defaultValues: { semester: '', date: '' }
+        defaultValues: { semester: '', preevaluationDate: '', evaluationDate: '' }
     });
 
     const selectedSemester = watch('semester');
@@ -63,7 +63,7 @@ export default function AdminAddPresentationSemesterScreen() {
     const onSubmit: SubmitHandler<CreatePresentationSemester> = async (data) => {
         setIsLoading(true);
         try {
-            const res = await createPresentationSemester({ semester: data.semester, date: data.date });
+            const res = await createPresentationSemester({ semester: data.semester, preevaluationDate: data.preevaluationDate, evaluationDate: data.evaluationDate });
             if (res.status === 200) {
                 setAlertProps({
                     message: 'Semestre añadido',
@@ -83,7 +83,7 @@ export default function AdminAddPresentationSemesterScreen() {
                 message: status === 409
                     ? 'El semestre ya existe'
                     : status === 400
-                        ? 'El semestre o la fecha no son válidos'
+                        ? 'El semestre o las fechas no son válidos'
                         : 'No se puede añadir el semestre',
                 onDismiss: () => setIsAlertVisible(false),
                 isVisible: true,
@@ -97,6 +97,7 @@ export default function AdminAddPresentationSemesterScreen() {
     }
 
     const range = selectedSemester ? getSemesterRange(selectedSemester) : null;
+    const minimumDate = range ? (range.start > getTodayString() ? range.start : getTodayString()) : undefined;
 
     return (
         <ScrollView style={styles.screen} contentContainerStyle={{ alignItems: 'center' }}>
@@ -119,7 +120,8 @@ export default function AdminAddPresentationSemesterScreen() {
                                     selectedValue={value}
                                     onValueChange={(semester) => {
                                         onChange(semester);
-                                        if (getValues('date')) trigger('date');
+                                        if (getValues('preevaluationDate')) trigger('preevaluationDate');
+                                        if (getValues('evaluationDate')) trigger('evaluationDate');
                                     }}
                                     style={styles.picker}
                                 >
@@ -132,10 +134,10 @@ export default function AdminAddPresentationSemesterScreen() {
                     />
                     {errors.semester && <Text style={styles.formError}>Seleccione un semestre válido</Text>}
 
-                    <Text style={styles.label}>Fecha de presentación</Text>
+                    <Text style={styles.label}>Fecha de preevaluación</Text>
                     {range && <Text style={styles.hint}>Entre {range.start} y {range.end}</Text>}
                     <Controller
-                        name='date'
+                        name='preevaluationDate'
                         control={control}
                         rules={{
                             required: 'Introduzca una fecha válida (AAAA-MM-DD)',
@@ -144,16 +146,48 @@ export default function AdminAddPresentationSemesterScreen() {
                         render={({ field: { value, onBlur, onChange } }) =>
                             <DatePickerField
                                 value={value}
-                                onChange={onChange}
+                                onChange={(date) => {
+                                    onChange(date);
+                                    if (getValues('evaluationDate')) trigger('evaluationDate');
+                                }}
                                 onBlur={onBlur}
                                 placeholder='Seleccionar fecha'
-                                minimumDate={range ? (range.start > getTodayString() ? range.start : getTodayString()) : undefined}
+                                minimumDate={minimumDate}
                                 maximumDate={range?.end}
-                                title='Fecha de presentación'
+                                title='Fecha de preevaluación'
                             />
                         }
                     />
-                    {errors.date && <Text style={styles.formError}>{errors.date.message}</Text>}
+                    {errors.preevaluationDate && <Text style={styles.formError}>{errors.preevaluationDate.message}</Text>}
+
+                    <Text style={styles.label}>Fecha de evaluación</Text>
+                    {range && <Text style={styles.hint}>Después de la preevaluación</Text>}
+                    {range && <Text style={styles.hint}>Antes de {range.end}</Text>}
+                    <Controller
+                        name='evaluationDate'
+                        control={control}
+                        rules={{
+                            required: 'Introduzca una fecha válida (AAAA-MM-DD)',
+                            validate: (value, formValues) => {
+                                const result = validateSemesterDate(formValues.semester, value);
+                                if (result !== true) return result;
+                                if (formValues.preevaluationDate && value <= formValues.preevaluationDate) return 'La evaluación debe ser después de la preevaluación';
+                                return true;
+                            }
+                        }}
+                        render={({ field: { value, onBlur, onChange } }) =>
+                            <DatePickerField
+                                value={value}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                                placeholder='Seleccionar fecha'
+                                minimumDate={minimumDate}
+                                maximumDate={range?.end}
+                                title='Fecha de evaluación'
+                            />
+                        }
+                    />
+                    {errors.evaluationDate && <Text style={styles.formError}>{errors.evaluationDate.message}</Text>}
 
                     <PrimaryButton text='Añadir' onPress={handleSubmit(onSubmit)} />
                 </View>
