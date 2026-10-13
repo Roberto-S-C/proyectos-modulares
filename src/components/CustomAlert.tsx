@@ -27,10 +27,11 @@ export default function CustomAlert({ message, onDismiss, isVisible, style }: Al
                     <View style={styles.closeButton}>
                         <Ionicons name="close" size={28} style={styles.closeIcon} />
                     </View>
+
+                    {style === 'success' && <Ionicons name="checkmark-circle-outline" size={40} color={'white'} />}
+                    {style === 'error' && <Ionicons name="close-circle-outline" size={40} color={'white'} />}
+                    {style === 'info' && <Ionicons name="information-circle-outline" size={40} color={'white'} />}
                     <View style={styles.messageContainer}>
-                        {style === 'success' && <Ionicons name="checkmark-circle-outline" size={40} color={'white'} />}
-                        {style === 'error' && <Ionicons name="close-circle-outline" size={40} color={'white'} />}
-                        {style === 'info' && <Ionicons name="information-circle-outline" size={40} color={'white'} />}
                         <Text style={styles.message}>{message}</Text>
                     </View>
                 </View>
@@ -46,7 +47,9 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         flex: 1,
+        flexDirection: 'row',
         justifyContent: 'center',
+        alignItems: 'center',
         height: '10%',
         width: '95%',
         top: '20%',
@@ -63,10 +66,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
-        paddingHorizontal: 8 
+        paddingHorizontal: 12,
+        width: '85%',
     },
     message: {
-        marginRight: 8,
         fontSize: 16,
         fontWeight: 'bold',
         color: '#fff',
