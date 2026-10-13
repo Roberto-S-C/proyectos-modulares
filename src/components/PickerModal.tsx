@@ -1,27 +1,35 @@
 import Colors from "@/src/constants/Colors";
-import { ProjectStatus } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import PrimaryButton from "../PrimaryButton";
+import PrimaryButton from "./PrimaryButton";
 
-const STATUS_OPTIONS: ProjectStatus[] = ["APROVADO", "RECHAZADO", "REVISION", "CONDICIONADO", "ATRASADO", "NP", "COMPLETADO"];
-
-interface Props {
+interface Props<T extends string> {
     isVisible: boolean,
-    currentStatus: ProjectStatus,
-    onSubmit: (status: ProjectStatus) => void,
+    title: string,
+    options: T[],
+    currentValue: T,
+    onSubmit: (value: T) => void,
     onClose: () => void,
+    submitText?: string,
 }
 
-export default function ProjectStatusModal({ isVisible, currentStatus, onSubmit, onClose }: Props) {
-    const [selectedStatus, setSelectedStatus] = useState<ProjectStatus>(currentStatus);
+export default function PickerModal<T extends string>({
+    isVisible,
+    title,
+    options,
+    currentValue,
+    onSubmit,
+    onClose,
+    submitText = "Actualizar"
+}: Props<T>) {
+    const [selectedValue, setSelectedValue] = useState<T>(currentValue);
 
-    // Starts from the project's current status every time it opens
+    // Starts from the current value every time it opens
     useEffect(() => {
-        if (isVisible) setSelectedStatus(currentStatus);
-    }, [isVisible, currentStatus]);
+        if (isVisible) setSelectedValue(currentValue);
+    }, [isVisible, currentValue]);
 
     return (
         <Modal
@@ -33,7 +41,7 @@ export default function ProjectStatusModal({ isVisible, currentStatus, onSubmit,
             <View style={styles.backdrop}>
                 <View style={styles.modal}>
                     <View style={styles.header}>
-                        <Text style={styles.title}>Modificar Estatus</Text>
+                        <Text style={styles.title}>{title}</Text>
                         <Pressable onPress={onClose} style={styles.closeButton}>
                             <Ionicons name="close" size={28} color={Colors.textSecondary} />
                         </Pressable>
@@ -41,20 +49,20 @@ export default function ProjectStatusModal({ isVisible, currentStatus, onSubmit,
 
                     <View style={styles.pickerContainer}>
                         <Picker
-                            selectedValue={selectedStatus}
-                            onValueChange={(itemValue) => setSelectedStatus(itemValue)}
+                            selectedValue={selectedValue}
+                            onValueChange={(itemValue) => setSelectedValue(itemValue)}
                             style={styles.picker}
                         >
-                            {STATUS_OPTIONS.map(status =>
-                                <Picker.Item key={status} label={status} value={status} />
+                            {options.map(option =>
+                                <Picker.Item key={option} label={option} value={option} />
                             )}
                         </Picker>
                     </View>
 
                     <PrimaryButton
-                        text="Actualizar"
-                        onPress={() => onSubmit(selectedStatus)}
-                        disabled={selectedStatus === currentStatus}
+                        text={submitText}
+                        onPress={() => onSubmit(selectedValue)}
+                        disabled={selectedValue === currentValue}
                         style={styles.button}
                     />
                 </View>

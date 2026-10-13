@@ -1,17 +1,27 @@
 import AccountPersonalInfo from "@/src/components/Account/AccountPersonalInfo";
 import ModifyRoleButton from "@/src/components/ModifyRoleButton";
-import { AccountDetails } from "@/src/types/account.type";
+import { AuthContext } from "@/src/contexts/AuthContext";
+import { AccountDetails, Role } from "@/src/types/account.type";
+import { useContext } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+interface Props extends AccountDetails {
+    onRoleUpdated: () => void,
+}
 
-export default function UserAccountDetailsScreen({ name, lastname, email, profilePicture, role }: AccountDetails) {
+export default function UserAccountDetailsScreen({ id, name, lastname, email, profilePicture, role, onRoleUpdated }: Props) {
+    const authContext = useContext(AuthContext);
+    const isAdmin = authContext.authState?.user?.role === Role.Admin;
+
     return (
         <SafeAreaView style={styles.screen}>
             <AccountPersonalInfo name={name} lastname={lastname} email={email} profilePicture={profilePicture} role={role} />
-            <View style={styles.roleButtonContainer}>
-                <ModifyRoleButton />
-            </View>
+            {isAdmin &&
+                <View style={styles.roleButtonContainer}>
+                    <ModifyRoleButton accountId={id} currentRole={role} onRoleUpdated={onRoleUpdated} />
+                </View>
+            }
         </SafeAreaView>
     );
 }

@@ -8,6 +8,13 @@ export enum Role {
     Usuario = 'USUARIO',
 }
 
+// Roles an ADMIN can assign (ASESOR isn't a stored role, it comes from the email domain)
+export const ASSIGNABLE_ROLES: Role[] = [Role.Usuario, Role.Alumno, Role.Evaluador, Role.Admin];
+
+export type UpdateAccountRole = {
+    role: Role
+}
+
 export type Account = {
     id: string,
     name: string,

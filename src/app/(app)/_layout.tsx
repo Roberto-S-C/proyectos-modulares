@@ -4,7 +4,6 @@ export default function AppLayout() {
     return (
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="modifyRoleModal" />
             <Stack.Screen name="admin" />
         </Stack>
     );

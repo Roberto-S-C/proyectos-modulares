@@ -1,9 +1,12 @@
 import apiClient from "../api/client";
+import { UpdateAccountRole } from "../types/account.type";
 
 
 export const searchAccounts = (email: string, role: string) => apiClient.get(`/accounts?email=${email}&role=${role}`);
 
 export const getAccountDetails = (id: string) => apiClient.get(`/accounts/${id}`);
+
+export const updateAccountRole = (id: string, role: UpdateAccountRole) => apiClient.patch(`/accounts/${id}/role`, role);
 
 export const getAvailableMembers = () => apiClient.get(`/accounts/available-members`);
 

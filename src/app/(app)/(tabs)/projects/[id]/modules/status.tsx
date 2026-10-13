@@ -3,7 +3,7 @@ import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem";
 import NotFoundItem from "@/src/components/NotFoundItem";
-import ProjectStatusModal from "@/src/components/Project/ProjectStatusModal";
+import PickerModal from "@/src/components/PickerModal";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import RoundedText from "@/src/components/RoundedText";
 import { AuthContext } from "@/src/contexts/AuthContext";
@@ -17,6 +17,8 @@ import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const STATUS_OPTIONS: ProjectStatus[] = ["APROVADO", "RECHAZADO", "REVISION", "CONDICIONADO", "ATRASADO", "NP", "COMPLETADO"];
 
 type ModuleAction = {
     type: "add" | "remove",
@@ -196,9 +198,11 @@ export default function ProjectStatusScreen() {
             />
 
             {project &&
-                <ProjectStatusModal
+                <PickerModal
                     isVisible={isStatusModalVisible}
-                    currentStatus={project.projectStatus}
+                    title="Modificar Estatus"
+                    options={STATUS_OPTIONS}
+                    currentValue={project.projectStatus}
                     onSubmit={handleStatusSubmit}
                     onClose={() => setIsStatusModalVisible(false)}
                 />
