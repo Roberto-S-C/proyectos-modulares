@@ -121,6 +121,7 @@ export default function AddEvaluators() {
 
                 {!isLoading && accounts.length > 0 &&
                     <FlatList
+                        style={styles.list}
                         data={accounts}
                         renderItem={({ item }) => <AddMemberListItem account={item} isSelected={selectedAccountIds.includes(item.id)} onPress={() => toggleAccount(item.id)} />}
                         keyExtractor={item => item.id}
@@ -137,13 +138,14 @@ export default function AddEvaluators() {
                                 </TouchableOpacity>
                             </View>
                         }
-                        ListFooterComponent={() =>
-                            <View style={{ marginTop: 16 }}>
-                                <RoundedOptionButton text="Añadir Evaluadores" icon="add" onPress={onSubmit} />
-                            </View>
-                        }
                     />
+                }
 
+                {/* Outside the list so it stays visible however many evaluators there are */}
+                {!isLoading && accounts.length > 0 &&
+                    <View style={styles.submitButtonContainer}>
+                        <RoundedOptionButton text="Añadir Evaluadores" icon="add" onPress={onSubmit} />
+                    </View>
                 }
                 {!isLoading && accounts.length === 0 &&
                     <NotFoundItem text="Cuentas no encontradas" />
@@ -205,5 +207,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 16
+    },
+    submitButtonContainer: {
+        height: 60,
+        marginHorizontal: 16,
+        marginBottom: 8,
     }
 });
