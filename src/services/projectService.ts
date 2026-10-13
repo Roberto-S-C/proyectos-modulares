@@ -1,7 +1,7 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
 import { AddProjectModule, CreateModuleEvaluation, CreateModulePreevaluation, CreatePreevaluationComment } from "../types/module.type";
-import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject } from "../types/project.types";
+import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject, UpdateProjectStatus } from "../types/project.types";
 
 export const getProjects = () => apiClient.get('/projects');
 
@@ -16,6 +16,8 @@ export const addProjectEvaluators = (projectId: number, newEvaluators: AddProjec
 export const createProject =  (project: CreateProject) => apiClient.post(`/projects`, project);
 
 export const updateProject = (id: number, project: UpdateProject) => apiClient.patch(`/projects/${id}`, project);
+
+export const updateProjectStatus = (id: number, status: UpdateProjectStatus) => apiClient.patch(`/projects/${id}/status`, status);
 
 export const addProjectMember = (projectId: number, newMember: AddProjectMember) => apiClient.post(`/projects/${projectId}/members`, newMember);
 

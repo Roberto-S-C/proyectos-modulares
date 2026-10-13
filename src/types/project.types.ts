@@ -31,9 +31,12 @@ export type CreateProject = {
 export type UpdateProject = {
     name?: string,
     description?: string,
-    status?: string,
     presentationSemester?: string,
     advisorId?: string
+}
+
+export type UpdateProjectStatus = {
+    status: ProjectStatus
 }
 
 export type AddProjectMember = {

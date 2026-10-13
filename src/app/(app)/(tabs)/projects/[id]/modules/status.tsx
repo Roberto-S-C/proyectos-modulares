@@ -3,13 +3,14 @@ import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem";
 import NotFoundItem from "@/src/components/NotFoundItem";
+import ProjectStatusModal from "@/src/components/Project/ProjectStatusModal";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import RoundedText from "@/src/components/RoundedText";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { addAdminProjectModule, getProjectModules, removeProjectModule } from "@/src/services/projectService";
+import { addAdminProjectModule, getProjectModules, removeProjectModule, updateProjectStatus } from "@/src/services/projectService";
 import { Role } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
-import { ProjectModules } from "@/src/types/project.types";
+import { ProjectModules, ProjectStatus } from "@/src/types/project.types";
 import { isAspectosGenerales } from "@/src/utils/moduleUtils";
 import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -29,6 +30,10 @@ export default function ProjectStatusScreen() {
     // Kept after closing so the message doesn't go blank during the fade-out
     const [pendingAction, setPendingAction] = useState<ModuleAction | null>(null);
     const [isConfirmDialogVisible, setIsConfirmDialogVisible] = useState(false);
+
+    const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+    const [newStatus, setNewStatus] = useState<ProjectStatus | null>(null);
+    const [isStatusConfirmDialogVisible, setIsStatusConfirmDialogVisible] = useState(false);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -114,6 +119,32 @@ export default function ProjectStatusScreen() {
         }
     }
 
+    // The picker modal closes before the confirmation opens, two modals can't be stacked on iOS
+    const handleStatusSubmit = (status: ProjectStatus) => {
+        setNewStatus(status);
+        setIsStatusModalVisible(false);
+        setIsStatusConfirmDialogVisible(true);
+    }
+
+    const handleConfirmStatusChange = async () => {
+        if (!newStatus) return;
+
+        setIsStatusConfirmDialogVisible(false);
+        setIsLoading(true);
+        try {
+            await updateProjectStatus(Number(id), { status: newStatus });
+            // Refetched because APROVADO also approves every REVISION/NP module
+            await fetchProjectModules();
+            showAlert("Estatus actualizado", "success");
+        }
+        catch (e: any) {
+            showAlert("No se pudo actualizar el estatus", "error");
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <SafeAreaView style={styles.screen}>
             {isLoading && <Loading />}
@@ -147,7 +178,7 @@ export default function ProjectStatusScreen() {
 
                     {isAdmin &&
                         <View style={styles.button}>
-                            <RoundedOptionButton text="Modificar Estatus" icon="create" onPress={() => { }} />
+                            <RoundedOptionButton text="Modificar Estatus" icon="create" onPress={() => setIsStatusModalVisible(true)} />
                         </View>
                     }
                 </View>
@@ -162,6 +193,23 @@ export default function ProjectStatusScreen() {
                 confirmText={pendingAction?.type === "add" ? "Agregar" : "Eliminar"}
                 onConfirm={handleConfirmAction}
                 onCancel={() => setIsConfirmDialogVisible(false)}
+            />
+
+            {project &&
+                <ProjectStatusModal
+                    isVisible={isStatusModalVisible}
+                    currentStatus={project.projectStatus}
+                    onSubmit={handleStatusSubmit}
+                    onClose={() => setIsStatusModalVisible(false)}
+                />
+            }
+
+            <ConfirmDialog
+                isVisible={isStatusConfirmDialogVisible}
+                message={`¿Cambiar el estatus del proyecto de ${project?.projectStatus} a ${newStatus}?`}
+                confirmText="Actualizar"
+                onConfirm={handleConfirmStatusChange}
+                onCancel={() => setIsStatusConfirmDialogVisible(false)}
             />
         </SafeAreaView>
     );
