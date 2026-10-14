@@ -7,7 +7,8 @@ import { getAccountDetails } from '@/src/services/accountService';
 import { AccountDetails } from '@/src/types/account.type';
 import { Project } from '@/src/types/project.types';
 import getPresentationSemesters, { sortSemesters } from '@/src/utils/semesterUtils';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -28,31 +29,39 @@ export default function EvaluatorHomeScreen() {
     useEffect(() => {
         if (evaluatedSemesters.length === 0) return;
         const currentSemester = getPresentationSemesters()[0];
-        setSelectedSemester(
-            evaluatedSemesters.includes(currentSemester)
+        // Keeps the semester the user picked when the account is refetched on focus
+        setSelectedSemester(previous => {
+            if (previous && evaluatedSemesters.includes(previous)) return previous;
+            return evaluatedSemesters.includes(currentSemester)
                 ? currentSemester
-                : evaluatedSemesters[evaluatedSemesters.length - 1]
-        );
+                : evaluatedSemesters[evaluatedSemesters.length - 1];
+        });
     }, [evaluatedSemesters]);
 
-    useEffect(() => {
-        const fetchAccountDetails = async () => {
-            try {
-                if (!authContext.authState?.user.id) return;
-                const res = await getAccountDetails(authContext.authState?.user.id);
-                if (res.status === 200) {
-                    setAccount(res.data);
+    const userId = authContext.authState?.user.id;
+
+    // Refetched on focus so evaluations submitted elsewhere show up when coming back
+    useFocusEffect(
+        useCallback(() => {
+            setIsLoading(true);
+            const fetchAccountDetails = async () => {
+                try {
+                    if (!userId) return;
+                    const res = await getAccountDetails(userId);
+                    if (res.status === 200) {
+                        setAccount(res.data);
+                    }
+                }
+                catch (e) {
+
+                }
+                finally {
+                    setIsLoading(false);
                 }
             }
-            catch (e) {
-
-            }
-            finally {
-                setIsLoading(false);
-            }
-        }
-        fetchAccountDetails();
-    }, [])
+            fetchAccountDetails();
+        }, [userId])
+    );
 
 
     useEffect(() => {

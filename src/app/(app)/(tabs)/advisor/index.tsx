@@ -20,18 +20,20 @@ export default function AdvisorProjectsScreen() {
 
     const authContext = useContext(AuthContext);
 
-    const evaluatedSemesters = useMemo(() => {
+    const advisedSemesters = useMemo(() => {
         const semesters = new Set<string>();
-        account?.evaluatedProjects?.forEach(project => semesters.add(project.presentationSemester));
+        account?.advisedProjects?.forEach(project => semesters.add(project.presentationSemester));
         return sortSemesters(Array.from(semesters));
     }, [account]);
+
+    const userId = authContext.authState?.user.id;
 
     useFocusEffect(
         useCallback(() => {
             const fetchAccountDetails = async () => {
                 try {
-                    if (!authContext.authState?.user.id) return;
-                    const res = await getAccountDetails(authContext.authState?.user.id);
+                    if (!userId) return;
+                    const res = await getAccountDetails(userId);
                     if (res.status === 200) {
                         setAccount(res.data);
                     }
@@ -44,18 +46,20 @@ export default function AdvisorProjectsScreen() {
                 }
             }
             fetchAccountDetails();
-        }, [])
+        }, [userId])
     )
 
     useEffect(() => {
-        if (evaluatedSemesters.length === 0) return;
+        if (advisedSemesters.length === 0) return;
         const currentSemester = getPresentationSemesters()[0];
-        setSelectedSemester(
-            evaluatedSemesters.includes(currentSemester)
+        // Keeps the semester the user picked when the account is refetched on focus
+        setSelectedSemester(previous => {
+            if (previous && advisedSemesters.includes(previous)) return previous;
+            return advisedSemesters.includes(currentSemester)
                 ? currentSemester
-                : evaluatedSemesters[evaluatedSemesters.length - 1]
-        );
-    }, [evaluatedSemesters]);
+                : advisedSemesters[advisedSemesters.length - 1];
+        });
+    }, [advisedSemesters]);
 
     useEffect(() => {
         if (account?.advisedProjects) {
@@ -69,20 +73,20 @@ export default function AdvisorProjectsScreen() {
 
             {isLoading && <Loading />}
 
-            {!isLoading && account?.evaluatedProjects && account.evaluatedProjects.length === 0 &&
-                <NotFoundItem text='No cuentas con evaluaciones' />
+            {!isLoading && account?.advisedProjects && account.advisedProjects.length === 0 &&
+                <NotFoundItem text='No cuentas con asesorías' />
             }
 
-            {!isLoading && account?.evaluatedProjects && account.evaluatedProjects.length > 0 &&
+            {!isLoading && account?.advisedProjects && account.advisedProjects.length > 0 &&
                 <HeaderSemesterDropdown
                     text='Asesorias'
                     selectedSemester={selectedSemester}
                     setSelectedSemester={setSelectedSemester}
-                    semesters={evaluatedSemesters}
+                    semesters={advisedSemesters}
                 />
             }
 
-            {!isLoading && account?.evaluatedProjects && account.evaluatedProjects.length > 0 &&
+            {!isLoading && account?.advisedProjects && account.advisedProjects.length > 0 &&
                 <View style={styles.list}>
                     <ProjectList projects={advisedProjects} />
                 </View>
