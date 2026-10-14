@@ -40,7 +40,6 @@ export default function ProjectFileScreen() {
                 try {
                     const fileDetailsReq = await getProjectFileDetails(Number(id), Number(fileId));
                     if (fileDetailsReq.status === 200 && fileDetailsReq.data) setFileDetails(fileDetailsReq.data);
-                    console.log(fileDetailsReq.data)
 
                     const fileReviewsReq = await getProjectFileReviews(Number(id), Number(fileId));
                     if (fileReviewsReq.status === 200 && fileReviewsReq.data) {
