@@ -2,6 +2,7 @@ import SettingsOptionButton from "@/src/components/SettingsOptionButton";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { removeTokens } from "@/src/services/authService";
+import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,13 +10,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function OptionsScreen() {
 
     const authContext = useContext(AuthContext);
-
+    const router = useRouter();
 
     return (
         <SafeAreaView style={styles.screen}>
             <Image source={require('@/src/assets/images/logo.png')} style={styles.logo} />
             <View style={styles.optionsContainer}>
-                <SettingsOptionButton text="Perfil" iconName="person-circle" onPress={() => null} />
+                <SettingsOptionButton text="Perfil" iconName="person-circle" onPress={() => router.push("/(app)/(tabs)/options/profile")} />
                 <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => null} />
                 <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={async () => {
                     await removeTokens();
