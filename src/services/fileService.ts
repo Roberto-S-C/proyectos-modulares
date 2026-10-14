@@ -24,4 +24,6 @@ export const createFileType = (fileType: CreateFileType) => apiClient.post(`/fil
 
 export const updateFileType = (id: number, fileType: UpdateFileType) => apiClient.patch(`/filetypes/${id}`, fileType);
 
+export const deleteFileType = (id: number) => apiClient.delete(`/filetypes/${id}`);
+
 export const createTemplateUploadUrl = (id: number, template: CreateTemplateUpload) => apiClient.post(`/filetypes/${id}/template-upload-url`, template);

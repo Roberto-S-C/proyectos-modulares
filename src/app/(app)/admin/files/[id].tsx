@@ -1,3 +1,4 @@
+import ConfirmDialog from '@/src/components/ConfirmDialog';
 import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
@@ -5,7 +6,7 @@ import PrimaryButton from '@/src/components/PrimaryButton';
 import RoundedOptionButton from '@/src/components/RoundedOptionButton';
 import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
-import { createTemplateUploadUrl, getFileTypes, getTemplateFileName, updateFileType } from '@/src/services/fileService';
+import { createTemplateUploadUrl, deleteFileType, getFileTypes, getTemplateFileName, updateFileType } from '@/src/services/fileService';
 import { FileType, FormatTypes, UpdateFileType } from '@/src/types/file.type';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
@@ -15,11 +16,15 @@ import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+// Every project's cover image comes from this file type, so it can't be deleted
+const COVER_FILE_TYPE_NAME = 'Portada';
+
 export default function AdminFileTypeScreen() {
     const { id } = useLocalSearchParams();
     const [fileType, setFileType] = useState<FileType | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploadingTemplate, setIsUploadingTemplate] = useState(false);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
         message: '',
@@ -122,6 +127,40 @@ export default function AdminFileTypeScreen() {
         }
     }
 
+    const onDelete = async () => {
+        if (!fileType) return;
+
+        setIsDeleteDialogVisible(false);
+        setIsLoading(true);
+        try {
+            await deleteFileType(fileType.id);
+            setAlertProps({
+                message: 'Archivo eliminado',
+                // The file type is gone, so go back to the list
+                onDismiss: () => {
+                    setIsAlertVisible(false);
+                    router.back();
+                },
+                isVisible: true,
+                style: 'success'
+            });
+        }
+        catch (e: any) {
+            setAlertProps({
+                message: e?.response?.status === 409
+                    ? 'Este archivo no puede ser eliminado'
+                    : 'No se pudo eliminar el archivo',
+                onDismiss: () => setIsAlertVisible(false),
+                isVisible: true,
+                style: 'error'
+            });
+        }
+        finally {
+            setIsLoading(false);
+            setIsAlertVisible(true);
+        }
+    }
+
     const onSubmit: SubmitHandler<UpdateFileType> = async (data) => {
         if (!fileType) return;
 
@@ -183,12 +222,21 @@ export default function AdminFileTypeScreen() {
 
                         <View style={styles.templateButton}>
                             <RoundedOptionButton
-                                text='Plantilla'
+                                text='Subir Plantilla'
                                 icon='cloud-upload'
                                 onPress={uploadTemplate}
                                 disabled={isUploadingTemplate}
                             />
                         </View>
+                        {fileType.name !== COVER_FILE_TYPE_NAME &&
+                            <View style={styles.templateButton}>
+                                <RoundedOptionButton
+                                    text='Eliminar Archivo'
+                                    icon='trash'
+                                    onPress={() => setIsDeleteDialogVisible(true)}
+                                />
+                            </View>
+                        }
                         {fileType.url &&
                             <View style={{marginTop: 20}}>
                                 <Text style={{fontWeight: "bold", fontSize: 20, color: Colors.primary}}>Plantilla</Text>
@@ -241,6 +289,15 @@ export default function AdminFileTypeScreen() {
                     <PrimaryButton text='Actualizar' onPress={handleSubmit(onSubmit)} />
                 </View>
             }
+
+            <ConfirmDialog
+                isVisible={isDeleteDialogVisible}
+                message='¿Está seguro de que desea eliminar este archivo? Todos los archivos relacionados se eliminarán.'
+                variant='danger'
+                confirmText='Eliminar'
+                onConfirm={onDelete}
+                onCancel={() => setIsDeleteDialogVisible(false)}
+            />
         </ScrollView>
     );
 }
