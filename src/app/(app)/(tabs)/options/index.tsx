@@ -1,7 +1,7 @@
 import SettingsOptionButton from "@/src/components/SettingsOptionButton";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { removeTokens } from "@/src/services/authService";
+import { removeTokens, revokeRefreshToken, signOutFromCognito } from "@/src/services/authService";
 import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -19,8 +19,14 @@ export default function OptionsScreen() {
                 <SettingsOptionButton text="Perfil" iconName="person-circle" onPress={() => router.push("/(app)/(tabs)/options/profile")} />
                 <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => null} />
                 <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={async () => {
+                    const refreshToken = authContext.authState?.tokens.refresh_token;
                     await removeTokens();
                     authContext.setAuthState(null);
+
+                    // After the app's own sign out, so it happens even if these fail or the
+                    // user closes the browser
+                    if (refreshToken) revokeRefreshToken(refreshToken);
+                    signOutFromCognito();
                 }} />
             </View>
 

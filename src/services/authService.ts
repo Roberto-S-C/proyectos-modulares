@@ -1,6 +1,8 @@
 import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as SecureStore from 'expo-secure-store';
+import * as WebBrowser from 'expo-web-browser';
 import { jwtDecode } from "jwt-decode";
+import { Platform } from "react-native";
 import { AuthState, AuthStateUser, DecodedIdToken, TokensKeys, TokensResponse } from "../types/auth.types";
 
 const COGNITO_CONFIG = {
@@ -11,6 +13,11 @@ const COGNITO_CONFIG = {
 
 const AUTHORIZATION_ENDPOINT = process.env.EXPO_PUBLIC_AUTHORIZATION_ENDPOINT || "";
 const TOKEN_ENDPOINT = process.env.EXPO_PUBLIC_TOKEN_ENDPOINT || "";
+// Same Cognito domain as the authorize/token endpoints
+const LOGOUT_ENDPOINT = AUTHORIZATION_ENDPOINT.replace('/oauth2/authorize', '/logout');
+const REVOKE_ENDPOINT = TOKEN_ENDPOINT.replace('/oauth2/token', '/oauth2/revoke');
+// Must be listed in the app client's "Allowed sign-out URLs" in Cognito
+const LOGOUT_REDIRECT_URI = 'proyectosmodulares://logout';
 
 
 export const useGetAuthCode = () => {
@@ -34,6 +41,46 @@ export const useGetAuthCode = () => {
 
     return { request, response, promptAsync };
 };
+
+/**
+ * Ends the Cognito session kept in the browser. Without it, Cognito's cookie survives the app's
+ * sign out and the next sign in silently reuses the same account. iOS signs in with an
+ * ephemeral browser session (no cookies are kept), so there's nothing to clear there.
+ * Best-effort: the app's own sign out never depends on it.
+ */
+export const signOutFromCognito = async () => {
+    if (Platform.OS === 'ios') return;
+
+    const logoutUrl = `${LOGOUT_ENDPOINT}?client_id=${encodeURIComponent(COGNITO_CONFIG.CLIENT_ID)}`
+        + `&logout_uri=${encodeURIComponent(LOGOUT_REDIRECT_URI)}`;
+    try {
+        await WebBrowser.openAuthSessionAsync(logoutUrl, LOGOUT_REDIRECT_URI);
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+// Best-effort: stops a leaked refresh token from issuing new tokens after sign out
+export const revokeRefreshToken = async (refresh_token: string) => {
+    const params = new URLSearchParams({
+        token: refresh_token,
+        client_id: COGNITO_CONFIG.CLIENT_ID,
+    }).toString();
+
+    try {
+        await fetch(REVOKE_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
 
 export const exchangeCodeForTokens = async (code: string, code_verifier: string): Promise<TokensResponse | undefined> => {
     const params = new URLSearchParams({

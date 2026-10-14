@@ -45,7 +45,9 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={() => {
               setIsButtonEnabled(false);
-              promptAsync()
+              // iOS: a private browser session, so no Cognito/Google cookie outlives the sign
+              // in and the next one asks for the account again
+              promptAsync({ preferEphemeralSession: true })
             }}
             style={styles.googleButton}
           >
