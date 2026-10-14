@@ -1,44 +1,48 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import Colors from "../constants/Colors";
 
 interface Props {
-    question: string
+    question: string,
+    onPress: () => void,
 }
 
-export default function QuestionListItem({ question }: Props) {
+export default function QuestionListItem({ question, onPress }: Props) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.questionText}>{question}</Text>
-            <View style={styles.actionsContainer}>
-                <Ionicons name="build" size={32} />
-                <Ionicons name="trash" size={32} />
-            </View>
-        </View>
+        <Pressable onPress={onPress} style={styles.container}>
+            {({ pressed }) =>
+                // Underlined so it reads as a link to the question's screen
+                <Text style={[styles.questionText, pressed && styles.questionTextPressed]}>{question}</Text>
+            }
+        </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        padding: 8,
-        gap: 8,
-        backgroundColor: Colors.itemBackgroundColor
+        // Small side/vertical margins so the shadow isn't clipped by the list
+        marginHorizontal: 4,
+        marginVertical: 2,
+        padding: 12,
+        borderRadius: 12,
+        backgroundColor: Colors.itemBackgroundColor,
+
+        // iOS
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+
+        // Android
+        elevation: 4,
     },
     questionText: {
         textAlign: 'center',
-        width: '75%',
         fontSize: 16,
         fontWeight: 'bold',
-        color: Colors.textSecondary
+        textDecorationLine: 'underline',
+        color: Colors.link
     },
-    actionsContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 8
+    questionTextPressed: {
+        color: Colors.textSecondary
     }
 });

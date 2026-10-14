@@ -12,10 +12,19 @@ export type CreateModule = {
     questions: string[]
 }
 
+export type AdminModuleQuestion = {
+    id: number,
+    name: string
+}
+
 export type AdminModuleQuestions = {
     id: number,
     name: string,
-    questions: { id: number, name: string }[]
+    questions: AdminModuleQuestion[]
+}
+
+export type SaveModuleQuestion = {
+    question: string
 }
 
 export type Module = {

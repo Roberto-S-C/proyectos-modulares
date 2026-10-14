@@ -29,24 +29,26 @@ export default function AdminModuleScreen() {
 
     const router = useRouter();
 
+    const fetchModule = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await getModuleQuestions(Number(id));
+            setModule(res.data);
+        }
+        catch (e) {
+            setModule(null);
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }, [id]);
+
     useFocusEffect(
         useCallback(() => {
-            setIsLoading(true);
-            const fetchModule = async () => {
-                try {
-                    const res = await getModuleQuestions(Number(id));
-                    setModule(res.data);
-                }
-                catch (e) {
-                    setModule(null);
-                }
-                finally {
-                    setIsLoading(false);
-                }
-            }
             fetchModule();
-        }, [id])
+        }, [fetchModule])
     );
+
 
     const onDeleteModule = async () => {
         setIsDeleteDialogVisible(false);
@@ -91,12 +93,17 @@ export default function AdminModuleScreen() {
                 <View style={styles.container}>
                     <Title text={module.name} />
                     <View style={styles.addButton}>
-                        <RoundedOptionButton text="Añadir Pregunta" icon="add" onPress={() => null} />
+                        <RoundedOptionButton text="Añadir Pregunta" icon="add" onPress={() => router.push({ pathname: "/(app)/admin/modules/questions/add", params: { moduleId: Number(id) } })} />
                     </View>
                     <FlatList
                         style={styles.listContainer}
                         data={module.questions}
-                        renderItem={({ item }) => <QuestionListItem question={item.name} />}
+                        renderItem={({ item }) =>
+                            <QuestionListItem
+                                question={item.name}
+                                onPress={() => router.push({ pathname: "/(app)/admin/modules/questions/[id]", params: { id: item.id, moduleId: Number(id) } })}
+                            />
+                        }
                         keyExtractor={item => item.id.toString()}
                         contentContainerStyle={styles.list}
                         ListEmptyComponent={<NotFoundItem text="Este módulo no tiene preguntas" />}
