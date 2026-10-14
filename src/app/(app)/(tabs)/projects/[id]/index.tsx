@@ -4,7 +4,8 @@ import ProjectOption from "@/src/components/Project/ProjectOption";
 import RoundedText from "@/src/components/RoundedText";
 import Title from "@/src/components/Title";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { getProject, getProjectEvaluations, getProjectMembers } from "@/src/services/projectService";
+import { getProject, getProjectMembers } from "@/src/services/projectService";
+import { Role } from "@/src/types/account.type";
 import { Project, ProjectMembers, ProjectStatus } from "@/src/types/project.types";
 import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -16,7 +17,6 @@ export default function ProjectOptionsScreen() {
     const { id } = useLocalSearchParams();
     const [project, setProject] = useState<Project | null>(null);
     const [projectMembers, setProjectMembers] = useState<ProjectMembers | null>(null);
-    const [evaluatorIds, setEvaluatorIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const authContext = useContext(AuthContext);
@@ -25,7 +25,7 @@ export default function ProjectOptionsScreen() {
 
     const isAdvisorOrMember = !!userId && !!projectMembers &&
         (projectMembers.advisor.id === userId || projectMembers.members.some(member => member.id === userId));
-    const isEvaluator = !!userId && evaluatorIds.includes(userId);
+    const isEvaluator = (role === Role.Evaluador);
     const canAccessProjectResources = role === 'ADMIN' || isAdvisorOrMember;
     const canAccessEvaluation = canAccessProjectResources || isEvaluator;
 
@@ -46,17 +46,6 @@ export default function ProjectOptionsScreen() {
                 }
                 finally {
                     setIsLoading(false);
-                }
-
-                // Fetched separately: unlike the project/members endpoints, this one 403s for
-                // users with no relationship to the project, which shouldn't block the rest
-                // of the page from loading - it just means "not an evaluator here".
-                try {
-                    const evaluationsRes = await getProjectEvaluations(Number(id));
-                    if (evaluationsRes.status === 200 && evaluationsRes.data) setEvaluatorIds(evaluationsRes.data.evaluatorIds);
-                }
-                catch (e) {
-
                 }
             }
             fetchProject();
