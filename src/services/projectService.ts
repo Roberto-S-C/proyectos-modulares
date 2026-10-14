@@ -19,6 +19,8 @@ export const updateProject = (id: number, project: UpdateProject) => apiClient.p
 
 export const updateProjectStatus = (id: number, status: UpdateProjectStatus) => apiClient.patch(`/projects/${id}/status`, status);
 
+export const deleteProject = (id: number) => apiClient.delete(`/projects/${id}`);
+
 export const addProjectMember = (projectId: number, newMember: AddProjectMember) => apiClient.post(`/projects/${projectId}/members`, newMember);
 
 export const getProjectFiles = (id: number) => apiClient.get(`/projects/${id}/files`);

@@ -4,16 +4,18 @@ import Loading from "@/src/components/Loading";
 import ProjectModuleListItem from "@/src/components/Module/ProjectModuleListItem";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import PickerModal from "@/src/components/PickerModal";
+import PrimaryButton from "@/src/components/PrimaryButton";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import RoundedText from "@/src/components/RoundedText";
+import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { addAdminProjectModule, getProjectModules, removeProjectModule, updateProjectStatus } from "@/src/services/projectService";
+import { addAdminProjectModule, deleteProject, getProjectModules, removeProjectModule, updateProjectStatus } from "@/src/services/projectService";
 import { Role } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
 import { ProjectModules, ProjectStatus } from "@/src/types/project.types";
 import { isAspectosGenerales } from "@/src/utils/moduleUtils";
 import { PROJECT_STATUS_VARIANT } from "@/src/utils/projectUtils";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -36,6 +38,7 @@ export default function ProjectStatusScreen() {
     const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
     const [newStatus, setNewStatus] = useState<ProjectStatus | null>(null);
     const [isStatusConfirmDialogVisible, setIsStatusConfirmDialogVisible] = useState(false);
+    const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -45,8 +48,13 @@ export default function ProjectStatusScreen() {
         style: 'error'
     });
 
+    const router = useRouter();
+
     const authContext = useContext(AuthContext);
     const isAdmin = authContext.authState?.user?.role === Role.Admin;
+
+    // Only RECHAZADO projects can be deleted
+    const canDeleteProject = isAdmin && project?.projectStatus === "RECHAZADO";
 
     // COMPLETADO and RECHAZADO projects can't have modules added
     const canAddModules = isAdmin && !!project
@@ -147,6 +155,33 @@ export default function ProjectStatusScreen() {
         }
     }
 
+    const handleConfirmDeleteProject = async () => {
+        setIsDeleteDialogVisible(false);
+        setIsLoading(true);
+        try {
+            await deleteProject(Number(id));
+            setAlertProps({
+                message: "Proyecto eliminado",
+                // The project is gone, so leave its screens for the projects list
+                onDismiss: () => {
+                    setIsAlertVisible(false);
+                    router.dismissTo("/(app)/(tabs)/projects");
+                },
+                isVisible: true,
+                style: "success"
+            });
+            setIsAlertVisible(true);
+        }
+        catch (e: any) {
+            showAlert(e?.response?.status === 409
+                ? "Este proyecto no puede ser eliminado"
+                : "No se pudo eliminar el proyecto", "error");
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <SafeAreaView style={styles.screen}>
             {isLoading && <Loading />}
@@ -160,6 +195,17 @@ export default function ProjectStatusScreen() {
                     <View style={styles.statusContainer}>
                         <RoundedText text={project.projectStatus} fontSize={20} variant={PROJECT_STATUS_VARIANT[project.projectStatus]} />
                     </View>
+
+                    {canDeleteProject &&
+                        <View style={styles.deleteButtonContainer}>
+                            <PrimaryButton
+                                text="Eliminar Proyecto"
+                                icon="trash"
+                                onPress={() => setIsDeleteDialogVisible(true)}
+                                style={styles.deleteButton}
+                            />
+                        </View>
+                    }
 
                     <FlatList
                         style={styles.list}
@@ -215,6 +261,15 @@ export default function ProjectStatusScreen() {
                 onConfirm={handleConfirmStatusChange}
                 onCancel={() => setIsStatusConfirmDialogVisible(false)}
             />
+
+            <ConfirmDialog
+                isVisible={isDeleteDialogVisible}
+                message="¿Está seguro de eliminar este proyecto? Esta acción será permanente"
+                variant="danger"
+                confirmText="Eliminar"
+                onConfirm={handleConfirmDeleteProject}
+                onCancel={() => setIsDeleteDialogVisible(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -231,6 +286,13 @@ const styles = StyleSheet.create({
     },
     statusContainer: {
         alignItems: 'center',
+    },
+    deleteButtonContainer: {
+        alignItems: 'center',
+    },
+    deleteButton: {
+        width: '80%',
+        backgroundColor: Colors.error,
     },
     list: {
         flex: 1,
