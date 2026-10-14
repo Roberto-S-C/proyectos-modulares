@@ -7,27 +7,30 @@ import Title from "@/src/components/Title";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getFileTypes, getTemplateFileName } from "@/src/services/fileService";
-import { getProjectFiles } from "@/src/services/projectService";
+import { getProjectFiles, getProjectMembers } from "@/src/services/projectService";
 import { Role } from "@/src/types/account.type";
 import { FileType } from "@/src/types/file.type";
-import { ProjectFile, ProjectFiles } from "@/src/types/project.types";
+import { ProjectFile, ProjectFiles, ProjectMembers } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as FileSystem from "expo-file-system/legacy";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from 'expo-sharing';
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { zip } from "react-native-zip-archive";
 
 export default function ProjectFilesScreen() {
     const [projectFiles, setProjectFiles] = useState<ProjectFiles>();
+    const [projectMembers, setProjectMembers] = useState<ProjectMembers | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedFile, setSelectedFile] = useState<ProjectFile | null>(null);
     const [isDownloadingTemplates, setIsDownloadingTemplates] = useState(false);
 
     const authContext = useContext(AuthContext);
     const isAlumno = authContext.authState?.user?.role === Role.Alumno;
+    const userId = authContext.authState?.user?.id;
+    // Only the project's members can upload files, the backend rejects everyone else
+    const isMember = !!userId && !!projectMembers && projectMembers.members.some(member => member.id === userId);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -53,6 +56,14 @@ export default function ProjectFilesScreen() {
                 catch (e) {
                     console.log(e)
                 }
+                // Separate from the files: if it fails the files are still shown, just without "Agregar"
+                try {
+                    const membersRes = await getProjectMembers(projectId);
+                    setProjectMembers(membersRes.data);
+                }
+                catch (e) {
+                    setProjectMembers(null);
+                }
                 finally {
                     setIsLoading(false);
                 }
@@ -61,14 +72,13 @@ export default function ProjectFilesScreen() {
         }, [projectId])
     );
 
-    useEffect(() => {
-        if (selectedFile) {
-            router.replace({
-                pathname: "/(app)/(tabs)/projects/[id]/files/[fileId]",
-                params: { id: projectId, fileId: selectedFile.id }
-            })
-        }
-    }, [selectedFile])
+    // Pushed (not replaced) so the header's back arrow returns to this list
+    const openFile = (file: ProjectFile) => {
+        router.push({
+            pathname: "/(app)/(tabs)/projects/[id]/files/[fileId]",
+            params: { id: projectId, fileId: file.id }
+        });
+    }
 
     const downloadTemplates = async () => {
         if (isDownloadingTemplates) return;
@@ -183,17 +193,19 @@ export default function ProjectFilesScreen() {
                     <Title text="Archivos" />
                     <FlatList
                         data={projectFiles.files}
-                        renderItem={({ item }) => <ProjectFileListItem file={item} selectedFileId={undefined} setSelectedFile={setSelectedFile} />}
+                        renderItem={({ item }) => <ProjectFileListItem file={item} selectedFileId={undefined} setSelectedFile={openFile} />}
                         keyExtractor={item => item.id.toString()}
                         style={styles.list}
-                        ListHeaderComponent={() =>
-                            <View style={styles.listHeader}>
-                                <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={() => router.push({
-                                    pathname: '/(app)/(tabs)/projects/[id]/files/add',
-                                    params: { id: projectId },
-                                })
-                                } />
-                            </View>
+                        ListHeaderComponent={isMember
+                            ? () =>
+                                <View style={styles.listHeader}>
+                                    <RoundedOptionButton text="Agregar" icon="cloud-upload" onPress={() => router.push({
+                                        pathname: '/(app)/(tabs)/projects/[id]/files/add',
+                                        params: { id: projectId },
+                                    })
+                                    } />
+                                </View>
+                            : null
                         }
                     />
                 </View>

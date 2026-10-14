@@ -49,7 +49,8 @@ export default function CreateFileReviewScreen() {
         try {
             const res = await addProjectFilewReview(Number(id), Number(fileId), { review: data.review, status });
             if (res.status === 200) {
-                router.replace({ pathname: "/(app)/(tabs)/projects/[id]/files/[fileId]", params: { id: Number(id), fileId: Number(fileId) } })
+                // The file screen refetches its reviews when it regains focus
+                router.back();
                 return;
             }
             setAlertProps({

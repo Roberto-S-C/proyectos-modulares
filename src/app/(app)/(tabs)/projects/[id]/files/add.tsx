@@ -168,10 +168,8 @@ export default function AddProjectFilesScreen() {
                             message: "Subida de archivo completada",
                             onDismiss: () => {
                                 setIsAlertVisible(false);
-                                router.replace({
-                                    pathname: '/(app)/(tabs)/projects/[id]/files',
-                                    params: { id: projectId },
-                                });
+                                // The list refetches when it regains focus
+                                router.back();
                             },
                             isVisible: true,
                             style: "success"

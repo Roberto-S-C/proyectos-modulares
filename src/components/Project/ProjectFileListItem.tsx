@@ -7,7 +7,7 @@ import FileStatusComponent from "../File/FileStatusComponent";
 type ProjectFileListItemProps = {
     file: ProjectFile,
     selectedFileId: number | undefined,
-    setSelectedFile: React.Dispatch<React.SetStateAction<ProjectFile | null>>;
+    setSelectedFile: (file: ProjectFile) => void;
 };
 
 export default function ProjectFileListItem({ file, selectedFileId, setSelectedFile }: ProjectFileListItemProps) {
