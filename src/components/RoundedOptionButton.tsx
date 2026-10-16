@@ -7,19 +7,22 @@ interface Props {
     text: string,
     icon: ComponentProps<typeof Ionicons>['name'],
     onPress: () => void,
-    disabled?: boolean
+    disabled?: boolean,
+    // "danger" for destructive actions (e.g. leaving a project)
+    variant?: "default" | "danger"
 }
 
 export default function RoundedOptionButton({
     text,
     icon,
     onPress,
-    disabled = false
+    disabled = false,
+    variant = "default"
 }: Props) {
 
     return (
         <TouchableOpacity
-            style={[styles.button, disabled && styles.buttonDisabled]}
+            style={[styles.button, variant === "danger" && styles.buttonDanger, disabled && styles.buttonDisabled]}
             onPress={onPress}
             disabled={disabled}
         >
@@ -46,6 +49,9 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 12,
         backgroundColor: Colors.primary
+    },
+    buttonDanger: {
+        backgroundColor: Colors.error
     },
     buttonDisabled: {
         opacity: 0.5

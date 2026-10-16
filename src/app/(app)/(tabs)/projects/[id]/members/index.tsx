@@ -1,13 +1,14 @@
 import Accordion from "@/src/components/Accordion";
 import AccountListItem from "@/src/components/Account/AccountListItem";
-import CustomAlert from "@/src/components/CustomAlert";
+import ConfirmDialog from "@/src/components/ConfirmDialog";
+import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Title from "@/src/components/Title";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { getProjectEvaluators, getProjectMembers } from "@/src/services/projectService";
+import { getProjectEvaluators, getProjectMembers, leaveProject } from "@/src/services/projectService";
 import { Account, Role } from "@/src/types/account.type";
 import { ProjectMembers } from "@/src/types/project.types";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -22,6 +23,14 @@ export default function ProjectMembersScreen() {
     const [isLoading, setIsLoading] = useState(true);
 
     const [isAlertVisible, setIsAlertVisible] = useState(false);
+    const [isLeaveDialogVisible, setIsLeaveDialogVisible] = useState(false);
+    const [isLeaveAlertVisible, setIsLeaveAlertVisible] = useState(false);
+    const [leaveAlertProps, setLeaveAlertProps] = useState<AlertProps>({
+        message: '',
+        onDismiss: () => setIsLeaveAlertVisible(false),
+        isVisible: false,
+        style: 'error'
+    });
 
     const authContext = useContext(AuthContext);
     const userId = authContext.authState?.user?.id;
@@ -32,6 +41,42 @@ export default function ProjectMembersScreen() {
 
     const router = useRouter();
 
+    // The advisor (part of the members list) and the members can leave, unless it's COMPLETADO;
+    // the backend rejects that case
+    const canLeaveProject = !!userId && membersId.includes(userId);
+
+    const handleConfirmLeave = async () => {
+        setIsLeaveDialogVisible(false);
+        setIsLoading(true);
+        try {
+            await leaveProject(projectId);
+            setLeaveAlertProps({
+                message: "Has abandonado el proyecto",
+                // The user no longer has access to the project, so go back home
+                onDismiss: () => {
+                    setIsLeaveAlertVisible(false);
+                    router.replace("/(app)/(tabs)");
+                },
+                isVisible: true,
+                style: 'success'
+            });
+        }
+        catch (e: any) {
+            setLeaveAlertProps({
+                message: e?.response?.status === 409
+                    ? "Este proyecto no puede ser abandonado"
+                    : "No se pudo abandonar el proyecto",
+                onDismiss: () => setIsLeaveAlertVisible(false),
+                isVisible: true,
+                style: 'error'
+            });
+        }
+        finally {
+            setIsLoading(false);
+            setIsLeaveAlertVisible(true);
+        }
+    }
+
     useFocusEffect(
         useCallback(() => {
             setIsLoading(true);
@@ -40,8 +85,11 @@ export default function ProjectMembersScreen() {
                     const res = await getProjectMembers(projectId);
 
                     let project: ProjectMembers = res.data;
-                    project.advisor.role = Role.Asesor;
-                    project.members.unshift(project.advisor);
+                    // A project whose advisor left has none
+                    if (project.advisor) {
+                        project.advisor.role = Role.Asesor;
+                        project.members.unshift(project.advisor);
+                    }
 
                     let ids: string[] = [];
                     project.members.forEach(member => {
@@ -87,18 +135,28 @@ export default function ProjectMembersScreen() {
     const renderButtons = () =>
         <View style={styles.listHeader}>
             {userId && membersId.includes(userId) &&
-                <RoundedOptionButton text="Añadir Miembro" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addMembers`) }} />
+                <View style={styles.button}>
+                    <RoundedOptionButton text="Añadir Miembro" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addMembers`) }} />
+                </View>
+            }
+            {canLeaveProject &&
+                <View style={styles.button}>
+                    <RoundedOptionButton text="Abandonar Proyecto" icon="person-remove" variant="danger" onPress={() => setIsLeaveDialogVisible(true)} />
+                </View>
             }
             {isAdmin &&
-                <RoundedOptionButton text="Añadir Evaluador" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addEvaluators`) }} />
+                <View style={styles.button}>
+                    <RoundedOptionButton text="Añadir Evaluador" icon="person-add" onPress={() => { router.push(`/(app)/(tabs)/projects/${projectId}/members/addEvaluators`) }} />
+                </View>
             }
         </View>;
 
-    const renderHeader = (project: ProjectMembers, withButtons: boolean) =>
+    // Inside the lists' header so the image, title and buttons scroll with the accounts
+    const renderHeader = (project: ProjectMembers) =>
         <View style={styles.header}>
             <Image source={{ uri: `${process.env.EXPO_PUBLIC_CDN_DOMAIN}/${project.coverImageUrl}` }} style={styles.image} />
             <Title text={project.name} />
-            {withButtons && renderButtons()}
+            {renderButtons()}
         </View>;
 
     return (
@@ -114,6 +172,8 @@ export default function ProjectMembersScreen() {
                 />
             }
 
+            {isLeaveAlertVisible && <CustomAlert {...leaveAlertProps} />}
+
             {!isLoading && !project && <NotFoundItem text="Proyecto no encontrado" />}
 
             {!isLoading && project &&
@@ -124,7 +184,7 @@ export default function ProjectMembersScreen() {
                             keyExtractor={section => section}
                             style={styles.list}
                             contentContainerStyle={styles.sections}
-                            ListHeaderComponent={() => renderHeader(project, true)}
+                            ListHeaderComponent={() => renderHeader(project)}
                             renderItem={({ item: section }) =>
                                 section === 'evaluators'
                                     ? <Accordion
@@ -137,19 +197,26 @@ export default function ProjectMembersScreen() {
                                     />
                             }
                         />
-                        : <>
-                            {renderHeader(project, false)}
-                            <FlatList
-                                data={project.members}
-                                renderItem={({ item }) => renderAccount(item)}
-                                keyExtractor={item => item.id}
-                                style={styles.list}
-                                ListHeaderComponent={() => renderButtons()}
-                            />
-                        </>
+                        : <FlatList
+                            data={project.members}
+                            renderItem={({ item }) => renderAccount(item)}
+                            keyExtractor={item => item.id}
+                            style={styles.list}
+                            contentContainerStyle={styles.accounts}
+                            ListHeaderComponent={() => renderHeader(project)}
+                        />
                     }
                 </View>
             }
+
+            <ConfirmDialog
+                isVisible={isLeaveDialogVisible}
+                message="¿Está seguro de abandonar este proyecto?"
+                variant="danger"
+                confirmText="Abandonar"
+                onConfirm={handleConfirmLeave}
+                onCancel={() => setIsLeaveDialogVisible(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -176,7 +243,11 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         gap: 8,
     },
+    button: {
+        height: 48
+    },
     list: {
+        flex: 1,
         width: '100%'
     },
     header: {

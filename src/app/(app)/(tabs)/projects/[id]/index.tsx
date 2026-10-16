@@ -24,7 +24,7 @@ export default function ProjectOptionsScreen() {
     const role = authContext.authState?.user.role;
 
     const isAdvisorOrMember = !!userId && !!projectMembers &&
-        (projectMembers.advisor.id === userId || projectMembers.members.some(member => member.id === userId));
+        (projectMembers.advisor?.id === userId || projectMembers.members.some(member => member.id === userId));
     const isEvaluator = (role === Role.Evaluador);
     const canAccessProjectResources = role === 'ADMIN' || isAdvisorOrMember;
     const canAccessEvaluation = canAccessProjectResources || isEvaluator;

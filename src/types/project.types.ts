@@ -15,7 +15,8 @@ export type Project = {
 export type ProjectMembers = {
     id: number,
     name: string,
-    advisor: Account,
+    // null once the advisor left the project
+    advisor: Account | null,
     members: Account[],
     coverImageUrl: string
 }

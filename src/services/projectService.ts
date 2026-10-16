@@ -21,6 +21,9 @@ export const updateProjectStatus = (id: number, status: UpdateProjectStatus) => 
 
 export const deleteProject = (id: number) => apiClient.delete(`/projects/${id}`);
 
+// The signed-in user (the project's advisor or one of its members) leaves the project
+export const leaveProject = (id: number) => apiClient.delete(`/projects/${id}/members/me`);
+
 export const addProjectMember = (projectId: number, newMember: AddProjectMember) => apiClient.post(`/projects/${projectId}/members`, newMember);
 
 export const getProjectFiles = (id: number) => apiClient.get(`/projects/${id}/files`);

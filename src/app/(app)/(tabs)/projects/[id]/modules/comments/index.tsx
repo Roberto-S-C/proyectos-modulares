@@ -24,7 +24,7 @@ export default function ProjectCommentsScreen() {
 
     const userId = authContext.authState?.user.id;
     const userRole = authContext.authState?.user.role;
-    const isAdvisor = !!userId && !!projectMembers && projectMembers.advisor.id === userId;
+    const isAdvisor = !!userId && !!projectMembers && projectMembers.advisor?.id === userId;
     const isEvaluator = !!userId && evaluatorIds.includes(userId);
     const canAddComment = userRole === 'ADMIN' || userRole === Role.Evaluador || isAdvisor || isEvaluator;
 
