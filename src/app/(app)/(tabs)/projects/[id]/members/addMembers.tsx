@@ -103,6 +103,7 @@ export default function AddMembers() {
 
                 {!isLoading && accounts.length > 0 &&
                     <FlatList
+                        style={styles.list}
                         data={accounts}
                         renderItem={({ item }) => <AddMemberListItem account={item} isSelected={selectedAccountId === item.id} onPress={() => setSelectedAccountId(item.id)} />}
                         keyExtractor={item => item.id}
@@ -119,13 +120,14 @@ export default function AddMembers() {
                                 </TouchableOpacity>
                             </View>
                         }
-                        ListFooterComponent={() =>
-                            <View style={{ marginTop: 16 }}>
-                                <RoundedOptionButton text="Añadir Miembro" icon="add" onPress={onSubmit} />
-                            </View>
-                        }
                     />
+                }
 
+                {/* Outside the list so it's always visible, however many accounts there are */}
+                {!isLoading && accounts.length > 0 &&
+                    <View style={styles.addButton}>
+                        <RoundedOptionButton text="Añadir Miembro" icon="person-add" onPress={onSubmit} />
+                    </View>
                 }
                 {!isLoading && accounts.length === 0 &&
                     <NotFoundItem text="Cuentas no encontradas" />
@@ -182,6 +184,10 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: 16,
+    },
+    addButton: {
+        height: 48,
+        marginVertical: 8
     },
     listHeader: {
         flexDirection: 'row',
