@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "proyectos-modulares",
+    "name": "Proyectos Modulares CUCEI",
     "slug": "proyectos-modulares",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cucei.proyectosmodulares"
     },
     "android": {
       "adaptiveIcon": {
@@ -77,6 +78,14 @@
       ],
       [
         "expo-document-picker"
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/images/android-icon-monochrome.png",
+          "color": "#003566",
+          "defaultChannel": "default"
+        }
       ]
     ],
     "experiments": {
