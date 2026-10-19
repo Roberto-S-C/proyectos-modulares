@@ -2,6 +2,7 @@ import SettingsOptionButton from "@/src/components/SettingsOptionButton";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { removeTokens, revokeRefreshToken, signOutFromCognito } from "@/src/services/authService";
+import { unregisterDevicePushToken } from "@/src/services/notificationService";
 import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -20,6 +21,8 @@ export default function OptionsScreen() {
                 <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => null} />
                 <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={async () => {
                     const refreshToken = authContext.authState?.tokens.refresh_token;
+                    // Needs the JWT, so before it's removed; never throws and waits at most a few seconds
+                    await unregisterDevicePushToken();
                     await removeTokens();
                     authContext.setAuthState(null);
 

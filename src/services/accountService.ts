@@ -11,3 +11,7 @@ export const updateAccountRole = (id: string, role: UpdateAccountRole) => apiCli
 export const getAvailableMembers = () => apiClient.get(`/accounts/available-members`);
 
 export const getAvailableAdvisors = () => apiClient.get(`/accounts/available-advisors`);
+
+export const registerPushToken = (token: string) => apiClient.put(`/accounts/me/push-token`, { token });
+
+export const unregisterPushToken = (token: string) => apiClient.delete(`/accounts/me/push-token`, { data: { token } });
