@@ -1,16 +1,20 @@
+import AccountsSelectSheet from "@/src/components/Account/AccountsSelectSheet";
 import AddMemberListItem from "@/src/components/Account/AddMemberListItem";
 import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import ModuleCheckbox from "@/src/components/Module/ModuleCheckbox";
 import PrimaryButton from "@/src/components/PrimaryButton";
+import ProjectSelectListItem from "@/src/components/Project/ProjectSelectListItem";
+import ProjectsSelectSheet from "@/src/components/Project/ProjectsSelectSheet";
+import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import Colors from "@/src/constants/Colors";
-import { searchAccounts } from "@/src/services/accountService";
 import { sendNotification } from "@/src/services/notificationService";
 import { Account, Role } from "@/src/types/account.type";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { Project } from "@/src/types/project.types";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { BackHandler, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FormInputs {
@@ -25,10 +29,11 @@ const RECEIVER_ROLES: { role: Role, label: string }[] = [
     { role: Role.Usuario, label: "Usuarios" },
 ];
 
-const MIN_SEARCH_LENGTH = 3;
-const MAX_SEARCH_RESULTS = 10;
+// Step 1: the message (title and content). Step 2: the recipients
+type Step = 1 | 2;
 
 export default function AddNotificationScreen() {
+    const [step, setStep] = useState<Step>(1);
     const [isLoading, setIsLoading] = useState(false);
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
@@ -40,16 +45,19 @@ export default function AddNotificationScreen() {
 
     const [roles, setRoles] = useState<Role[]>([]);
     const [selectedAccounts, setSelectedAccounts] = useState<Account[]>([]);
-    const [email, setEmail] = useState("");
-    const [searchResults, setSearchResults] = useState<Account[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
+    const [isAccountsSheetVisible, setIsAccountsSheetVisible] = useState(false);
+    const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
+    const [isProjectsSheetVisible, setIsProjectsSheetVisible] = useState(false);
 
     const router = useRouter();
 
+    // The title and content keep their values while step 2 is shown (react-hook-form doesn't
+    // unregister unmounted inputs by default)
     const {
         handleSubmit,
         control,
         watch,
+        trigger,
         formState: { errors }
     } = useForm<FormInputs>({
         defaultValues: {
@@ -61,39 +69,29 @@ export default function AddNotificationScreen() {
     const titleLength = watch("title")?.length ?? 0;
     const contentLength = watch("content")?.length ?? 0;
 
-    // Waits until the ADMIN stops typing before searching
-    useEffect(() => {
-        const query = email.trim();
-        if (query.length < MIN_SEARCH_LENGTH) {
-            setSearchResults([]);
-            setIsSearching(false);
-            return;
-        }
+    // On step 2, Android's back button returns to step 1 instead of leaving the screen
+    useFocusEffect(
+        useCallback(() => {
+            if (step !== 2) return;
+            const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+                setStep(1);
+                return true;
+            });
+            return () => subscription.remove();
+        }, [step])
+    );
 
-        setIsSearching(true);
-        const timeout = setTimeout(async () => {
-            try {
-                const res = await searchAccounts(query, "");
-                const accounts: Account[] = res.data ?? [];
-                setSearchResults(accounts.filter(account => account.role !== Role.Admin).slice(0, MAX_SEARCH_RESULTS));
-            }
-            catch (e) {
-                setSearchResults([]);
-            }
-            finally {
-                setIsSearching(false);
-            }
-        }, 300);
+    const goToRecipients = async () => {
+        const isMessageValid = await trigger(["title", "content"]);
+        if (isMessageValid) setStep(2);
+    }
 
-        return () => clearTimeout(timeout);
-    }, [email]);
+    const removeAccount = (account: Account) => {
+        setSelectedAccounts(previous => previous.filter(selected => selected.id !== account.id));
+    }
 
-    const isAccountSelected = (account: Account) => selectedAccounts.some(selected => selected.id === account.id);
-
-    const toggleAccount = (account: Account) => {
-        setSelectedAccounts(previous => previous.some(selected => selected.id === account.id)
-            ? previous.filter(selected => selected.id !== account.id)
-            : [...previous, account]);
+    const removeProject = (project: Project) => {
+        setSelectedProjects(previous => previous.filter(selected => selected.id !== project.id));
     }
 
     const showAlert = (message: string, style: AlertProps['style'], onDismiss?: () => void) => {
@@ -110,8 +108,8 @@ export default function AddNotificationScreen() {
     }
 
     const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-        if (roles.length === 0 && selectedAccounts.length === 0) {
-            showAlert("Seleccione al menos un rol o una cuenta", 'error');
+        if (roles.length === 0 && selectedAccounts.length === 0 && selectedProjects.length === 0) {
+            showAlert("Seleccione al menos una cuenta, un proyecto o un rol", 'error');
             return;
         }
 
@@ -121,7 +119,8 @@ export default function AddNotificationScreen() {
                 title: data.title.trim(),
                 content: data.content.trim(),
                 roles,
-                receiverIds: selectedAccounts.map(account => account.id)
+                receiverIds: selectedAccounts.map(account => account.id),
+                projectIds: selectedProjects.map(project => project.id)
             });
             showAlert("Notificación enviada", 'success', () => router.back());
         }
@@ -133,6 +132,109 @@ export default function AddNotificationScreen() {
         }
     }
 
+    const renderMessageStep = () =>
+        <>
+            <View style={styles.field}>
+                <View style={styles.labelRow}>
+                    <Text style={styles.label}>Título</Text>
+                    <Text style={styles.charCount}>{titleLength}/100</Text>
+                </View>
+                <Controller
+                    name="title"
+                    control={control}
+                    rules={{ validate: value => value.trim().length > 0, maxLength: 100 }}
+                    render={({ field: { value, onBlur, onChange } }) =>
+                        <TextInput
+                            style={styles.input}
+                            maxLength={100}
+                            onChangeText={onChange}
+                            value={value}
+                            onBlur={onBlur}
+                        />
+                    }
+                />
+                {errors.title && <Text style={styles.formError}>Introduzca un título válido</Text>}
+            </View>
+
+            <View style={styles.field}>
+                <View style={styles.labelRow}>
+                    <Text style={styles.label}>Contenido</Text>
+                    <Text style={styles.charCount}>{contentLength}/500</Text>
+                </View>
+                <Controller
+                    name="content"
+                    control={control}
+                    rules={{ validate: value => value.trim().length > 0, maxLength: 500 }}
+                    render={({ field: { value, onBlur, onChange } }) =>
+                        <TextInput
+                            style={[styles.input, styles.textArea]}
+                            multiline={true}
+                            maxLength={500}
+                            onChangeText={onChange}
+                            value={value}
+                            onBlur={onBlur}
+                        />
+                    }
+                />
+                {errors.content && <Text style={styles.formError}>Introduzca un contenido válido</Text>}
+            </View>
+        </>;
+
+    const renderRecipientsStep = () =>
+        <>
+
+            <View style={styles.field}>
+                <Text style={styles.label}>Enviar a roles</Text>
+                <View style={styles.roles}>
+                    {RECEIVER_ROLES.map(({ role, label }) =>
+                        <ModuleCheckbox
+                            key={role}
+                            id={role}
+                            name={label}
+                            selectedModulesId={roles}
+                            onChange={(newRoles: Role[]) => setRoles(newRoles)}
+                        />
+                    )}
+                </View>
+            </View>
+
+            <View style={styles.field}>
+                <Text style={styles.label}>Enviar a cuentas específicas</Text>
+
+                <View style={styles.selectButton}>
+                    <RoundedOptionButton
+                        text={selectedAccounts.length > 0 ? `Seleccionar cuentas (${selectedAccounts.length})` : "Seleccionar cuentas"}
+                        icon="people"
+                        onPress={() => setIsAccountsSheetVisible(true)}
+                    />
+                </View>
+
+                {/* Tapping a selected account removes it without opening the sheet */}
+                {selectedAccounts.map(account =>
+                    <AddMemberListItem key={account.id} account={account} isSelected={true} onPress={() => removeAccount(account)} />
+                )}
+            </View>
+
+            {/* Each project's members and advisor receive it */}
+            <View style={styles.field}>
+                <Text style={styles.label}>Enviar a proyectos</Text>
+
+                <View style={styles.selectButton}>
+                    <RoundedOptionButton
+                        text={selectedProjects.length > 0 ? `Seleccionar proyectos (${selectedProjects.length})` : "Seleccionar proyectos"}
+                        icon="hammer"
+                        onPress={() => setIsProjectsSheetVisible(true)}
+                    />
+                </View>
+
+                {/* Tapping a selected project removes it without opening the sheet */}
+                {selectedProjects.map(project =>
+                    <ProjectSelectListItem key={project.id} project={project} isSelected={true} onPress={() => removeProject(project)} />
+                )}
+            </View>
+
+        </>;
+
     return (
         <SafeAreaView style={styles.screen} edges={['bottom']}>
             {isLoading && <Loading />}
@@ -140,99 +242,43 @@ export default function AddNotificationScreen() {
             {isAlertVisible && <CustomAlert {...alertProps} />}
 
             {!isLoading &&
-                <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-                    <View style={styles.field}>
-                        <View style={styles.labelRow}>
-                            <Text style={styles.label}>Título</Text>
-                            <Text style={styles.charCount}>{titleLength}/100</Text>
-                        </View>
-                        <Controller
-                            name="title"
-                            control={control}
-                            rules={{ validate: value => value.trim().length > 0, maxLength: 100 }}
-                            render={({ field: { value, onBlur, onChange } }) =>
-                                <TextInput
-                                    style={styles.input}
-                                    maxLength={100}
-                                    onChangeText={onChange}
-                                    value={value}
-                                    onBlur={onBlur}
-                                />
-                            }
-                        />
-                        {errors.title && <Text style={styles.formError}>Introduzca un título válido</Text>}
-                    </View>
+                <ScrollView style={styles.form} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+                    <Text style={styles.stepText}>
+                        {step === 1 ? "Paso 1 de 2 · Mensaje" : "Paso 2 de 2 · Destinatarios"}
+                    </Text>
 
-                    <View style={styles.field}>
-                        <View style={styles.labelRow}>
-                            <Text style={styles.label}>Contenido</Text>
-                            <Text style={styles.charCount}>{contentLength}/500</Text>
-                        </View>
-                        <Controller
-                            name="content"
-                            control={control}
-                            rules={{ validate: value => value.trim().length > 0, maxLength: 500 }}
-                            render={({ field: { value, onBlur, onChange } }) =>
-                                <TextInput
-                                    style={[styles.input, styles.textArea]}
-                                    multiline={true}
-                                    maxLength={500}
-                                    onChangeText={onChange}
-                                    value={value}
-                                    onBlur={onBlur}
-                                />
-                            }
-                        />
-                        {errors.content && <Text style={styles.formError}>Introduzca un contenido válido</Text>}
-                    </View>
-
-                    <View style={styles.field}>
-                        <Text style={styles.label}>Enviar a roles</Text>
-                        <View style={styles.roles}>
-                            {RECEIVER_ROLES.map(({ role, label }) =>
-                                <ModuleCheckbox
-                                    key={role}
-                                    id={role}
-                                    name={label}
-                                    selectedModulesId={roles}
-                                    onChange={(newRoles: Role[]) => setRoles(newRoles)}
-                                />
-                            )}
-                        </View>
-                    </View>
-
-                    <View style={styles.field}>
-                        <Text style={styles.label}>Enviar a cuentas específicas</Text>
-
-                        {selectedAccounts.map(account =>
-                            <AddMemberListItem key={account.id} account={account} isSelected={true} onPress={() => toggleAccount(account)} />
-                        )}
-
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Buscar por correo"
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            value={email}
-                            onChangeText={setEmail}
-                        />
-
-                        {isSearching && <ActivityIndicator color={Colors.primary} />}
-
-                        {!isSearching && email.trim().length >= MIN_SEARCH_LENGTH && searchResults.length === 0 &&
-                            <Text style={styles.hint}>Cuentas no encontradas</Text>
-                        }
-
-                        {!isSearching && searchResults
-                            .filter(account => !isAccountSelected(account))
-                            .map(account =>
-                                <AddMemberListItem key={account.id} account={account} isSelected={false} onPress={() => toggleAccount(account)} />
-                            )}
-                    </View>
-
-                    <PrimaryButton text="Enviar" icon="send" onPress={handleSubmit(onSubmit)} />
+                    {step === 1 ? renderMessageStep() : renderRecipientsStep()}
                 </ScrollView>
             }
+
+            {/* Outside the form so the step's buttons are always visible */}
+            {!isLoading &&
+                <View style={styles.footer}>
+                    {step === 1 &&
+                        <PrimaryButton text="Siguiente" icon="arrow-forward" onPress={goToRecipients} style={styles.footerButton} />
+                    }
+                    {step === 2 &&
+                        <>
+                            <PrimaryButton text="Regresar" icon="arrow-back" onPress={() => setStep(1)} style={[styles.footerButton, styles.halfButton]} />
+                            <PrimaryButton text="Enviar" icon="send" onPress={handleSubmit(onSubmit)} style={[styles.footerButton, styles.halfButton]} />
+                        </>
+                    }
+                </View>
+            }
+
+            <AccountsSelectSheet
+                isVisible={isAccountsSheetVisible}
+                selected={selectedAccounts}
+                onConfirm={setSelectedAccounts}
+                onClose={() => setIsAccountsSheetVisible(false)}
+            />
+
+            <ProjectsSelectSheet
+                isVisible={isProjectsSheetVisible}
+                selected={selectedProjects}
+                onConfirm={setSelectedProjects}
+                onClose={() => setIsProjectsSheetVisible(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -241,12 +287,34 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
     },
+    form: {
+        flex: 1,
+    },
     container: {
         alignItems: "center",
         gap: 16,
         width: "96%",
         marginHorizontal: "auto",
         paddingVertical: 12,
+    },
+    stepText: {
+        alignSelf: "flex-start",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: Colors.textSecondary,
+    },
+    footer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 8,
+        paddingVertical: 4,
+        paddingHorizontal: "2%",
+    },
+    footerButton: {
+        paddingVertical: 4,
+    },
+    halfButton: {
+        flex: 1,
     },
     field: {
         width: "100%",
@@ -278,12 +346,11 @@ const styles = StyleSheet.create({
         height: 160,
         textAlignVertical: "top",
     },
+    selectButton: {
+        height: 48,
+    },
     roles: {
         gap: 8,
-    },
-    hint: {
-        textAlign: "center",
-        color: Colors.textSecondary,
     },
     formError: {
         fontWeight: "bold",
