@@ -3,10 +3,12 @@ import Loading from "@/src/components/Loading";
 import ProjectModulePreevaluation from "@/src/components/Module/ProjectModulePreevaluation";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import RoundedOptionButton from "@/src/components/RoundedOptionButton";
+import { AuthContext } from "@/src/contexts/AuthContext";
 import { getProjectModulesPreevaluations } from "@/src/services/projectService";
+import { Role } from "@/src/types/account.type";
 import { ProjectModulePreevaluations } from "@/src/types/module.type";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,6 +19,11 @@ export default function ProjectPreevaluationScreen() {
     const { id } = useLocalSearchParams();
 
     const router = useRouter();
+
+    // Only ADMINs and EVALUADORs preevaluate (same as the backend)
+    const authContext = useContext(AuthContext);
+    const userRole = authContext.authState?.user.role;
+    const canAddPreevaluation = userRole === Role.Admin || userRole === Role.Evaluador;
 
     useEffect(() => {
         const fetchProjectModulesPreevaluations = async () => {
@@ -45,9 +52,11 @@ export default function ProjectPreevaluationScreen() {
 
             {!isLoading && projectModulePreevaluations &&
                 <View style={styles.container}>
-                    <View style={styles.addButtonContainer}>
-                        <RoundedOptionButton icon="add" text="Agregar" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation/add", params: { id: Number(id) } })} />
-                    </View>
+                    {canAddPreevaluation &&
+                        <View style={styles.addButtonContainer}>
+                            <RoundedOptionButton icon="add" text="Agregar" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation/add", params: { id: Number(id) } })} />
+                        </View>
+                    }
                     <FlatList
                         style={styles.list}
                         data={projectModulePreevaluations}

@@ -42,6 +42,8 @@ export const getProjectFileStatus = (projectId: number, fileId: number) => apiCl
 
 export const getProjectModules = (projectId: number) => apiClient.get(`projects/${projectId}/modules`);
 
+export const addProjectModule = (projectId: number, module: AddProjectModule) => apiClient.post(`projects/${projectId}/modules`, module);
+
 export const addAdminProjectModule = (projectId: number, module: AddProjectModule) => apiClient.post(`projects/${projectId}/modules/admin`, module);
 
 export const removeProjectModule = (projectId: number, projectModuleId: number) => apiClient.delete(`projects/${projectId}/modules/${projectModuleId}`);

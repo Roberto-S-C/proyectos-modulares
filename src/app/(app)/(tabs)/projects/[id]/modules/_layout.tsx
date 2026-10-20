@@ -14,7 +14,7 @@ export default function ProjectModulesLayout() {
             <Stack.Screen name="preevaluation" options={{ headerShown: false }} />
             <Stack.Screen name="evaluation" options={{ headerShown: false }} />
             <Stack.Screen name="comments" options={{ headerShown: false }} />
-            <Stack.Screen name="status" options={{ title: "Estatus", headerShown: true }} />
+            <Stack.Screen name="status" options={{ title: "Módulos del Proyecto", headerShown: true }} />
         </Stack>
     );
 }

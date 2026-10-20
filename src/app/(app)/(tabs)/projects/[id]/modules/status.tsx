@@ -9,7 +9,7 @@ import RoundedOptionButton from "@/src/components/RoundedOptionButton";
 import RoundedText from "@/src/components/RoundedText";
 import Colors from "@/src/constants/Colors";
 import { AuthContext } from "@/src/contexts/AuthContext";
-import { addAdminProjectModule, deleteProject, getProjectModules, removeProjectModule, updateProjectStatus } from "@/src/services/projectService";
+import { addAdminProjectModule, addProjectModule, deleteProject, getProjectMembers, getProjectModules, removeProjectModule, updateProjectStatus } from "@/src/services/projectService";
 import { Role } from "@/src/types/account.type";
 import { Module } from "@/src/types/module.type";
 import { ProjectModules, ProjectStatus } from "@/src/types/project.types";
@@ -31,6 +31,7 @@ export default function ProjectStatusScreen() {
     const { id } = useLocalSearchParams();
     const [project, setProject] = useState<ProjectModules | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isMember, setIsMember] = useState(false);
     // Kept after closing so the message doesn't go blank during the fade-out
     const [pendingAction, setPendingAction] = useState<ModuleAction | null>(null);
     const [isConfirmDialogVisible, setIsConfirmDialogVisible] = useState(false);
@@ -52,19 +53,37 @@ export default function ProjectStatusScreen() {
 
     const authContext = useContext(AuthContext);
     const isAdmin = authContext.authState?.user?.role === Role.Admin;
+    const userId = authContext.authState?.user?.id;
 
     // Only RECHAZADO projects can be deleted
     const canDeleteProject = isAdmin && project?.projectStatus === "RECHAZADO";
 
-    // COMPLETADO and RECHAZADO projects can't have modules added
-    const canAddModules = isAdmin && !!project
-        && project.projectStatus !== "COMPLETADO" && project.projectStatus !== "RECHAZADO";
+    // ADMINs: any project except COMPLETADO and RECHAZADO. Members: REVISION, APROVADO or ATRASADO
+    // projects (the backend also checks the semester's module registration window)
+    const canAddModules = !!project && (
+        (isAdmin && project.projectStatus !== "COMPLETADO" && project.projectStatus !== "RECHAZADO")
+        || (isMember && ["REVISION", "APROVADO", "ATRASADO"].includes(project.projectStatus))
+    );
+
+    // ADMINs can remove any REVISION/NP module; members only REVISION modules added this semester
+    const canRemoveModule = (module: Module) => {
+        if (isAspectosGenerales(module.name)) return false;
+        if (isAdmin) return module.status === "REVISION" || module.status === "NP";
+        return isMember && module.status === "REVISION"
+            && !!module.createdSemester && module.createdSemester === module.presentationSemester;
+    }
 
     const fetchProjectModules = useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await getProjectModules(Number(id));
+            const [res, membersRes] = await Promise.all([
+                getProjectModules(Number(id)),
+                getProjectMembers(Number(id)),
+            ]);
             if (res.status === 200 && res.data) setProject(res.data);
+            if (membersRes.status === 200 && membersRes.data) {
+                setIsMember(membersRes.data.members.some((member: { id: string }) => member.id === userId));
+            }
         }
         catch (e) {
 
@@ -72,7 +91,7 @@ export default function ProjectStatusScreen() {
         finally {
             setIsLoading(false);
         }
-    }, [id])
+    }, [id, userId])
 
     useFocusEffect(
         useCallback(() => {
@@ -103,7 +122,8 @@ export default function ProjectStatusScreen() {
         setIsLoading(true);
         try {
             if (type === "add") {
-                await addAdminProjectModule(Number(id), { projectModuleId: module.id });
+                if (isAdmin) await addAdminProjectModule(Number(id), { projectModuleId: module.id });
+                else await addProjectModule(Number(id), { projectModuleId: module.id });
             }
             else {
                 await removeProjectModule(Number(id), module.id);
@@ -216,7 +236,7 @@ export default function ProjectStatusScreen() {
                                 name={item.name}
                                 status={item.status}
                                 onAdd={canAddModules && item.status === "NA" ? () => openConfirmDialog("add", item) : undefined}
-                                onDelete={!isAdmin || isAspectosGenerales(item.name) || (item.status !== "REVISION" && item.status !== "NP") ? undefined : () => openConfirmDialog("remove", item)}
+                                onDelete={canRemoveModule(item) ? () => openConfirmDialog("remove", item) : undefined}
                             />
                         }
                         keyExtractor={item => item.id.toString()}

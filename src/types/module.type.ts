@@ -30,7 +30,10 @@ export type SaveModuleQuestion = {
 export type Module = {
     id: number,
     name: string,
-    status: ProjectModuleStatus
+    status: ProjectModuleStatus,
+    // The semester it's presented in and the one it was added in (null while NA)
+    presentationSemester?: string | null,
+    createdSemester?: string | null
 }
 
 export type AddProjectModule = {

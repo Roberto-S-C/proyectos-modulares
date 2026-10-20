@@ -50,7 +50,7 @@ export default function ProjectModulesScreen() {
                             <RoundedOptionButton text="Comentarios" icon="chatbubble-ellipses" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/comments", params: { id: Number(id) } })} />
                         </View>
                         <View style={styles.optionButton}>
-                            <RoundedOptionButton text="Estatus" icon="information-circle" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/status", params: { id: Number(id) } })} />
+                            <RoundedOptionButton text="Módulos" icon="cube" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/status", params: { id: Number(id) } })} />
                         </View>
                         <View style={styles.optionButton}>
                             <RoundedOptionButton text="Preevaluación" icon="star-half" onPress={() => router.push({ pathname: "/(app)/(tabs)/projects/[id]/modules/preevaluation", params: { id: Number(id) } })} />

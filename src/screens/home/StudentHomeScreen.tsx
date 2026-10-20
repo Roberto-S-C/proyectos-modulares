@@ -62,6 +62,7 @@ export default function StudentHomeScreen() {
 
                         <View style={styles.projectOptionsContainer}>
                             <ProjectOption text="Descripción" iconName="information-circle" navigationUrl={`/(app)/(tabs)/projects/[id]/description`} navigationUrlProjectIdParam={project.id} />
+                            <ProjectOption text="Evaluación" iconName="star" navigationUrl={`/(app)/(tabs)/projects/[id]/modules`} navigationUrlProjectIdParam={project.id} />
                             <ProjectOption text="Archivos" iconName="folder" navigationUrl="/(app)/(tabs)/projects/[id]/files" navigationUrlProjectIdParam={project.id} />
                             <ProjectOption text="Miembros" iconName="people-circle" navigationUrl="/(app)/(tabs)/projects/[id]/members" navigationUrlProjectIdParam={project.id} />
                         </View>
