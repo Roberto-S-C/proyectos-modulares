@@ -13,11 +13,13 @@ interface Props {
 export default function ProjectOption({ text, iconName, navigationUrl, navigationUrlProjectIdParam }: Props) {
     const router = useRouter();
 
+    // withAnchor also loads each stack's initialRouteName under the target, so coming from
+    // another tab (the ALUMNO home) still gets a back arrow to the project and the projects list
     return (
         <TouchableOpacity onPress={() => router.navigate({
             pathname: navigationUrl,
             params: { id: navigationUrlProjectIdParam }
-        })}
+        }, { withAnchor: true })}
             style={styles.container}
         >
             <View style={styles.iconContainer}>
