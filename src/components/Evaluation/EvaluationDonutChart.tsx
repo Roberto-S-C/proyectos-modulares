@@ -1,7 +1,8 @@
 import Colors from "@/src/constants/Colors";
 import { EvaluationDashboard } from "@/src/types/evaluation.type";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { DonutChart } from "react-native-chart-kit/v2";
+import NotFoundItem from "../NotFoundItem";
 
 interface Props {
     dashboard: EvaluationDashboard
@@ -21,8 +22,14 @@ export default function EvaluationDonutChart({ dashboard }: Props) {
         { label: "Atrasados", value: dashboard.lateProjects, color: Colors.late },
     ];
 
+    // NotFoundItem fills its parent (flex: 1), so it gets the chart's height: inside the home
+    // ScrollView it would otherwise have no height to fill
     if (dashboard.totalProjects === 0) {
-        return <Text style={styles.emptyText}>No hay proyectos registrados en este semestre</Text>;
+        return (
+            <View style={{ height: size }}>
+                <NotFoundItem text="No hay proyectos registrados en este semestre" />
+            </View>
+        );
     }
 
     return (
@@ -45,10 +52,5 @@ export default function EvaluationDonutChart({ dashboard }: Props) {
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
-    },
-    emptyText: {
-        textAlign: 'center',
-        fontSize: 16,
-        color: Colors.textSecondary,
     },
 });
