@@ -93,7 +93,7 @@ export default function ProjectEvaluationScreen() {
             {!isLoading && projectEvaluations && projectEvaluations.moduleScores.length > 0 &&
                 <View style={styles.container}>
                     <Title text={projectEvaluations.projectName} />
-                    <View style={{width: '50%', margin: "auto"}}>
+                    <View style={styles.scoreContainer}>
                         <RoundedText text={projectEvaluations.score !== null ? `Puntuación: ${projectEvaluations.score}` : null} fontSize={20} />
                     </View>
 
@@ -133,6 +133,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         gap: 20,
+    },
+    // Centered and only as wide as the score text
+    scoreContainer: {
+        alignSelf: 'center',
     },
     addButtonContainer: {
         width: 200,
