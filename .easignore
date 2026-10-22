@@ -45,3 +45,6 @@ app-example
 
 # version control
 .git/
+
+insert_2026B_projects.sql
+2026B_Projects.tsv
