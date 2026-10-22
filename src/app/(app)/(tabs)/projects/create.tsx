@@ -270,29 +270,36 @@ export default function CreateProjectScreen() {
                                 data={advisors}
                                 renderItem={({ item }) => <AddMemberListItem account={item} isSelected={field.value === item.id} onPress={() => field.onChange(item.id)} />}
                                 keyExtractor={item => item.id}
+                                style={styles.list}
                                 contentContainerStyle={styles.listContent}
                                 ListHeaderComponent={() =>
                                     <View style={styles.listHeader}>
-                                        <TouchableOpacity onPress={() => setOrder(!order)}>
-                                            <Ionicons name="swap-vertical" size={36} color={order ? Colors.textPrimary : Colors.textSecondary} />
+                                        <TouchableOpacity style={styles.backButton} onPress={() => setShowSelectAdvisorList(false)}>
+                                            <Ionicons name="chevron-back" size={34} color={Colors.secondary} />
+                                            <Text style={styles.backButtonText}>Volver</Text>
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => setReloadAdvisorList(!reloadAdvisorList)}>
-                                            <Ionicons name="reload" size={36} color={Colors.textPrimary} />
-                                        </TouchableOpacity>
-                                    </View>
-                                }
-                                ListFooterComponent={() =>
-                                    <View>
-                                        {errors.advisorId && <Text style={styles.error}>* Selecciona un Asesor de Proyecto</Text>}
-                                        <View style={styles.listFooter}>
-                                            <RoundedOptionButton text="Regresar" icon="" onPress={() => setShowSelectAdvisorList(false)} />
-                                            <RoundedOptionButton text="Continuar" icon="" onPress={handleSubmit(onSubmit)} />
+                                        <View style={styles.listHeaderActions}>
+                                            <TouchableOpacity onPress={() => setOrder(!order)}>
+                                                <Ionicons name="swap-vertical" size={36} color={order ? Colors.textPrimary : Colors.textSecondary} />
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity onPress={() => setReloadAdvisorList(!reloadAdvisorList)}>
+                                                <Ionicons name="reload" size={36} color={Colors.textPrimary} />
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
                                 }
                             />
                         } />
+
+                    {/* Pinned below the list (not its footer) so the button is visible without scrolling */}
+                    <View style={styles.footer}>
+                        {errors.advisorId && <Text style={[styles.error, styles.footerError]}>* Selecciona un Asesor de Proyecto</Text>}
+                        <View style={styles.footerButton}>
+                            <RoundedOptionButton text="Enviar" icon="send" onPress={handleSubmit(onSubmit)} />
+                        </View>
+                    </View>
                 </View>
             }
         </SafeAreaView >
@@ -348,13 +355,33 @@ const styles = StyleSheet.create({
     },
     listHeader: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    listHeaderActions: {
+        flexDirection: 'row',
         gap: 16
     },
-    listFooter: {
+    backButton: {
         flexDirection: 'row',
-        flex: 1,
-        justifyContent: 'space-evenly',
-        marginTop: 8
+        alignItems: 'center',
+    },
+    backButtonText: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: Colors.secondary
+    },
+    footer: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderTopWidth: 1,
+        borderTopColor: Colors.border,
+    },
+    footerError: {
+        textAlign: 'center',
+        marginBottom: 8
+    },
+    footerButton: {
+        height: 44,
     }
 });
