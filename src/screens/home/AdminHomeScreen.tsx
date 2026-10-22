@@ -65,11 +65,11 @@ export default function AdminHomeScreen() {
                             <View style={styles.option}>
                                 <RoundedOptionButton text="Módulos" icon="cube" onPress={() => router.push('/(app)/admin/modules')} />
                             </View>
-                            {/* <View style={styles.option}>
-                                <RoundedOptionButton text="Evaluaciones" icon="star" onPress={() => router.push('/(app)/admin/evaluations')} />
-                            </View> */}
                             <View style={styles.option}>
                                 <RoundedOptionButton text="Calendario" icon="calendar" onPress={() => router.push('/(app)/admin/calendar')} />
+                            </View>
+                            <View style={styles.option}>
+                                <RoundedOptionButton text="Evaluaciones" icon="star" onPress={() => router.push('/(app)/admin/evaluations')} />
                             </View>
                         </View>
                     }
