@@ -1,9 +1,23 @@
 import apiClient from "../api/client";
 import { addFileReview, UploadFile } from "../types/file.type";
 import { AddProjectModule, CreateModuleEvaluation, CreateModulePreevaluation, CreatePreevaluationComment } from "../types/module.type";
-import { AddProjectEvaluators, AddProjectMember, CreateProject, UpdateProject, UpdateProjectStatus } from "../types/project.types";
+import { Page } from "../types/page.types";
+import { AddProjectEvaluators, AddProjectMember, CreateProject, Project, UpdateProject, UpdateProjectStatus } from "../types/project.types";
 
-export const getProjects = () => apiClient.get('/projects');
+export type ProjectSearchParams = {
+    page: number,
+    size?: number,
+    name?: string,
+    semester?: string,
+    status?: string,
+    sort?: 'asc' | 'desc'
+}
+
+// Paginated and filtered on the backend
+export const getProjects = (params: ProjectSearchParams) => apiClient.get<Page<Project>>('/projects', { params });
+
+// Every project at once, for pickers that filter on the device
+export const getAllProjects = () => apiClient.get<Project[]>('/projects/all');
 
 export const getProject = (id: number) => apiClient.get(`/projects/${id}`);
 

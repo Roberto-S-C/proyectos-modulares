@@ -9,7 +9,7 @@ import { Project, ProjectStatus } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -24,31 +24,91 @@ const compareSemesters = (a: PresentationSemester, b: PresentationSemester) => {
     return a.semester.slice(4).localeCompare(b.semester.slice(4));
 };
 
+const PAGE_SIZE = 20;
+const NAME_FILTER_DELAY_MS = 300;
+
 export default function ProjectsScreen() {
-    const [projects, setProjects] = useState<Project[] | [] | null>(null);
+    // null when the first page couldn't be loaded
+    const [projects, setProjects] = useState<Project[] | null>([]);
     const [semesters, setSemesters] = useState<PresentationSemester[]>([]);
+    const [page, setPage] = useState(0);
+    const [isLast, setIsLast] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const [nameFilter, setNameFilter] = useState('');
+    const [debouncedNameFilter, setDebouncedNameFilter] = useState('');
     const [semesterFilter, setSemesterFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [sortAscending, setSortAscending] = useState(true);
 
+    // Bumped on every reload from page 0, so responses for older filters are ignored
+    const requestIdRef = useRef(0);
+    // onEndReached can fire again before the isLoadingMore state update lands
+    const isLoadingMoreRef = useRef(false);
+
+    // Only search once the user stops typing
+    useEffect(() => {
+        const timeout = setTimeout(() => setDebouncedNameFilter(nameFilter.trim()), NAME_FILTER_DELAY_MS);
+        return () => clearTimeout(timeout);
+    }, [nameFilter]);
+
+    const loadPage = useCallback(async (pageToLoad: number) => {
+        const isFirstPage = pageToLoad === 0;
+        const requestId = isFirstPage ? ++requestIdRef.current : requestIdRef.current;
+
+        if (isFirstPage) {
+            setIsLoading(true);
+            setIsLoadingMore(false);
+        }
+        else {
+            setIsLoadingMore(true);
+        }
+        isLoadingMoreRef.current = !isFirstPage;
+
+        try {
+            const res = await getProjects({
+                page: pageToLoad,
+                size: PAGE_SIZE,
+                name: debouncedNameFilter,
+                semester: semesterFilter,
+                status: statusFilter,
+                sort: sortAscending ? 'asc' : 'desc',
+            });
+            if (requestId !== requestIdRef.current) return;
+
+            const newProjects = res.data.content;
+            // A project added between page loads can shift one onto the next page, so skip repeats
+            setProjects(previous => isFirstPage || !previous
+                ? newProjects
+                : [...previous, ...newProjects.filter(project => !previous.some(existing => existing.id === project.id))]);
+            setPage(res.data.page);
+            setIsLast(res.data.last);
+        }
+        catch (e) {
+            console.log(e);
+            if (requestId === requestIdRef.current && isFirstPage) setProjects(null);
+        }
+        finally {
+            if (requestId === requestIdRef.current) {
+                if (isFirstPage) setIsLoading(false);
+                else setIsLoadingMore(false);
+                isLoadingMoreRef.current = false;
+            }
+        }
+    }, [debouncedNameFilter, semesterFilter, statusFilter, sortAscending]);
+
+    // Reloads from the first page on focus and whenever a filter or the sort changes
     useFocusEffect(
         useCallback(() => {
-            setIsLoading(true);
-            getProjects()
-                .then(res => {
-                    setProjects(res.data);
-                })
-                .catch(e => {
-                    console.log(e);
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        }, [])
+            loadPage(0);
+        }, [loadPage])
     );
+
+    const loadNextPage = () => {
+        if (isLoading || isLoadingMoreRef.current || isLast) return;
+        loadPage(page + 1);
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -61,22 +121,6 @@ export default function ProjectsScreen() {
                 });
         }, [])
     );
-
-    const filteredProjects = useMemo(() => {
-        if (!projects) return projects;
-
-        const normalizedName = nameFilter.trim().toLowerCase();
-
-        const filtered = projects.filter(project =>
-            (normalizedName === '' || project.name.toLowerCase().includes(normalizedName)) &&
-            (semesterFilter === '' || project.presentationSemester === semesterFilter) &&
-            (statusFilter === '' || project.status === statusFilter)
-        );
-
-        return [...filtered].sort((a, b) =>
-            sortAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-        );
-    }, [projects, nameFilter, semesterFilter, statusFilter, sortAscending]);
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -126,13 +170,13 @@ export default function ProjectsScreen() {
                 {isLoading && <Loading />}
 
                 {
-                    !isLoading && !filteredProjects &&
+                    !isLoading && !projects &&
                     <NotFoundItem text="Proyectos no encontrados" />
                 }
 
                 {
-                    !isLoading && filteredProjects &&
-                    <ProjectList projects={filteredProjects} />
+                    !isLoading && projects &&
+                    <ProjectList projects={projects} onEndReached={loadNextPage} isLoadingMore={isLoadingMore} />
                 }
             </View>
         </SafeAreaView>

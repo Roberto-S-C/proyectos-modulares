@@ -2,7 +2,7 @@ import PrimaryButton from "@/src/components/PrimaryButton";
 import ProjectSelectListItem from "@/src/components/Project/ProjectSelectListItem";
 import Colors from "@/src/constants/Colors";
 import { getPresentationSemesters } from "@/src/services/presentationSemesterService";
-import { getProjects } from "@/src/services/projectService";
+import { getAllProjects } from "@/src/services/projectService";
 import { PresentationSemester } from "@/src/types/presentationSemester.type";
 import { Project, ProjectStatus } from "@/src/types/project.types";
 import { sortSemesters } from "@/src/utils/semesterUtils";
@@ -51,7 +51,7 @@ export default function ProjectsSelectSheet({ isVisible, selected, onConfirm, on
         const fetchProjects = async () => {
             setIsLoading(true);
             try {
-                const [projectsRes, semestersRes] = await Promise.all([getProjects(), getPresentationSemesters()]);
+                const [projectsRes, semestersRes] = await Promise.all([getAllProjects(), getPresentationSemesters()]);
                 setProjects(projectsRes.data ?? []);
                 const semesterCodes = (semestersRes.data ?? []).map((semester: PresentationSemester) => semester.semester);
                 setSemesters(sortSemesters(semesterCodes));
