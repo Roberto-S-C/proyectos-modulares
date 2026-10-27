@@ -1,14 +1,10 @@
-import Colors from "@/src/constants/Colors";
+import { stackScreenOptions } from "@/src/constants/stackScreenOptions";
 import { Stack } from "expo-router";
 
 
 export default function ProjectModuleEvaluationLayout() {
     return (
-        <Stack screenOptions={{
-            headerTintColor: Colors.secondary,
-            headerTitleStyle: { fontWeight: 'bold' },
-            headerTitleAlign: 'center',
-        }}>
+        <Stack screenOptions={stackScreenOptions}>
             <Stack.Screen name="index" options={{ title: "Detalle de Evaluación" }} />
         </Stack>
     );
