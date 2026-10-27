@@ -328,6 +328,8 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderRadius: 10,
+        // Explicit, since iOS inputs have no default padding
+        padding: 10,
         color: Colors.border
     },
     textArea: {

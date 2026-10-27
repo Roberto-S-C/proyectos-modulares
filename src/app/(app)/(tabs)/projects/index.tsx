@@ -1,13 +1,13 @@
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import ProjectList from "@/src/components/Project/ProjectList";
+import SelectField from "@/src/components/SelectField";
 import Colors from "@/src/constants/Colors";
 import { getPresentationSemesters } from "@/src/services/presentationSemesterService";
 import { getProjects } from "@/src/services/projectService";
 import { PresentationSemester } from "@/src/types/presentationSemester.type";
 import { Project, ProjectStatus } from "@/src/types/project.types";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
@@ -134,29 +134,27 @@ export default function ProjectsScreen() {
 
                 <View style={styles.filtersContainer}>
 
-                    <Picker
-                        selectedValue={semesterFilter}
-                        onValueChange={setSemesterFilter}
+                    <SelectField
+                        value={semesterFilter}
+                        onChange={setSemesterFilter}
+                        placeholder="Semestre"
+                        options={[
+                            { label: 'Todos', value: '' },
+                            ...[...semesters].sort(compareSemesters).map(semester => ({ label: semester.semester, value: semester.semester }))
+                        ]}
                         style={styles.picker}
-                        selectionColor={Colors.secondary}
-                    >
-                        <Picker.Item label='Semestre' value='' style={styles.pickerItem} />
-                        {[...semesters].sort(compareSemesters).map(semester =>
-                            <Picker.Item key={semester.id} label={semester.semester} value={semester.semester} style={styles.pickerItem} />
-                        )}
-                    </Picker>
+                    />
 
-                    <Picker
-                        selectedValue={statusFilter}
-                        onValueChange={setStatusFilter}
+                    <SelectField
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                        placeholder="Estatus"
+                        options={[
+                            { label: 'Todos', value: '' },
+                            ...STATUS_OPTIONS.map(status => ({ label: status, value: status }))
+                        ]}
                         style={styles.picker}
-                        selectionColor={Colors.secondary}
-                    >
-                        <Picker.Item label='Estatus' value='' style={styles.pickerItem} />
-                        {STATUS_OPTIONS.map(status =>
-                            <Picker.Item key={status} label={status} value={status} style={styles.pickerItem} />
-                        )}
-                    </Picker>
+                    />
 
                     <TouchableOpacity onPress={() => setSortAscending(prev => !prev)}>
                         <Ionicons
@@ -200,11 +198,14 @@ const styles = StyleSheet.create({
     },
     textInput: {
         margin: 16,
+        // iOS inputs have no default padding and shrink to the text; same height as the filters below
+        minHeight: 52,
+        paddingHorizontal: 12,
         textAlign: 'center',
         fontSize: 16,
         fontWeight: 'semibold',
         color: Colors.textSecondary,
-        // borderRadius: 8,
+        borderRadius: 10,
 
         backgroundColor: Colors.itemBackgroundColor,
 
@@ -227,9 +228,8 @@ const styles = StyleSheet.create({
     },
     picker: {
         flex: 1,
-        alignItems: 'center',
-        height: 52,
-        color: Colors.textPrimary,
+        minHeight: 52,
+        borderWidth: 0,
         backgroundColor: Colors.itemBackgroundColor,
 
         // iOS
@@ -240,12 +240,6 @@ const styles = StyleSheet.create({
 
         // Android
         elevation: 4,
-    },
-    pickerItem: {
-        textAlign: 'center',
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: Colors.textSecondary
     },
     list: {
         flex: 1,

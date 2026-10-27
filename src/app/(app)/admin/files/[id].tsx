@@ -3,13 +3,13 @@ import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import Loading from '@/src/components/Loading';
 import NotFoundItem from '@/src/components/NotFoundItem';
 import PrimaryButton from '@/src/components/PrimaryButton';
+import SelectField from '@/src/components/SelectField';
 import RoundedOptionButton from '@/src/components/RoundedOptionButton';
 import Title from '@/src/components/Title';
 import Colors from '@/src/constants/Colors';
 import { createTemplateUploadUrl, deleteFileType, getFileTypes, getTemplateFileName, updateFileType } from '@/src/services/fileService';
 import { FileType, FormatTypes, UpdateFileType } from '@/src/types/file.type';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Picker } from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -271,17 +271,13 @@ export default function AdminFileTypeScreen() {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) =>
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={value}
-                                    onValueChange={onChange}
-                                    style={styles.picker}
-                                >
-                                    {Object.entries(FormatTypes).map(([format, label]) =>
-                                        <Picker.Item key={format} label={label} value={format} />
-                                    )}
-                                </Picker>
-                            </View>
+                            <SelectField
+                                value={value}
+                                onChange={onChange}
+                                placeholder="Formato"
+                                options={Object.entries(FormatTypes).map(([format, label]) => ({ label, value: format }))}
+                                style={styles.picker}
+                            />
                         }
                     />
                     {errors.format && <Text style={styles.formError}>Seleccione un formato válido</Text>}
@@ -337,16 +333,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Colors.textSecondary,
     },
-    pickerContainer: {
-        width: '90%',
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 10,
-        overflow: 'hidden'
-    },
     picker: {
-        fontWeight: 'bold',
-        color: Colors.primary
+        width: '90%',
     },
     formError: {
         fontWeight: 'bold',

@@ -1,11 +1,11 @@
 import AccountListItem from "@/src/components/Account/AccountListItem";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
+import SelectField from "@/src/components/SelectField";
 import Colors from "@/src/constants/Colors";
 import { searchAccounts } from "@/src/services/accountService";
 import { Account, Role } from "@/src/types/account.type";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Picker } from '@react-native-picker/picker';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
@@ -53,19 +53,16 @@ export default function AccountsScreen() {
 
                 <View style={styles.filtersContainer}>
 
-                    <Picker
-                        selectedValue={role}
-                        onValueChange={(itemValue) =>
-                            setRole(itemValue)}
+                    <SelectField
+                        value={role}
+                        onChange={setRole}
+                        placeholder="Rol"
+                        options={[
+                            { label: 'Todos', value: '' },
+                            ...[Role.Admin, Role.Evaluador, Role.Alumno, Role.Usuario].map(roleOption => ({ label: roleOption, value: roleOption }))
+                        ]}
                         style={styles.picker}
-                        selectionColor={Colors.secondary}
-                    >
-                        <Picker.Item label='ROL' value='' style={styles.pickerItem} />
-                        <Picker.Item label={Role.Admin} value={Role.Admin} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Evaluador} value={Role.Evaluador} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Alumno} value={Role.Alumno} style={styles.pickerItem} />
-                        <Picker.Item label={Role.Usuario} value={Role.Usuario} style={styles.pickerItem} />
-                    </Picker>
+                    />
 
                 </View>
 
@@ -117,11 +114,14 @@ const styles = StyleSheet.create({
     },
     textInput: {
         margin: 16,
+        // iOS inputs have no default padding and shrink to the text; same height as the filters below
+        minHeight: 52,
+        paddingHorizontal: 12,
         textAlign: 'center',
         fontSize: 16,
         fontWeight: 'semibold',
         color: Colors.textSecondary,
-        // borderRadius: 8,
+        borderRadius: 10,
 
         backgroundColor: Colors.itemBackgroundColor,
 
@@ -143,9 +143,8 @@ const styles = StyleSheet.create({
     },
     picker: {
         flex: 1,
-        alignItems: 'center',
-        height: 52,
-        color: Colors.textPrimary,
+        minHeight: 52,
+        borderWidth: 0,
         backgroundColor: Colors.itemBackgroundColor,
 
         // iOS
@@ -156,12 +155,6 @@ const styles = StyleSheet.create({
 
         // Android
         elevation: 4,
-    },
-    pickerItem: {
-        textAlign: 'center',
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: Colors.textSecondary
     },
     list: {
         flex: 1,

@@ -2,12 +2,12 @@ import CustomAlert, { AlertProps } from "@/src/components/CustomAlert";
 import Loading from "@/src/components/Loading";
 import NotFoundItem from "@/src/components/NotFoundItem";
 import PrimaryButton from "@/src/components/PrimaryButton";
+import SelectField from "@/src/components/SelectField";
 import Title from "@/src/components/Title";
 import Colors from "@/src/constants/Colors";
 import { addProjectFilewReview, getProjectFileDetails } from "@/src/services/projectService";
 import { FileReviewStatus } from "@/src/types/file.type";
 import { ProjectFile } from "@/src/types/project.types";
-import { Picker } from "@react-native-picker/picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -106,17 +106,16 @@ export default function CreateFileReviewScreen() {
 
                     <Title text={fileDetails.fileType.name} />
 
-                    <View style={styles.fileStatusPickerContainer}>
-                        <Picker
-                            style={styles.fileStatusPicker}
-                            itemStyle={styles.fileStatusPickerItem}
-                            selectedValue={status}
-                            onValueChange={setStatus}
-                        >
-                            <Picker.Item key={"APROVADO"} label={"APROVADO"} value={"APROVADO"} style={styles.fileStatusPickerItem} />
-                            <Picker.Item key={"RECHAZADO"} label={"RECHAZADO"} value={"RECHAZADO"} style={styles.fileStatusPickerItem} />
-                        </Picker>
-                    </View>
+                    <SelectField<FileReviewStatus>
+                        value={status}
+                        onChange={setStatus}
+                        title="Estatus"
+                        options={[
+                            { label: "APROVADO", value: "APROVADO" },
+                            { label: "RECHAZADO", value: "RECHAZADO" },
+                        ]}
+                        style={styles.fileStatusPicker}
+                    />
 
                     <View style={styles.textAreaContainer}>
                         <Text style={styles.textAreaLabel}>Comentario</Text>
@@ -155,19 +154,9 @@ const styles = StyleSheet.create({
         width: "96%",
         margin: "auto",
     },
-    fileStatusPickerContainer: {
-        width: 200,
-        borderWidth: 1,
-        borderRadius: 10,
-        borderColor: Colors.border,
-        overflow: "hidden",
-        marginTop: 12
-    },
     fileStatusPicker: {
         width: 200,
-    },
-    fileStatusPickerItem: {
-        fontWeight: "bold"
+        marginTop: 12
     },
     textAreaContainer: {
         width: "96%"

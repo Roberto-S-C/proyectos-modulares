@@ -2,12 +2,12 @@ import CustomAlert, { AlertProps } from '@/src/components/CustomAlert';
 import DatePickerField from '@/src/components/DatePickerField';
 import Loading from '@/src/components/Loading';
 import PrimaryButton from '@/src/components/PrimaryButton';
+import SelectField from '@/src/components/SelectField';
 import Colors from '@/src/constants/Colors';
 import { createPresentationSemester, getPresentationSemesters } from '@/src/services/presentationSemesterService';
 import { CreatePresentationSemester, PresentationSemester } from '@/src/types/presentationSemester.type';
 import { generateFutureSemesters, getSemesterRange, getTodayString, validateSemesterDate } from '@/src/utils/semesterUtils';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -115,21 +115,17 @@ export default function AdminAddPresentationSemesterScreen() {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) =>
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={value}
-                                    onValueChange={(semester) => {
-                                        onChange(semester);
-                                        if (getValues('preevaluationDate')) trigger('preevaluationDate');
-                                        if (getValues('evaluationDate')) trigger('evaluationDate');
-                                    }}
-                                    style={styles.picker}
-                                >
-                                    {availableSemesters.map(semester =>
-                                        <Picker.Item key={semester} label={semester} value={semester} />
-                                    )}
-                                </Picker>
-                            </View>
+                            <SelectField
+                                value={value}
+                                onChange={(semester) => {
+                                    onChange(semester);
+                                    if (getValues('preevaluationDate')) trigger('preevaluationDate');
+                                    if (getValues('evaluationDate')) trigger('evaluationDate');
+                                }}
+                                placeholder="Semestre"
+                                options={availableSemesters.map(semester => ({ label: semester, value: semester }))}
+                                style={styles.picker}
+                            />
                         }
                     />
                     {errors.semester && <Text style={styles.formError}>Seleccione un semestre válido</Text>}
@@ -221,16 +217,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Colors.textSecondary,
     },
-    pickerContainer: {
-        width: '90%',
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 10,
-        overflow: 'hidden'
-    },
     picker: {
-        fontWeight: 'bold',
-        color: Colors.primary
+        width: '90%',
     },
     formError: {
         fontWeight: 'bold',

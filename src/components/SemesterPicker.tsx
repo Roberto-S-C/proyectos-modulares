@@ -1,6 +1,5 @@
-import { Picker } from "@react-native-picker/picker";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import Colors from "../constants/Colors";
+import { StyleProp, ViewStyle } from "react-native";
+import SelectField from "./SelectField";
 
 interface props {
     onChange: (value: any) => void,
@@ -11,29 +10,12 @@ interface props {
 
 export default function SemesterPicker({ onChange, value, semesters, style }: props) {
     return (
-        <View style={[styles.container, style]}>
-            <Picker
-                selectedValue={value}
-                onValueChange={(itemValue) => onChange(itemValue)}
-                style={styles.picker}
-            >
-                {semesters.map(semester =>
-                    <Picker.Item label={semester} value={semester} />
-                )}
-            </Picker>
-        </View>
+        <SelectField
+            value={value ?? ''}
+            options={semesters.map(semester => ({ label: semester, value: semester }))}
+            onChange={onChange}
+            placeholder="Semestre"
+            style={style}
+        />
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 4,
-        overflow: "hidden"
-    },
-    picker: {
-        fontWeight: "bold",
-        color: Colors.primary
-    }
-});

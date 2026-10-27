@@ -1,9 +1,9 @@
 import Colors from "@/src/constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import PrimaryButton from "./PrimaryButton";
+import { SelectOptionList } from "./SelectField";
 
 interface Props<T extends string> {
     isVisible: boolean,
@@ -47,16 +47,13 @@ export default function PickerModal<T extends string>({
                         </Pressable>
                     </View>
 
-                    <View style={styles.pickerContainer}>
-                        <Picker
+                    {/* Picking a row only changes the draft; the button below applies it */}
+                    <View style={styles.optionsContainer}>
+                        <SelectOptionList
+                            options={options.map(option => ({ label: option, value: option }))}
                             selectedValue={selectedValue}
-                            onValueChange={(itemValue) => setSelectedValue(itemValue)}
-                            style={styles.picker}
-                        >
-                            {options.map(option =>
-                                <Picker.Item key={option} label={option} value={option} />
-                            )}
-                        </Picker>
+                            onSelect={setSelectedValue}
+                        />
                     </View>
 
                     <PrimaryButton
@@ -99,14 +96,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
     },
-    pickerContainer: {
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 4,
-        overflow: 'hidden',
-    },
-    picker: {
-        color: Colors.primary,
+    optionsContainer: {
+        maxHeight: 320,
     },
     button: {
         alignSelf: 'center',

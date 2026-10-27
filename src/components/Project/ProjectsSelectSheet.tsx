@@ -1,5 +1,6 @@
 import PrimaryButton from "@/src/components/PrimaryButton";
 import ProjectSelectListItem from "@/src/components/Project/ProjectSelectListItem";
+import SelectField from "@/src/components/SelectField";
 import Colors from "@/src/constants/Colors";
 import { getPresentationSemesters } from "@/src/services/presentationSemesterService";
 import { getAllProjects } from "@/src/services/projectService";
@@ -7,7 +8,6 @@ import { PresentationSemester } from "@/src/types/presentationSemester.type";
 import { Project, ProjectStatus } from "@/src/types/project.types";
 import { sortSemesters } from "@/src/utils/semesterUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -116,23 +116,21 @@ export default function ProjectsSelectSheet({ isVisible, selected, onConfirm, on
                     />
 
                     <View style={styles.filters}>
-                        <View style={styles.pickerContainer}>
-                            <Picker selectedValue={semesterFilter} onValueChange={setSemesterFilter} style={styles.picker}>
-                                <Picker.Item label="Semestre" value="" />
-                                {semesters.map(semester =>
-                                    <Picker.Item key={semester} label={semester} value={semester} />
-                                )}
-                            </Picker>
-                        </View>
+                        <SelectField
+                            value={semesterFilter}
+                            onChange={setSemesterFilter}
+                            placeholder="Semestre"
+                            options={[{ label: 'Todos', value: '' }, ...semesters.map(semester => ({ label: semester, value: semester }))]}
+                            style={styles.picker}
+                        />
 
-                        <View style={styles.pickerContainer}>
-                            <Picker selectedValue={statusFilter} onValueChange={setStatusFilter} style={styles.picker}>
-                                <Picker.Item label="Estatus" value="" />
-                                {STATUS_OPTIONS.map(status =>
-                                    <Picker.Item key={status} label={status} value={status} />
-                                )}
-                            </Picker>
-                        </View>
+                        <SelectField
+                            value={statusFilter}
+                            onChange={setStatusFilter}
+                            placeholder="Estatus"
+                            options={[{ label: 'Todos', value: '' }, ...STATUS_OPTIONS.map(status => ({ label: status, value: status }))]}
+                            style={styles.picker}
+                        />
 
                         <TouchableOpacity onPress={() => setSortAscending(previous => !previous)}>
                             <Ionicons name="swap-vertical" size={32} color={sortAscending ? Colors.textPrimary : Colors.textSecondary} />
@@ -213,15 +211,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
-    pickerContainer: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 10,
-        overflow: 'hidden',
-    },
     picker: {
-        color: Colors.textPrimary,
+        flex: 1,
     },
     list: {
         flex: 1,
