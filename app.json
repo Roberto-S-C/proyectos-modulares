@@ -4,26 +4,34 @@
     "slug": "proyectos-modulares",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/images/app-icon.png",
     "scheme": "proyectosmodulares",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cucei.proyectosmodulares"
+      "bundleIdentifier": "com.cucei.proyectosmodulares",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
-        "backgroundImage": "./src/assets/images/android-icon-background.png",
-        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#e2b520",
+        "foregroundImage": "./src/assets/images/android-icon-logo-foreground.png",
+        "monochromeImage": "./src/assets/images/android-icon-logo-foreground.png"
       },
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "usesCleartextTraffic": true,
-      "package": "com.cucei.proyectosmodulares"
+      "package": "com.cucei.proyectosmodulares",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ]
     },
     "web": {
       "output": "static",
@@ -34,12 +42,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/logo.png",
+          "image": "./src/assets/images/splash-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#e2b520",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#e2b520"
           }
         }
       ],
@@ -57,6 +65,9 @@
         {
           "android": {
             "usesCleartextTraffic": true
+          },
+          "ios": {
+            "deploymentTarget": "15.5"
           }
         }
       ],
@@ -82,7 +93,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./src/assets/images/android-icon-monochrome.png",
+          "icon": "./src/assets/images/logo.png",
           "color": "#003566",
           "defaultChannel": "default"
         }
