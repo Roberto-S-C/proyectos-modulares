@@ -6,7 +6,7 @@ import { addPreevaluationComment } from "@/src/services/projectService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FormInputs {
@@ -70,6 +70,8 @@ export default function AddPreevaluationComment() {
             {isAlertVisible && <CustomAlert {...alertProps} />}
 
             {!isLoading &&
+                // RN only closes the keyboard on an outside tap inside a ScrollView, and the multiline input has no key to close it
+                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
                 <View style={styles.container}>
                     <View style={styles.textAreaContainer}>
                         <View style={styles.textAreaLabelRow}>
@@ -99,6 +101,7 @@ export default function AddPreevaluationComment() {
 
                     <PrimaryButton text="Enviar" onPress={handleSubmit(onSubmit)} />
                 </View>
+                </ScrollView>
             }
         </SafeAreaView>
     );
@@ -107,6 +110,10 @@ export default function AddPreevaluationComment() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
+    },
+    // Fills the screen so a tap anywhere outside the input counts, and the form stays centered
+    scrollContent: {
+        flexGrow: 1,
     },
     container: {
         alignItems: "center",
