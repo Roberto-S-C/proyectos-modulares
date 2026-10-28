@@ -116,6 +116,7 @@ export default function AdminPresentationSemesterScreen() {
     const range = presentationSemester ? getSemesterRange(presentationSemester.semester) : { start: '', end: '' };
     const minimumDate = range.start > getTodayString() ? range.start : getTodayString();
     const isSemesterPassed = !!presentationSemester && hasSemesterPassed(presentationSemester.semester, presentationSemester.evaluationDate);
+    const isPreevaluationPassed = !!presentationSemester?.preevaluationDate && presentationSemester.preevaluationDate < getTodayString();
 
     return (
         <ScrollView style={styles.screen} contentContainerStyle={{ alignItems: 'center' }}>
@@ -144,13 +145,19 @@ export default function AdminPresentationSemesterScreen() {
                             <Text style={styles.hint}>Entre {range.start} y {range.end}</Text>
 
                             <Text style={styles.label}>Fecha de preevaluación</Text>
+                            {/* A preevaluation that already happened can't be moved, only the evaluation date */}
+                            {isPreevaluationPassed
+                                ? <Text style={styles.readOnlyDate}>{presentationSemester.preevaluationDate}</Text>
+                                :
                                 <>
                                     <Controller
                                         name='preevaluationDate'
                                         control={control}
                                         rules={{
                                             required: 'Introduzca una fecha válida (AAAA-MM-DD)',
-                                            validate: value => validateSemesterDate(presentationSemester.semester, value)
+                                            // The saved date isn't sent again, so it isn't checked against today
+                                            validate: value => value === (presentationSemester.preevaluationDate ?? '')
+                                                || validateSemesterDate(presentationSemester.semester, value)
                                         }}
                                         render={({ field: { value, onBlur, onChange } }) =>
                                             <DatePickerField
@@ -169,6 +176,7 @@ export default function AdminPresentationSemesterScreen() {
                                     />
                                     {errors.preevaluationDate && <Text style={styles.formError}>{errors.preevaluationDate.message}</Text>}
                                 </>
+                            }
 
                             <Text style={styles.label}>Fecha de evaluación</Text>
                             <Controller
@@ -177,8 +185,10 @@ export default function AdminPresentationSemesterScreen() {
                                 rules={{
                                     required: 'Introduzca una fecha válida (AAAA-MM-DD)',
                                     validate: (value, formValues) => {
-                                        const result = validateSemesterDate(presentationSemester.semester, value);
-                                        if (result !== true) return result;
+                                        if (value !== (presentationSemester.evaluationDate ?? '')) {
+                                            const result = validateSemesterDate(presentationSemester.semester, value);
+                                            if (result !== true) return result;
+                                        }
                                         if (formValues.preevaluationDate && value <= formValues.preevaluationDate) return 'La evaluación debe ser después de la preevaluación';
                                         return true;
                                     }
