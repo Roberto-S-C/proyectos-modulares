@@ -75,7 +75,9 @@ export default function StudentHomeScreen() {
                     <Ionicons name="construct" color={Colors.secondary} size={100} />
                     <Title text="No eres parte de ningún proyecto" />
                     <View style={{ height: 50, width: '70%' }}>
-                        <RoundedOptionButton text="Crear Proyecto" icon="add" onPress={() => router.navigate('/(app)/(tabs)/projects/create')} />
+                        {/* withAnchor puts the projects list under the form, otherwise create is the tab's only
+                            screen and stays there after the project is created */}
+                        <RoundedOptionButton text="Crear Proyecto" icon="add" onPress={() => router.navigate('/(app)/(tabs)/projects/create', { withAnchor: true })} />
                     </View>
                 </View>
             }
