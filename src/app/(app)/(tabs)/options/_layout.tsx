@@ -6,6 +6,7 @@ export default function OptionsLayout() {
         <Stack screenOptions={stackScreenOptions}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="profile" options={{ title: "Perfil" }} />
+            <Stack.Screen name="contact" options={{ title: "Contacto" }} />
         </Stack>
     );
 }

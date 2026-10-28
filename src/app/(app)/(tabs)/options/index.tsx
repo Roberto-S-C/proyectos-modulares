@@ -18,7 +18,7 @@ export default function OptionsScreen() {
             <Image source={require('@/src/assets/images/logo.png')} style={styles.logo} />
             <View style={styles.optionsContainer}>
                 <SettingsOptionButton text="Perfil" iconName="person-circle" onPress={() => router.push("/(app)/(tabs)/options/profile")} />
-                <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => null} />
+                <SettingsOptionButton text="Contacto" iconName="mail" onPress={() => router.push("/(app)/(tabs)/options/contact")} />
                 <SettingsOptionButton text="Cerrar Sesión" iconName="exit" onPress={async () => {
                     const refreshToken = authContext.authState?.tokens.refresh_token;
                     // Needs the JWT, so before it's removed; never throws and waits at most a few seconds
