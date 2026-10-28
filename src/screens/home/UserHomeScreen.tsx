@@ -8,8 +8,8 @@ const videoSource = require('@/src/assets/videos/intro.mp4');
 
 export default function UserHomeScreen() {
     const player = useVideoPlayer(videoSource, player => {
-        player.loop = true;
-        // player.play();
+        player.loop = false;
+        player.play();
     });
 
     return (
