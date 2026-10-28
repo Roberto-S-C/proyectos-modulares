@@ -6,16 +6,18 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface Props {
     moduleScore: ProjectModuleScore,
     onPress: () => void,
+    disabled?: boolean,
 }
 
-export default function ProjectModuleScoreListItem({ moduleScore, onPress }: Props) {
+export default function ProjectModuleScoreListItem({ moduleScore, onPress, disabled = false }: Props) {
     const hasScore = moduleScore.score !== null;
 
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7} disabled={disabled}>
             <Ionicons name="cube" size={52} color={Colors.secondary} style={styles.icon} />
             <View style={styles.moduleDetailsContainer}>
-                <Text style={styles.moduleName} numberOfLines={2}>{moduleScore.moduleName}</Text>
+                {/* No link underline when it can't be opened */}
+                <Text style={[styles.moduleName, disabled && styles.moduleNameDisabled]} numberOfLines={2}>{moduleScore.moduleName}</Text>
                 <Text style={[styles.moduleScore, hasScore && { color: Colors.primary }]}>
                     {hasScore ? moduleScore.score : "Sin evaluar"}
                 </Text>
@@ -54,6 +56,9 @@ const styles = StyleSheet.create({
         color: Colors.primary,
         textDecorationLine: "underline",
         textDecorationStyle: "solid"
+    },
+    moduleNameDisabled: {
+        textDecorationLine: "none",
     },
     moduleScore: {
         textAlign: 'center',

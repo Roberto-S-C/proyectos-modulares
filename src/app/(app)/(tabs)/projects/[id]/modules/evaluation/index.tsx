@@ -37,6 +37,8 @@ export default function ProjectEvaluationScreen() {
 
     const userId = authContext.authState?.user.id;
     const userRole = authContext.authState?.user.role;
+    // Students see the module scores but can't open each evaluation
+    const isAlumno = userRole === Role.Alumno;
     const canAddEvaluation = userId != null && (userRole === Role.Admin || userRole === Role.Evaluador || !!projectEvaluations?.evaluatorIds.includes(userId));
 
     useFocusEffect(
@@ -103,6 +105,7 @@ export default function ProjectEvaluationScreen() {
                         renderItem={({ item }) =>
                             <ProjectModuleScoreListItem
                                 moduleScore={item}
+                                disabled={isAlumno}
                                 onPress={() => router.push({
                                     pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation/[projectModuleId]",
                                     params: { id: Number(id), projectModuleId: item.projectModuleId }
