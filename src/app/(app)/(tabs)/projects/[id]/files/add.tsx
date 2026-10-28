@@ -140,7 +140,6 @@ export default function AddProjectFilesScreen() {
             size: size
         });
         const uploadUrl = res?.data;
-        console.log(uploadUrl)
 
         const blob = await fetch(uri).then(res => res.blob());
         if (uploadUrl) {
