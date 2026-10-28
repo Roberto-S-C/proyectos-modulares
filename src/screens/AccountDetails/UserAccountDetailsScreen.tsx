@@ -35,6 +35,6 @@ const styles = StyleSheet.create({
     },
     roleButtonContainer: {
         alignSelf: 'center',
-        width: '60%'
+        width: '80%'
     }
 });

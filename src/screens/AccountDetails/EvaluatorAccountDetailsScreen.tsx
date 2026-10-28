@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
         width: '92%',
     },
     roleButtonContainer: {
-        width: '60%',
+        width: '80%',
     },
     accordionContent: {
         alignItems: 'center',

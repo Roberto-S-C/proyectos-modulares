@@ -17,9 +17,10 @@ export default function AccountListItem({ id, name, lastname, email, role, onPre
                 {role == Role.Usuario && <Ionicons name="person" size={48} color={Colors.secondary} />}
             </View>
             <View style={styles.info}>
-                <Text style={styles.name}>{name} {lastname}</Text>
-                <Text style={styles.role}>{role}</Text>
-                <Text style={styles.email}>{email}</Text>
+                {/* One line each, cut with "..." so long names and emails stay inside the card */}
+                <Text style={styles.name} numberOfLines={1}>{name} {lastname}</Text>
+                <Text style={styles.role} numberOfLines={1}>{role}</Text>
+                <Text style={styles.email} numberOfLines={1}>{email}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -45,6 +46,7 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     info: {
+        flex: 1,
         gap: 4
     },
     name: {

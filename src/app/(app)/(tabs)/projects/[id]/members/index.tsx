@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     listHeader: {
         alignSelf: 'center',
-        width: '70%',
+        width: '90%',
         marginTop: 12,
         marginBottom: 12,
         gap: 8,
