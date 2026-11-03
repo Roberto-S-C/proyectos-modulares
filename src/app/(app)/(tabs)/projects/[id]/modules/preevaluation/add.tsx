@@ -69,7 +69,7 @@ export default function AddPreevaluation() {
     }
 
     const selectProgress = (moduleId: number, progress: PreevaluationScores) => {
-        setSelections(prev => ({ ...prev, [moduleId]: { projectModuleId: moduleId, moduleStatus: "APROVADO", progress } }));
+        setSelections(prev => ({ ...prev, [moduleId]: { projectModuleId: moduleId, moduleStatus: "APROBADO", progress } }));
     }
 
     const markModuleNotPresent = (moduleId: number) => {

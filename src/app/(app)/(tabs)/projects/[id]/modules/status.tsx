@@ -20,7 +20,7 @@ import { useCallback, useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const STATUS_OPTIONS: ProjectStatus[] = ["APROVADO", "RECHAZADO", "REVISION", "CONDICIONADO", "ATRASADO", "NP", "COMPLETADO"];
+const STATUS_OPTIONS: ProjectStatus[] = ["APROBADO", "RECHAZADO", "REVISION", "CONDICIONADO", "ATRASADO", "NP", "COMPLETADO"];
 
 type ModuleAction = {
     type: "add" | "remove",
@@ -58,11 +58,11 @@ export default function ProjectStatusScreen() {
     // Only RECHAZADO projects can be deleted
     const canDeleteProject = isAdmin && project?.projectStatus === "RECHAZADO";
 
-    // ADMINs: any project except COMPLETADO and RECHAZADO. Members: REVISION, APROVADO or ATRASADO
+    // ADMINs: any project except COMPLETADO and RECHAZADO. Members: REVISION, APROBADO or ATRASADO
     // projects (the backend also checks the semester's module registration window)
     const canAddModules = !!project && (
         (isAdmin && project.projectStatus !== "COMPLETADO" && project.projectStatus !== "RECHAZADO")
-        || (isMember && ["REVISION", "APROVADO", "ATRASADO"].includes(project.projectStatus))
+        || (isMember && ["REVISION", "APROBADO", "ATRASADO"].includes(project.projectStatus))
     );
 
     // ADMINs can remove any REVISION/NP module; members only REVISION modules added this semester
@@ -163,7 +163,7 @@ export default function ProjectStatusScreen() {
         setIsLoading(true);
         try {
             await updateProjectStatus(Number(id), { status: newStatus });
-            // Refetched because APROVADO also approves every REVISION/NP module
+            // Refetched because APROBADO also approves every REVISION/NP module
             await fetchProjectModules();
             showAlert("Estatus actualizado", "success");
         }

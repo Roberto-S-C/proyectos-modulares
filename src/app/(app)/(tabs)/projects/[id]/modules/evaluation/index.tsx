@@ -15,7 +15,7 @@ import { useCallback, useContext, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Only APROVADO and COMPLETADO projects can be evaluated
+// Only APROBADO and COMPLETADO projects can be evaluated
 const NOT_EVALUABLE_STATUSES: ProjectStatus[] = ["RECHAZADO", "CONDICIONADO", "ATRASADO", "NP", "REVISION"];
 
 export default function ProjectEvaluationScreen() {

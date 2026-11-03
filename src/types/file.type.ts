@@ -40,7 +40,7 @@ export const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png'];
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10,485,760 bytes
 
-export type FileReviewStatus = 'APROVADO' | 'RECHAZADO';
+export type FileReviewStatus = 'APROBADO' | 'RECHAZADO';
 
 export type FileReview = {
     id: number,

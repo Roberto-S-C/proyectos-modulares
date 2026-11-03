@@ -1,7 +1,7 @@
 import { ProjectStatus } from "@/src/types/project.types";
 
 export const PROJECT_STATUS_VARIANT: Record<ProjectStatus, "error" | "success" | "warning" | undefined> = {
-    APROVADO: "success",
+    APROBADO: "success",
     RECHAZADO: "error",
     REVISION: undefined,
     CONDICIONADO: "warning",

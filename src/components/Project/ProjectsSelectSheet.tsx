@@ -19,7 +19,7 @@ interface Props {
     onClose: () => void,
 }
 
-const STATUS_OPTIONS: ProjectStatus[] = ["REVISION", "APROVADO", "RECHAZADO", "CONDICIONADO", "NP", "COMPLETADO", "ATRASADO"];
+const STATUS_OPTIONS: ProjectStatus[] = ["REVISION", "APROBADO", "RECHAZADO", "CONDICIONADO", "NP", "COMPLETADO", "ATRASADO"];
 
 /**
  * Bottom sheet listing every project, filterable by name, semester and status, to select

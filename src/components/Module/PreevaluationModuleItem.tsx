@@ -27,7 +27,7 @@ interface Props {
 export default function PreevaluationModuleItem({ moduleName, status, progress, onSelectProgress, onExpand, onMarkNotPresent }: Props) {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const isApproved = status === "APROVADO";
+    const isApproved = status === "APROBADO";
     const isNotPresent = status === "NP";
 
     const toggleExpand = () => {

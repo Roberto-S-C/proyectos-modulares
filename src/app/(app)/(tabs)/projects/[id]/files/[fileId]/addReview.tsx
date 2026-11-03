@@ -21,7 +21,7 @@ interface FormInputs {
 export default function CreateFileReviewScreen() {
     const [fileDetails, setFileDetails] = useState<ProjectFile>();
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [status, setStatus] = useState<FileReviewStatus>("APROVADO");
+    const [status, setStatus] = useState<FileReviewStatus>("APROBADO");
     const [isAlertVisible, setIsAlertVisible] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({
         message: '',
@@ -111,7 +111,7 @@ export default function CreateFileReviewScreen() {
                         onChange={setStatus}
                         title="Estatus"
                         options={[
-                            { label: "APROVADO", value: "APROVADO" },
+                            { label: "APROBADO", value: "APROBADO" },
                             { label: "RECHAZADO", value: "RECHAZADO" },
                         ]}
                         style={styles.fileStatusPicker}

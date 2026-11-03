@@ -13,7 +13,7 @@ export default function FileStatusComponent({ fileStatus }: Props) {
                 styles.fileStatus,
                 (fileStatus === 'FALTANTE' || fileStatus === 'CARGANDO') && { color: Colors.missing },
                 fileStatus === 'REVISION' && { color: Colors.secondary},
-                fileStatus === 'APROVADO' && { color: Colors.success},
+                fileStatus === 'APROBADO' && { color: Colors.success},
                 (fileStatus === 'RECHAZADO' || fileStatus === 'FALLIDO') && { color: Colors.error }
             ]}>
                 {fileStatus}

@@ -14,7 +14,7 @@ export default function FileReviewListItem({ review }: Props) {
             <View style={styles.reviewStatusContainer}>
                 <Text style={
                     [
-                        review.status === "APROVADO" && {color: Colors.success},
+                        review.status === "APROBADO" && {color: Colors.success},
                         review.status === "RECHAZADO" && {color: Colors.error},
                         styles.reviewStatus
                     ]

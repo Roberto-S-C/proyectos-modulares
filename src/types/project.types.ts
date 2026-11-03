@@ -53,7 +53,7 @@ export type ProjectFileStatus =
     "CARGANDO" |
     "FALLIDO" |
     "REVISION" |
-    "APROVADO" |
+    "APROBADO" |
     "RECHAZADO";
 
 export type ProjectFile = {
@@ -71,7 +71,7 @@ export type ProjectFiles = {
 }
 
 export type ProjectStatus =
-    "APROVADO" |
+    "APROBADO" |
     "RECHAZADO" |
     "REVISION" |
     "CONDICIONADO" |
