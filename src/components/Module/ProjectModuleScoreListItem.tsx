@@ -7,9 +7,10 @@ interface Props {
     moduleScore: ProjectModuleScore,
     onPress: () => void,
     disabled?: boolean,
+    hideScore?: boolean,
 }
 
-export default function ProjectModuleScoreListItem({ moduleScore, onPress, disabled = false }: Props) {
+export default function ProjectModuleScoreListItem({ moduleScore, onPress, disabled = false, hideScore = false }: Props) {
     const hasScore = moduleScore.score !== null;
 
     return (
@@ -18,9 +19,11 @@ export default function ProjectModuleScoreListItem({ moduleScore, onPress, disab
             <View style={styles.moduleDetailsContainer}>
                 {/* No link underline when it can't be opened */}
                 <Text style={[styles.moduleName, disabled && styles.moduleNameDisabled]} numberOfLines={2}>{moduleScore.moduleName}</Text>
-                <Text style={[styles.moduleScore, hasScore && { color: Colors.primary }]}>
-                    {hasScore ? moduleScore.score : "Sin evaluar"}
-                </Text>
+                {!hideScore &&
+                    <Text style={[styles.moduleScore, hasScore && { color: Colors.primary }]}>
+                        {hasScore ? moduleScore.score : "Sin evaluar"}
+                    </Text>
+                }
             </View>
         </TouchableOpacity>
     );

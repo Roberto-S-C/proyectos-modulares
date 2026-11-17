@@ -37,7 +37,7 @@ export default function ProjectEvaluationScreen() {
 
     const userId = authContext.authState?.user.id;
     const userRole = authContext.authState?.user.role;
-    // Students see the module scores but can't open each evaluation
+    // Students see the project's modules, but not its scores, and can't open each evaluation
     const isAlumno = userRole === Role.Alumno;
     const canAddEvaluation = userId != null && (userRole === Role.Admin || userRole === Role.Evaluador || !!projectEvaluations?.evaluatorIds.includes(userId));
 
@@ -95,9 +95,11 @@ export default function ProjectEvaluationScreen() {
             {!isLoading && projectEvaluations && projectEvaluations.moduleScores.length > 0 &&
                 <View style={styles.container}>
                     <Title text={projectEvaluations.projectName} />
-                    <View style={styles.scoreContainer}>
-                        <RoundedText text={projectEvaluations.score !== null ? `Puntuación: ${projectEvaluations.score}` : null} fontSize={20} />
-                    </View>
+                    {!isAlumno &&
+                        <View style={styles.scoreContainer}>
+                            <RoundedText text={projectEvaluations.score !== null ? `Puntuación: ${projectEvaluations.score}` : null} fontSize={20} />
+                        </View>
+                    }
 
                     <FlatList
                         style={styles.list}
@@ -106,6 +108,7 @@ export default function ProjectEvaluationScreen() {
                             <ProjectModuleScoreListItem
                                 moduleScore={item}
                                 disabled={isAlumno}
+                                hideScore={isAlumno}
                                 onPress={() => router.push({
                                     pathname: "/(app)/(tabs)/projects/[id]/modules/evaluation/[projectModuleId]",
                                     params: { id: Number(id), projectModuleId: item.projectModuleId }
