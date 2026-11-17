@@ -1,21 +1,14 @@
+// The semester we're in, followed by the next one. The current one stays first until its
+// half-year ends, so its dashboard and report are available through its evaluations:
+//   Jan-Jun -> this year's A, this year's B
+//   Jul-Dec -> this year's B, next year's A
 export default function getPresentationSemesters(date = new Date()) {
     const year = date.getFullYear();
-    const month = date.getMonth() + 1; // 1–12
+    const isFirstHalf = date.getMonth() < 6; // Jan-Jun
 
-    let options;
-
-    if (month >= 1 && month <= 4) {
-        // Jan–Apr
-        options = [`${year}A`, `${year}B`];
-    } else if (month >= 5 && month <= 10) {
-        // May–Oct
-        options = [`${year}B`, `${year + 1}A`];
-    } else {
-        // Nov–Dec
-        options = [`${year + 1}A`, `${year + 1}B`];
-    }
-
-    return options;
+    return isFirstHalf
+        ? [`${year}A`, `${year}B`]
+        : [`${year}B`, `${year + 1}A`];
 }
 
 // The semester a project created today gets registered into. Registration for a semester opens
